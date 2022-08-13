@@ -1,0 +1,50 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+@font-face {
+  font-family: 'Evergreen';
+  src: url(./fonts/Evergreen.otf);
+}
+
+@font-face {
+  font-family: 'Flama';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Flama'), url('./fonts/Flama Regular.woff') format('woff');
+  }
+  
+
+  @font-face {
+  font-family: 'Flama Italic';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Flama Italic'), url('./fonts/Flama Italic.woff') format('woff');
+  }
+  
+
+  @font-face {
+  font-family: 'Flama Bold Italic';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Flama Bold Italic'), url('./fonts/Flama Bold Italic.woff') format('woff');
+  }
+
+$body-bg: #fafbfe;
+$red:     #C02826;
+$font-family-base: 'Flama';
+@import '~bootstrap/scss/bootstrap.scss';
+
+ .card-header {
+  font-family: 'Evergreen' !important;
+}
