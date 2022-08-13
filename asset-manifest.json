@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/dingg-dashboard/static/css/main.258306a2.css",
+    "main.js": "/dingg-dashboard/static/js/main.4310d1cf.js",
+    "static/js/787.01d01b5d.chunk.js": "/dingg-dashboard/static/js/787.01d01b5d.chunk.js",
+    "index.html": "/dingg-dashboard/index.html",
+    "main.258306a2.css.map": "/dingg-dashboard/static/css/main.258306a2.css.map",
+    "main.4310d1cf.js.map": "/dingg-dashboard/static/js/main.4310d1cf.js.map",
+    "787.01d01b5d.chunk.js.map": "/dingg-dashboard/static/js/787.01d01b5d.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.258306a2.css",
+    "static/js/main.4310d1cf.js"
+  ]
+}
