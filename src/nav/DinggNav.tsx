@@ -8,8 +8,8 @@ function DinggNav() {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link href="#home">TBD</Nav.Link>
-            <Nav.Link href="#link">TBD</Nav.Link>
+            <Nav.Link href="#home">Coming Soon...</Nav.Link>
+            {/* <Nav.Link href="#link">TBD</Nav.Link> */}
           </Nav>
         </Navbar.Collapse>
       </Container>

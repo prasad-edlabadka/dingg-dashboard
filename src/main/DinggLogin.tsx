@@ -21,7 +21,7 @@ function DinggLogin({ setToken }:{setToken: any}) {
             .then(recipes => {
                 //alert(JSON.stringify(recipes));
                 setToken(recipes.token);
-                alert(recipes.message);
+                //alert(recipes.message);
             });
     };
     return (
