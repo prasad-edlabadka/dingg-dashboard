@@ -17,9 +17,6 @@ function Main() {
     }
     return (
     <Container>
-         <Row>
-                <Col style={{ height: 40 }}></Col>
-            </Row>
        <Tiles token={token} setToken={setToken}/>
     </Container>)
     

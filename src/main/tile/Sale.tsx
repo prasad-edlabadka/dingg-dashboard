@@ -103,7 +103,7 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
     }
     return (
         <Card className="shadow" bg={displayVariation > 0?"success":"danger"} text="light">
-            <Card.Header>Sale Summary</Card.Header>
+            {/* <Card.Header>Sale Summary</Card.Header> */}
             {
                 displaySale === -1? <Card.Body><Spinner animation="grow" /></Card.Body>:
                 <Card.Body>
