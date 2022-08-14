@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/dingg-dashboard/static/css/main.b47a7c72.css",
-    "main.js": "/dingg-dashboard/static/js/main.bde682a9.js",
+    "main.js": "/dingg-dashboard/static/js/main.84d12eb8.js",
     "static/js/787.01d01b5d.chunk.js": "/dingg-dashboard/static/js/787.01d01b5d.chunk.js",
     "static/media/Evergreen.otf": "/dingg-dashboard/static/media/Evergreen.9ef5bb67aa47b6292aee.otf",
     "static/media/Flama Bold Italic.woff": "/dingg-dashboard/static/media/Flama Bold Italic.e36ed2a2896fa8c57799.woff",
@@ -10,11 +10,11 @@
     "static/media/logo.png": "/dingg-dashboard/static/media/logo.c073a086c540be50c93b.png",
     "index.html": "/dingg-dashboard/index.html",
     "main.b47a7c72.css.map": "/dingg-dashboard/static/css/main.b47a7c72.css.map",
-    "main.bde682a9.js.map": "/dingg-dashboard/static/js/main.bde682a9.js.map",
+    "main.84d12eb8.js.map": "/dingg-dashboard/static/js/main.84d12eb8.js.map",
     "787.01d01b5d.chunk.js.map": "/dingg-dashboard/static/js/787.01d01b5d.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.b47a7c72.css",
-    "static/js/main.bde682a9.js"
+    "static/js/main.84d12eb8.js"
   ]
 }
