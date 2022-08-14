@@ -10,8 +10,11 @@ export default function Prediction({ token, setToken }: { token: string, setToke
     const [prediction, setPrediction] = useState([0.0, 0.0, 0.0, 0.0])
     const customerCountRef = useRef<HTMLInputElement>(null);
     
-
     useEffect(() => {
+        if(network) {
+            console.log("Model already trained. Skipping.");
+            return; 
+        }
         setModelReady(false);
         const net = new NeuralNetwork({
             activation: 'sigmoid', // activation function

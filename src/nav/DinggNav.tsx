@@ -1,4 +1,5 @@
 import { Container, Nav, Navbar } from "react-bootstrap";
+import logo from './logo.png';
 
 function DinggNav() {
   return (
@@ -6,7 +7,7 @@ function DinggNav() {
       <Container>
         <Navbar.Brand href="#home"><img
               alt=""
-              src="./dingg-dashboard/logo.png"
+              src={logo}
               width="32"
               height="32"
               className="d-inline-block align-top"
