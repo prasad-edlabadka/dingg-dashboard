@@ -33,7 +33,7 @@ export default function Staff({ token, setToken }: { token: string, setToken: an
             {
                 total === -1 ? <Card.Body><Spinner animation="grow" /></Card.Body> :
                     <Card.Body>
-                            <h3>Staff Sale</h3>
+                            <h3>Staff Sale This Month</h3>
                             {
                                 reportData.data.map(val => {
                                     return(<Row>

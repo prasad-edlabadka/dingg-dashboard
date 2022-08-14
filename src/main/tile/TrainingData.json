@@ -5804,33 +5804,6 @@
             "total redemption": 0,
             "access amount": 0,
             "total net": 7372.5
-        },
-        {
-            "date": "2022-08-14",
-            "customers": 6,
-            "services": 0,
-            "products": 0,
-            "memberships": 0,
-            "packages": 0,
-            "prepaids": 0,
-            "vouchers": 0,
-            "redemption": 0,
-            "cash": 0,
-            "card": 0,
-            "online": 0,
-            "total": 0,
-            "opening cash": 359.5,
-            "GST": 0,
-            "exp cash": 0,
-            "exp online": 0,
-            "petty cash": 359.5,
-            "amount due": 0,
-            "due received": 0,
-            "total collection": 0,
-            "total sale": 0,
-            "total redemption": 0,
-            "access amount": 0,
-            "total net": 0
         }
     ],
     "meta_data": null
