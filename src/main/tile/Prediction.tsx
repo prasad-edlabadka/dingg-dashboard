@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Card, Col, Form, Row, Spinner } from "react-bootstrap";
 import { NeuralNetwork } from 'brain.js';
-import trainingData from './TrainingData.json'
+// import trainingData from './TrainingData.json'
 import { INeuralNetworkData } from "brain.js/dist/src/neural-network";
+import callAPI from "./Utility";
 
 export default function Prediction({ token, setToken }: { token: string, setToken: any }) {
     const [modelReady, setModelReady] = useState(false);
@@ -22,22 +23,29 @@ export default function Prediction({ token, setToken }: { token: string, setToke
             iterations: 40000,
             learningRate: 0.8
         });
-        const data = trainingData.data.map((v) => {
-            const val = Math.round(v.total);
-            return {
-                input: [(new Date(v.date)).getDay(), v.customers],
-                output: [val < 1000 ? 1 : 0, val >= 1000 && val < 5000 ? 1 : 0, val >= 5000 && val < 10000 ? 1 : 0, val >= 10000 ? 1 : 0]
-            }
+        const date = new Date();
+        const startDate = "2022-01-10";
+        const endDate = formatDate(addDays(date, -1));
+        const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${startDate}&end_date=${endDate}&report_type=by_revenue&app_type=web`;
+        callAPI(apiURL, token, setToken, (trainingData: any) => {
+            const data = trainingData.data.map((v: any) => {
+                const val = Math.round(v.total);
+                return {
+                    input: [(new Date(v.date)).getDay(), v.customers],
+                    output: [val < 1000 ? 1 : 0, val >= 1000 && val < 5000 ? 1 : 0, val >= 5000 && val < 10000 ? 1 : 0, val >= 10000 ? 1 : 0]
+                }
+            });
+            const SPLIT = 200;
+            const trainData = data.slice(0, SPLIT);
+            //const testData = data.slice(SPLIT + 1);
+            console.log('training...');
+            net.train(trainData);
+            console.log('trained.');
+            setNetwork(net);
+            setModelReady(true);
+    
         });
-        const SPLIT = 200;
-        const trainData = data.slice(0, SPLIT);
-        //const testData = data.slice(SPLIT + 1);
-        console.log('training...');
-        net.train(trainData);
-        console.log('trained.');
-        setNetwork(net);
-        setModelReady(true);
-
+        
     }, []);
 
     const handleClick = () => {
@@ -77,6 +85,19 @@ export default function Prediction({ token, setToken }: { token: string, setToke
 
         </Card>
     )
+}
+function formatDate(dt: Date): string {
+    return [dt.getFullYear(), padTo2Digits(dt.getMonth() + 1), padTo2Digits(dt.getDate())].join('-');
+}
+
+function padTo2Digits(num: number) {
+    return num.toString().padStart(2, '0');
+}
+
+function addDays(dt: Date, days: number): Date {
+    let retDate = new Date(dt);
+    const result = retDate.setDate(retDate.getDate() + days);
+    return new Date(result);
 }
 
 
