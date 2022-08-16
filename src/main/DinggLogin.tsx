@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { Button, Card, Col, Form, Row } from "react-bootstrap";
 import PropTypes from 'prop-types';
+import { setCookie } from "./tile/Utility";
 
 function DinggLogin({ setToken }:{setToken: any}) {
     const apiURL = "https://api.dingg.app/api/v1/vendor/login";
@@ -21,6 +22,8 @@ function DinggLogin({ setToken }:{setToken: any}) {
             .then(recipes => {
                 //alert(JSON.stringify(recipes));
                 setToken(recipes.token);
+                localStorage.clear();
+                localStorage.setItem("token", recipes.token);
                 //alert(recipes.message);
             });
     };

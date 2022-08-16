@@ -4,7 +4,8 @@ import DinggLogin from "./DinggLogin";
 import Tiles from "./Tiles";
 
 function Main() {
-    const [token, setToken] = useState();
+    const [token, setToken] = useState(localStorage.getItem("token"));
+    console.log("@@" + token);
     if(!token) {
         return (
             <Container>

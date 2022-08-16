@@ -71,16 +71,22 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
         return total;
     }
     const calculateWeek = () => {
-        let startDate = getFirstDayOfWeek(new Date());
-        let endDate = addDays(startDate, 6).getTime();
-        let startDateTime = startDate.getTime();
-        const currentTotal = getTotalForDuration(startDateTime, endDate);
+        const currentDate = new Date();
+        currentDate.setHours(23,59,59);
+        let startDate = getFirstDayOfWeek(currentDate);
+        startDate.setHours(23,59,59);
+        let endDate = addDays(startDate, 6);
+        startDate.setHours(0,0,0);
+        const currentTotal = getTotalForDuration(startDate.getTime(), endDate.getTime());
         setDisplaySale(currentTotal);
 
-        startDate = addDays(getFirstDayOfWeek(new Date()),-8);
-        endDate = addDays(startDate, 6).getTime();
-        startDateTime = startDate.getTime();
-        const previousTotal = getTotalForDuration(startDateTime, endDate);
+        currentDate.setHours(0,0,0);
+        startDate = addDays(getFirstDayOfWeek(currentDate),-7);
+        startDate.setHours(23,59,59);
+        endDate = addDays(startDate, 6);
+        startDate.setHours(0,0,0);
+        
+        const previousTotal = getTotalForDuration(startDate.getTime(), endDate.getTime());
         setDisplayPreviousSale(previousTotal);
 
         setDisplayVariation(((currentTotal - previousTotal) / previousTotal) * 100);
@@ -88,15 +94,19 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
 
     const calculateMonth = () => {
         let endDate = new Date();
+        endDate.setHours(23,59,59);
         let startDate = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
-        let startDateTime = startDate.getTime();
-        const currentTotal = getTotalForDuration(startDateTime, endDate.getTime());
+        startDate.setHours(0,0,0);
+        console.log(startDate, endDate);
+        const currentTotal = getTotalForDuration(startDate.getTime(), endDate.getTime());
         setDisplaySale(currentTotal);
 
-        startDate = new Date(endDate.getFullYear(), endDate.getMonth() - 1, 1)
+        startDate = new Date(endDate.getFullYear(), endDate.getMonth() - 1, 1);
+        startDate.setHours(0,0,0);
         endDate = new Date(endDate.getFullYear(), endDate.getMonth() - 1, endDate.getDate());
-        startDateTime = startDate.getTime();
-        const previousTotal = getTotalForDuration(startDateTime, endDate.getTime());
+        endDate.setHours(23,59,59);
+        console.log(startDate, endDate);
+        const previousTotal = getTotalForDuration(startDate.getTime(), endDate.getTime());
         setDisplayPreviousSale(previousTotal);
         
         setDisplayVariation(((currentTotal - previousTotal) / previousTotal) * 100);
