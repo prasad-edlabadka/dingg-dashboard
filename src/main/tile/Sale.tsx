@@ -132,7 +132,7 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
                                 <Button variant={activeButtonIndex === 2 ? "dark" : "light"} onClick={() => setDuration('month')}>Month</Button>
                             </ButtonGroup>
                             <div className="position-absolute top-0 end-0" style={{ marginTop: -10 }}>
-                                <Button variant="danger" size="lg" onClick={() => refresh()}><Icon.ArrowClockwise /></Button>
+                                <Button variant={displayVariation > 0 ? "success" : "danger"} size="lg" onClick={() => refresh()}><Icon.ArrowClockwise /></Button>
                             </div>
                         </div>
                         <div className="mt-4">
