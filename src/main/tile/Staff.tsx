@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
-import { Card, Col, ProgressBar, Row, Spinner } from "react-bootstrap";
+import { Button, Card, Col, ProgressBar, Row, Spinner } from "react-bootstrap";
 import callAPI from "./Utility";
+import * as Icon from 'react-bootstrap-icons';
 
 export default function Staff({ token, setToken }: { token: string, setToken: any }) {
     const [reportData, setReportData] = useState({ data: [{ total: 0, stylist: "" }] });
     const [total, setTotal] = useState(-1);
 
     useEffect(() => {
+        loadData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const loadData = () => {
         const date = new Date();
         const lastMonthDate = new Date(date.getFullYear(), date.getMonth(), 1);
         const startDate = formatDate(lastMonthDate);
@@ -16,8 +22,12 @@ export default function Staff({ token, setToken }: { token: string, setToken: an
             setReportData(data);
             calculateToday(data);
         });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }
+
+    const refresh = () => {
+        setTotal(-1);
+        loadData();
+    }
 
     const calculateToday = (data = reportData) => {
         const len = data.data.length;
@@ -33,7 +43,12 @@ export default function Staff({ token, setToken }: { token: string, setToken: an
             {
                 total === -1 ? <Card.Body><Spinner animation="grow" /></Card.Body> :
                     <Card.Body>
+                        <div className="position-relative">
                             <h3>Staff Sale This Month</h3>
+                            <div className="position-absolute top-0 end-0" style={{ marginTop: -10 }}>
+                                <Button variant="indigo" className="text-light" size="lg" onClick={() => refresh()}><Icon.ArrowClockwise /></Button>
+                            </div>
+                            </div>
                             {
                                 reportData.data.map(val => {
                                     return(<Row>

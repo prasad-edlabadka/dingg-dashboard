@@ -9,9 +9,14 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
     const [displayVariation, setDisplayVariation] = useState(-1);
     const [displayDuration, setDisplayDuration] = useState('day');
     const [activeButtonIndex, setActiveButtonIndex] = useState(0);
-    const [reportData, setReportData] = useState({data:[{total:0, date: ""}]});
+    const [reportData, setReportData] = useState({ data: [{ total: 0, date: "" }] });
 
     useEffect(() => {
+        loadData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const loadData = () => {
         const date = new Date();
         const lastMonthDate = new Date(date.getFullYear(), date.getMonth() - 1, 1);
         const startDate = formatDate(lastMonthDate);
@@ -20,12 +25,15 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
         callAPI(apiURL, token, setToken, (data: any) => {
             setReportData(data);
             calculateToday(data);
+            setActiveButtonIndex(0);
         });
         console.log("Useffect called...");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    },[]);
+    }
 
-    
+    const refresh = () => {
+        setDisplaySale(-1);
+        loadData();
+    }
 
     const setDuration = (duration: string) => {
         setDisplayDuration(duration);
@@ -52,8 +60,8 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
 
     const calculateToday = (data = reportData) => {
         const len = data.data.length;
-        const today =data.data[len - 1].total;
-        const yesterday = data.data[len - 2].total 
+        const today = data.data[len - 1].total;
+        const yesterday = data.data[len - 2].total
         setDisplaySale(today);
         setDisplayPreviousSale(yesterday);
         setDisplayVariation(((today - yesterday) / yesterday) * 100);
@@ -67,25 +75,25 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
         let total = 0;
         for (let i = 0; i < weekData.length; i++) {
             total += weekData[i].total;
-        }   
+        }
         return total;
     }
     const calculateWeek = () => {
         const currentDate = new Date();
-        currentDate.setHours(23,59,59);
+        currentDate.setHours(23, 59, 59);
         let startDate = getFirstDayOfWeek(currentDate);
-        startDate.setHours(23,59,59);
+        startDate.setHours(23, 59, 59);
         let endDate = addDays(startDate, 6);
-        startDate.setHours(0,0,0);
+        startDate.setHours(0, 0, 0);
         const currentTotal = getTotalForDuration(startDate.getTime(), endDate.getTime());
         setDisplaySale(currentTotal);
 
-        currentDate.setHours(0,0,0);
-        startDate = addDays(getFirstDayOfWeek(currentDate),-7);
-        startDate.setHours(23,59,59);
+        currentDate.setHours(0, 0, 0);
+        startDate = addDays(getFirstDayOfWeek(currentDate), -7);
+        startDate.setHours(23, 59, 59);
         endDate = addDays(startDate, 6);
-        startDate.setHours(0,0,0);
-        
+        startDate.setHours(0, 0, 0);
+
         const previousTotal = getTotalForDuration(startDate.getTime(), endDate.getTime());
         setDisplayPreviousSale(previousTotal);
 
@@ -94,45 +102,50 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
 
     const calculateMonth = () => {
         let endDate = new Date();
-        endDate.setHours(23,59,59);
+        endDate.setHours(23, 59, 59);
         let startDate = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
-        startDate.setHours(0,0,0);
+        startDate.setHours(0, 0, 0);
         console.log(startDate, endDate);
         const currentTotal = getTotalForDuration(startDate.getTime(), endDate.getTime());
         setDisplaySale(currentTotal);
 
         startDate = new Date(endDate.getFullYear(), endDate.getMonth() - 1, 1);
-        startDate.setHours(0,0,0);
+        startDate.setHours(0, 0, 0);
         endDate = new Date(endDate.getFullYear(), endDate.getMonth() - 1, endDate.getDate());
-        endDate.setHours(23,59,59);
+        endDate.setHours(23, 59, 59);
         console.log(startDate, endDate);
         const previousTotal = getTotalForDuration(startDate.getTime(), endDate.getTime());
         setDisplayPreviousSale(previousTotal);
-        
+
         setDisplayVariation(((currentTotal - previousTotal) / previousTotal) * 100);
     }
     return (
-        <Card className="shadow" bg={displayVariation > 0?"success":"danger"} text="light">
+        <Card className="shadow" bg={displayVariation > 0 ? "success" : "danger"} text="light">
             {/* <Card.Header>Sale Summary</Card.Header> */}
             {
-                displaySale === -1? <Card.Body><Spinner animation="grow" /></Card.Body>:
-                <Card.Body>
-                <ButtonGroup size="sm">
-                    <Button variant={activeButtonIndex === 0 ? "dark" : "light"} onClick={() => setDuration('day')}>Today</Button>
-                    <Button variant={activeButtonIndex === 1 ? "dark" : "light"} onClick={() => setDuration('week')}>Week</Button>
-                    <Button variant={activeButtonIndex === 2 ? "dark" : "light"} onClick={() => setDuration('month')}>Month</Button>
-                </ButtonGroup>
-                <div className="mt-4">
-                    <h6>Sale for {displayDuration}</h6>
-                    <h1 className="display-3"><strong>{Intl.NumberFormat('en-in', {style:"currency", currency:"INR"}).format(displaySale)}</strong></h1>
-                    {displayVariation > 0 ?
-                        <Icon.CaretUpFill className="me-1" /> : <Icon.CaretDownFill className="me-1" />
-                    }
-                    <span>{Math.abs(Math.round(displayVariation))}% {displayVariation > 0 ? 'more' : 'less'} than previous {displayDuration} ({Intl.NumberFormat('en-in', {style:"currency", currency:"INR"}).format(displayPreviousSale)})</span>
-                </div>
-            </Card.Body>
+                displaySale === -1 ? <Card.Body><Spinner animation="grow" /></Card.Body> :
+                    <Card.Body>
+                        <div className="position-relative">
+                            <ButtonGroup size="sm">
+                                <Button variant={activeButtonIndex === 0 ? "dark" : "light"} onClick={() => setDuration('day')}>Today</Button>
+                                <Button variant={activeButtonIndex === 1 ? "dark" : "light"} onClick={() => setDuration('week')}>Week</Button>
+                                <Button variant={activeButtonIndex === 2 ? "dark" : "light"} onClick={() => setDuration('month')}>Month</Button>
+                            </ButtonGroup>
+                            <div className="position-absolute top-0 end-0" style={{ marginTop: -10 }}>
+                                <Button variant="danger" size="lg" onClick={() => refresh()}><Icon.ArrowClockwise /></Button>
+                            </div>
+                        </div>
+                        <div className="mt-4">
+                            <h6>Sale for {displayDuration}</h6>
+                            <h1 className="display-3"><strong>{Intl.NumberFormat('en-in', { style: "currency", currency: "INR" }).format(displaySale)}</strong></h1>
+                            {displayVariation > 0 ?
+                                <Icon.CaretUpFill className="me-1" /> : <Icon.CaretDownFill className="me-1" />
+                            }
+                            <span>{Math.abs(Math.round(displayVariation))}% {displayVariation > 0 ? 'more' : 'less'} than previous {displayDuration} ({Intl.NumberFormat('en-in', { style: "currency", currency: "INR" }).format(displayPreviousSale)})</span>
+                        </div>
+                    </Card.Body>
             }
-            
+
         </Card>
     )
 }
