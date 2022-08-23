@@ -1,11 +1,22 @@
 import { useEffect, useState } from "react";
-import { Button, Card, Col, ProgressBar, Row, Spinner } from "react-bootstrap";
+import { Button, Card, Col, OverlayTrigger, ProgressBar, Row, Spinner, Tooltip } from "react-bootstrap";
 import callAPI from "./Utility";
 import * as Icon from 'react-bootstrap-icons';
 
 export default function Staff({ token, setToken }: { token: string, setToken: any }) {
     const [reportData, setReportData] = useState({ data: [{ total: 0, stylist: "" }] });
     const [total, setTotal] = useState(-1);
+    const currFormatter = Intl.NumberFormat('en-in', {style:"currency", currency:"INR"});
+
+    const staffTargets = {
+        "Bhushan": 72000,
+        "Chanda": 80000,
+        "Deepa": 42000,
+        "Jassi": 100000,
+        "Manager": 52000,
+        "Rihan": 88000,
+        "Rutja": 40000
+    }
 
     useEffect(() => {
         loadData();
@@ -44,17 +55,26 @@ export default function Staff({ token, setToken }: { token: string, setToken: an
                 total === -1 ? <Card.Body><Spinner animation="grow" /></Card.Body> :
                     <Card.Body>
                         <div className="position-relative">
-                            <h3>Staff Sale This Month</h3>
+                            <h3>Staff Sales Target This Month</h3>
                             <div className="position-absolute top-0 end-0" style={{ marginTop: -10 }}>
                                 <Button variant="indigo" className="text-light" size="lg" onClick={() => refresh()}><Icon.ArrowClockwise /></Button>
                             </div>
                             </div>
                             {
                                 reportData.data.map(val => {
-                                    return(<Row>
-                                        <Col sm={4}>{val.stylist}</Col>
-                                        <Col sm={4} className="mt-2"> <ProgressBar now={Math.round(val.total * 100 / total)} style={{height: 6}} variant="danger"/></Col>
-                                        <Col sm={4}>{Intl.NumberFormat('en-in', {style:"currency", currency:"INR"}).format(val.total)}</Col>
+                                    const target = (staffTargets[val.stylist.trim() as keyof typeof staffTargets] || 100000)
+                                    const targetPercentage = Math.round(val.total * 100 / target);
+                                    return(
+                                    <Row>
+                                        <Col lg={4} xs={6}>{val.stylist}</Col>
+                                        <Col xs={6} className="d-lg-none text-end align-bottom">{currFormatter.format(val.total)} of {currFormatter.format(target)}</Col>
+                                        <Col lg={4} className="mt-2">
+                                        <OverlayTrigger overlay={
+                                        <Tooltip id="tooltip-disabled">{targetPercentage}% Achieved</Tooltip>}>
+                                            <ProgressBar now={Math.round(val.total * 100 / (staffTargets[val.stylist.trim() as keyof typeof staffTargets] || 100000))} style={{height: 6, marginBottom: 12}} variant="danger"/>
+                                            </OverlayTrigger>
+                                        </Col>
+                                        <Col lg={4} className="d-none d-lg-block">{Intl.NumberFormat('en-in', {style:"currency", currency:"INR"}).format(val.total)}</Col>
                                     </Row>)
                                 })
                             }
