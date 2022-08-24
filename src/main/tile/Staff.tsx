@@ -6,7 +6,7 @@ import * as Icon from 'react-bootstrap-icons';
 export default function Staff({ token, setToken }: { token: string, setToken: any }) {
     const [reportData, setReportData] = useState({ data: [{ total: 0, stylist: "" }] });
     const [total, setTotal] = useState(-1);
-    const currFormatter = Intl.NumberFormat('en-in', {style:"currency", currency:"INR"});
+    const currFormatter = Intl.NumberFormat('en-in', {style:"currency", currency:"INR", maximumFractionDigits: 0});
 
     const staffTargets = {
         "Bhushan": 72000,
@@ -66,8 +66,8 @@ export default function Staff({ token, setToken }: { token: string, setToken: an
                                     const targetPercentage = Math.round(val.total * 100 / target);
                                     return(
                                     <Row>
-                                        <Col lg={4} xs={6}>{val.stylist}</Col>
-                                        <Col xs={6} className="d-lg-none text-end align-bottom">{currFormatter.format(val.total)} of {currFormatter.format(target)}</Col>
+                                        <Col lg={4} xs={5}>{val.stylist}</Col>
+                                        <Col xs={7} className="d-lg-none text-end align-bottom">{currFormatter.format(val.total)} of {currFormatter.format(target)}</Col>
                                         <Col lg={4} className="mt-2">
                                         <OverlayTrigger overlay={
                                         <Tooltip id="tooltip-disabled">{targetPercentage}% Achieved</Tooltip>}>
