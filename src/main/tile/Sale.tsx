@@ -11,6 +11,8 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
     const [activeButtonIndex, setActiveButtonIndex] = useState(0);
     const [reportData, setReportData] = useState({ data: [{ total: 0, date: "" }] });
 
+    const formatter = Intl.NumberFormat('en-in', { style: "currency", currency: "INR", maximumFractionDigits: 0 });
+
     useEffect(() => {
         loadData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -137,11 +139,11 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
                         </div>
                         <div className="mt-4">
                             <h6>Sale for {displayDuration}</h6>
-                            <h1 className="display-3"><strong>{Intl.NumberFormat('en-in', { style: "currency", currency: "INR" }).format(displaySale)}</strong></h1>
+                            <h1 className="display-3"><strong>{formatter.format(displaySale)}</strong></h1>
                             {displayVariation > 0 ?
                                 <Icon.CaretUpFill className="me-1" /> : <Icon.CaretDownFill className="me-1" />
                             }
-                            <span>{Math.abs(Math.round(displayVariation))}% {displayVariation > 0 ? 'more' : 'less'} than previous {displayDuration} ({Intl.NumberFormat('en-in', { style: "currency", currency: "INR" }).format(displayPreviousSale)})</span>
+                            <span>{Math.abs(Math.round(displayVariation))}% {displayVariation > 0 ? 'more' : 'less'} than previous {displayDuration} ({formatter.format(displayPreviousSale)})</span>
                         </div>
                     </Card.Body>
             }
