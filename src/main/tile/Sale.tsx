@@ -8,6 +8,7 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
     const [displayPreviousSale, setDisplayPreviousSale] = useState(-1);
     const [displayVariation, setDisplayVariation] = useState(-1);
     const [displayDuration, setDisplayDuration] = useState('day');
+    const [displaySubDuration, setDisplaySubDuration] = useState(new Date().toLocaleDateString());
     const [activeButtonIndex, setActiveButtonIndex] = useState(0);
     const [reportData, setReportData] = useState({ data: [{ total: 0, date: "" }] });
 
@@ -20,7 +21,7 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
 
     const loadData = () => {
         const date = new Date();
-        const lastMonthDate = new Date(date.getFullYear(), date.getMonth() - 1, 1);
+        const lastMonthDate = new Date(date.getFullYear(), date.getDate() > 9?date.getMonth()-1:date.getMonth() - 2, 10);
         const startDate = formatDate(lastMonthDate);
         const endDate = formatDate(date);
         const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${startDate}&end_date=${endDate}&report_type=by_revenue&app_type=web`;
@@ -67,6 +68,7 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
         setDisplaySale(today);
         setDisplayPreviousSale(yesterday);
         setDisplayVariation(((today - yesterday) / yesterday) * 100);
+        setDisplaySubDuration(formatDisplayDate(new Date()));
     }
 
     const getTotalForDuration = (start: number, end: number) => {
@@ -85,10 +87,11 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
         currentDate.setHours(23, 59, 59);
         let startDate = getFirstDayOfWeek(currentDate);
         startDate.setHours(23, 59, 59);
-        let endDate = addDays(startDate, 6);
+        let endDate = currentDate;
         startDate.setHours(0, 0, 0);
         const currentTotal = getTotalForDuration(startDate.getTime(), endDate.getTime());
         setDisplaySale(currentTotal);
+        setDisplaySubDuration(formatWeekDay(startDate) + " to " + formatWeekDay(endDate));
 
         currentDate.setHours(0, 0, 0);
         startDate = addDays(getFirstDayOfWeek(currentDate), -7);
@@ -105,21 +108,26 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
     const calculateMonth = () => {
         let endDate = new Date();
         endDate.setHours(23, 59, 59);
-        let startDate = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+        let startDate = new Date(endDate.getFullYear(), endDate.getDate() > 9?endDate.getMonth():endDate.getMonth() - 1, 10);
         startDate.setHours(0, 0, 0);
         console.log(startDate, endDate);
         const currentTotal = getTotalForDuration(startDate.getTime(), endDate.getTime());
+        console.log(`Current: ${currentTotal}`)
         setDisplaySale(currentTotal);
 
-        startDate = new Date(endDate.getFullYear(), endDate.getMonth() - 1, 1);
+        setDisplaySubDuration(formatDisplayDate(startDate) + " to " + formatDisplayDate(endDate));
+
+        startDate = new Date(endDate.getFullYear(), endDate.getDate() > 9?endDate.getMonth()-1:endDate.getMonth() - 2, 10);
         startDate.setHours(0, 0, 0);
-        endDate = new Date(endDate.getFullYear(), endDate.getMonth() - 1, endDate.getDate());
+        endDate = new Date(endDate.getFullYear(), endDate.getDate() > 9?endDate.getMonth():endDate.getMonth() - 1, 9);
         endDate.setHours(23, 59, 59);
         console.log(startDate, endDate);
         const previousTotal = getTotalForDuration(startDate.getTime(), endDate.getTime());
         setDisplayPreviousSale(previousTotal);
+        console.log(`Previous: ${previousTotal}`)
 
         setDisplayVariation(((currentTotal - previousTotal) / previousTotal) * 100);
+        
     }
     return (
         <Card className="shadow" bg={displayVariation > 0 ? "success" : "danger"} text="light">
@@ -138,7 +146,8 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
                             </div>
                         </div>
                         <div className="mt-4">
-                            <h6>Sale for {displayDuration}</h6>
+                            <h6>Sale for {displayDuration}<p><small>{displaySubDuration}</small></p></h6>
+                            
                             <h1 className="display-3"><strong>{formatter.format(displaySale)}</strong></h1>
                             {displayVariation > 0 ?
                                 <Icon.CaretUpFill className="me-1" /> : <Icon.CaretDownFill className="me-1" />
@@ -171,4 +180,14 @@ function addDays(dt: Date, days: number): Date {
     let retDate = new Date(dt);
     const result = retDate.setDate(retDate.getDate() + days);
     return new Date(result);
+}
+
+function formatDisplayDate(d: Date) {
+    return  d.toLocaleDateString('en-GB', {
+        day: 'numeric', month: 'short', year: 'numeric'
+      }).replace(/ /g, '-');
+}
+
+function formatWeekDay(d: Date) {
+    return d.toLocaleDateString('en-GB', { weekday: 'long' })
 }
