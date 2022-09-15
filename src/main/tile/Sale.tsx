@@ -21,7 +21,7 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
 
     const loadData = () => {
         const date = new Date();
-        const lastMonthDate = new Date(date.getFullYear(), date.getDate() > 9?date.getMonth()-1:date.getMonth() - 2, 10);
+        const lastMonthDate = new Date(date.getFullYear(), date.getDate() > 9?date.getMonth()-1:date.getMonth() - 2, date.getDate() > 9?1:10);
         const startDate = formatDate(lastMonthDate);
         const endDate = formatDate(date);
         const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${startDate}&end_date=${endDate}&report_type=by_revenue&app_type=web`;
@@ -38,8 +38,15 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
         loadData();
     }
 
+    const durationValue:{[key:string]: string} = {
+        "day": "Today",
+        "week": "This Week",
+        "month": "Financial Month",
+        "cal_month": "Calendar Month"
+    }
+
     const setDuration = (duration: string) => {
-        setDisplayDuration(duration);
+        setDisplayDuration(durationValue[duration]);
         switch (duration) {
             case "day":
                 calculateToday();
@@ -52,6 +59,10 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
             case "month":
                 calculateMonth();
                 setActiveButtonIndex(2);
+                break;
+            case "cal_month":
+                calculateCalendarMonth();
+                setActiveButtonIndex(3);
                 break;
             default:
                 setDisplaySale(0);
@@ -129,6 +140,31 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
         setDisplayVariation(((currentTotal - previousTotal) / previousTotal) * 100);
         
     }
+
+    const calculateCalendarMonth = () => {
+        let endDate = new Date();
+        endDate.setHours(23, 59, 59);
+        let startDate = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+        startDate.setHours(0, 0, 0);
+        console.log(startDate, endDate);
+        const currentTotal = getTotalForDuration(startDate.getTime(), endDate.getTime());
+        console.log(`Current: ${currentTotal}`)
+        setDisplaySale(currentTotal);
+
+        setDisplaySubDuration(formatDisplayDate(startDate) + " to " + formatDisplayDate(endDate));
+
+        startDate = new Date(endDate.getFullYear(), endDate.getMonth()-1, 1);
+        startDate.setHours(0, 0, 0);
+        endDate = addDays(new Date(endDate.getFullYear(), endDate.getMonth(), 1),-1);
+        endDate.setHours(23, 59, 59);
+        console.log(startDate, endDate);
+        const previousTotal = getTotalForDuration(startDate.getTime(), endDate.getTime());
+        setDisplayPreviousSale(previousTotal);
+        console.log(`Previous: ${previousTotal}`)
+
+        setDisplayVariation(((currentTotal - previousTotal) / previousTotal) * 100);
+        
+    }
     return (
         <Card className="shadow" bg={displayVariation > 0 ? "success" : "danger"} text="light">
             {/* <Card.Header>Sale Summary</Card.Header> */}
@@ -139,7 +175,8 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
                             <ButtonGroup size="sm">
                                 <Button variant={activeButtonIndex === 0 ? "dark" : "light"} onClick={() => setDuration('day')}>Today</Button>
                                 <Button variant={activeButtonIndex === 1 ? "dark" : "light"} onClick={() => setDuration('week')}>Week</Button>
-                                <Button variant={activeButtonIndex === 2 ? "dark" : "light"} onClick={() => setDuration('month')}>Month</Button>
+                                <Button variant={activeButtonIndex === 2 ? "dark" : "light"} onClick={() => setDuration('month')}>Finance Month</Button>
+                                <Button variant={activeButtonIndex === 3 ? "dark" : "light"} onClick={() => setDuration('cal_month')}>Calendar Month</Button>
                             </ButtonGroup>
                             <div className="position-absolute top-0 end-0" style={{ marginTop: -10 }}>
                                 <Button variant={displayVariation > 0 ? "success" : "danger"} size="lg" onClick={() => refresh()}><Icon.ArrowClockwise /></Button>
