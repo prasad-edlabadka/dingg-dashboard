@@ -10,11 +10,11 @@ export default function Staff({ token, setToken }: { token: string, setToken: an
 
     const staffTargets = {
         "Bhushan": 72000,
-        "Chanda": 80000,
+        "Pooja": 60000,
         "Deepa": 42000,
         "Jassi": 100000,
         "Manager": 52000,
-        "Rihan": 88000,
+        "Prasad": 72000,
         "Rutja": 40000
     }
 
