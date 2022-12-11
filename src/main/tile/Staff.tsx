@@ -4,7 +4,7 @@ import callAPI from "./Utility";
 import * as Icon from 'react-bootstrap-icons';
 
 export default function Staff({ token, setToken }: { token: string, setToken: any }) {
-    const [reportData, setReportData] = useState({ data: [{ services: 0, stylist: "" }] });
+    const [reportData, setReportData] = useState({ data: [{ "service price": 0, stylist: "" }] });
     const [total, setTotal] = useState(-1);
     const currFormatter = Intl.NumberFormat('en-in', {style:"currency", currency:"INR", maximumFractionDigits: 0});
 
@@ -18,6 +18,8 @@ export default function Staff({ token, setToken }: { token: string, setToken: an
         "Rutja": 40000
     }
 
+    const defaultTarget = 100000;
+
     useEffect(() => {
         loadData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -28,7 +30,7 @@ export default function Staff({ token, setToken }: { token: string, setToken: an
         const lastMonthDate = new Date(date.getFullYear(), date.getMonth(), 1);
         const startDate = formatDate(lastMonthDate);
         const endDate = formatDate(date);
-        const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${startDate}&end_date=${endDate}&report_type=staff_by_all&app_type=web`;
+        const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${startDate}&report_type=staff_service_summary&end_date=${endDate}&app_type=web`
         callAPI(apiURL, token, setToken, (data: any) => {
             setReportData(data);
             calculateToday(data);
@@ -44,7 +46,7 @@ export default function Staff({ token, setToken }: { token: string, setToken: an
         const len = data.data.length;
         let sum = 0;
         for (let i = 0; i < len; i++) {
-            sum += data.data[i].services;
+            sum += data.data[i]["service price"];
         }
         setTotal(sum);
     }
@@ -62,19 +64,19 @@ export default function Staff({ token, setToken }: { token: string, setToken: an
                             </div>
                             {
                                 reportData.data.map(val => {
-                                    const target = (staffTargets[val.stylist.trim() as keyof typeof staffTargets] || 100000)
-                                    const targetPercentage = Math.round(val.services * 100 / target);
+                                    const target = (staffTargets[val.stylist.trim() as keyof typeof staffTargets] || defaultTarget)
+                                    const targetPercentage = Math.round(val["service price"] * 100 / target);
                                     return(
                                     <Row>
                                         <Col lg={4} xs={5}>{val.stylist}</Col>
-                                        <Col xs={7} className="d-lg-none text-end align-bottom">{currFormatter.format(val.services)} of {currFormatter.format(target)}</Col>
+                                        <Col xs={7} className="d-lg-none text-end align-bottom">{currFormatter.format(val["service price"])} of {currFormatter.format(target)}</Col>
                                         <Col lg={4} className="mt-2">
                                         <OverlayTrigger overlay={
                                         <Tooltip id="tooltip-disabled">{targetPercentage}% Achieved</Tooltip>}>
-                                            <ProgressBar now={Math.round(val.services * 100 / (staffTargets[val.stylist.trim() as keyof typeof staffTargets] || 100000))} style={{height: 6, marginBottom: 12}} variant="danger"/>
+                                            <ProgressBar now={Math.round(val["service price"] * 100 / (staffTargets[val.stylist.trim() as keyof typeof staffTargets] || 100000))} style={{height: 6, marginBottom: 12}} variant="danger"/>
                                             </OverlayTrigger>
                                         </Col>
-                                        <Col lg={4} className="d-none d-lg-block">{currFormatter.format(val.services)}</Col>
+                                        <Col lg={4} className="d-none d-lg-block">{currFormatter.format(val["service price"])}</Col>
                                     </Row>)
                                 })
                             }
