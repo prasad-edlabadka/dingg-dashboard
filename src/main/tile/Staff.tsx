@@ -32,6 +32,9 @@ export default function Staff({ token, setToken }: { token: string, setToken: an
         const endDate = formatDate(date);
         const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${startDate}&report_type=staff_service_summary&end_date=${endDate}&app_type=web`
         callAPI(apiURL, token, setToken, (data: any) => {
+            data.data = data.data.sort((a:any, b:any) => {
+                return b["service price"] - a["service price"];
+            });
             setReportData(data);
             calculateToday(data);
         });
