@@ -1,10 +1,11 @@
 import { Col, Row } from "react-bootstrap"
-import Prediction from "./tile/Prediction"
+import PaymentMethods from "./tile/PaymentMethods"
+//import Prediction from "./tile/Prediction"
 import Sale from "./tile/Sale"
 import Staff from "./tile/Staff"
 
 export default function Tiles({token, setToken}:{token:string, setToken:any}) {
-    const tileList = [Sale, Staff, Prediction]
+    const tileList = [Sale, Staff, PaymentMethods]
     return (
         <div>
         <Row>
