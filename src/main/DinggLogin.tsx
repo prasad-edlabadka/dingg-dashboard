@@ -1,7 +1,6 @@
 import { useRef } from "react";
 import { Button, Card, Col, Form, Row } from "react-bootstrap";
 import PropTypes from 'prop-types';
-import { setCookie } from "./tile/Utility";
 
 function DinggLogin({ setToken }:{setToken: any}) {
     const apiURL = "https://api.dingg.app/api/v1/vendor/login";
@@ -20,11 +19,9 @@ function DinggLogin({ setToken }:{setToken: any}) {
         fetch(apiURL, requestMetadata)
             .then(res => res.json())
             .then(recipes => {
-                //alert(JSON.stringify(recipes));
                 setToken(recipes.token);
                 localStorage.clear();
                 localStorage.setItem("token", recipes.token);
-                //alert(recipes.message);
             });
     };
     return (
@@ -32,7 +29,7 @@ function DinggLogin({ setToken }:{setToken: any}) {
            
             <Row>
                 <Col sm={{ span: 4, offset: 4 }}>
-                    <Card bg="light">
+                    <Card bg="dark" text="light">
                     <Card.Header>Login to App</Card.Header>
                         <Card.Body>
                             <Form>

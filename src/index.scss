@@ -22,30 +22,30 @@ code {
   font-style: normal;
   font-weight: normal;
   src: local('Flama'), url('./fonts/Flama Regular.woff') format('woff');
-  }
-  
+}
 
-  @font-face {
+
+@font-face {
   font-family: 'Flama Italic';
   font-style: normal;
   font-weight: normal;
   src: local('Flama Italic'), url('./fonts/Flama Italic.woff') format('woff');
-  }
-  
+}
 
-  @font-face {
+
+@font-face {
   font-family: 'Flama Bold Italic';
   font-style: normal;
   font-weight: normal;
   src: local('Flama Bold Italic'), url('./fonts/Flama Bold Italic.woff') format('woff');
-  }
+}
 
-$body-bg: #fafbfe;
-$red:     #C02826;
+$body-bg: #4e4e4e;
+$red: #C02826;
 $font-family-base: 'Flama';
 $box-shadow: 0.5rem .5rem 1rem rgba(#000, .45);
 @import '~bootstrap/scss/bootstrap.scss';
 
- .card-header {
+.card-header {
   font-family: 'Evergreen' !important;
 }

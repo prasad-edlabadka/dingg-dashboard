@@ -24,13 +24,20 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
         const lastMonthDate = new Date(date.getFullYear(), date.getDate() > 9?date.getMonth()-1:date.getMonth() - 2, date.getDate() > 9?1:10);
         const startDate = formatDate(lastMonthDate);
         const endDate = formatDate(date);
+        const yesterday = formatDate(new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1));
         const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${startDate}&end_date=${endDate}&report_type=by_revenue&app_type=web`;
-        callAPI(apiURL, token, setToken, (data: any) => {
+        const todayAPIURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${yesterday}&end_date=${endDate}&report_type=by_revenue&app_type=web`;
+        callAPI(todayAPIURL, token, setToken, (data: any) => {
             setReportData(data);
             calculateToday(data);
             setActiveButtonIndex(0);
+            callAPI(apiURL, token, setToken, (data: any) => {
+                setReportData(data);
+                calculateToday(data);
+                setActiveButtonIndex(0);
+            });
         });
-        console.log("Useffect called...");
+        
     }
 
     const refresh = () => {
