@@ -62,11 +62,17 @@ $box-shadow: 0.5rem .5rem 1rem rgba(#000, .45);
   border-left-color: rgba(225,225,225,0.5);
   border-bottom-color: rgba(225,225,225,0.1);
   border-right-color: rgba(225,225,225,0.1);
+  border-radius: 1rem;
 }
 
 .card.bg-danger {
   background-color: unset !important;
   background: linear-gradient(to right bottom, rgba(var(--bs-danger-rgb), 0.6), rgba(var(--bs-danger-rgb), 0.4));
+}
+
+.card.bg-dark {
+  background-color: unset !important;
+  background: linear-gradient(to right bottom, rgba(var(--bs-dark-rgb), 0.6), rgba(var(--bs-dark-rgb), 0.4));
 }
 
 .indigoBg {
