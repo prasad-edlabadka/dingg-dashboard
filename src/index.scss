@@ -63,6 +63,7 @@ $box-shadow: 0.5rem .5rem 1rem rgba(#000, .45);
   border-bottom-color: rgba(225,225,225,0.1);
   border-right-color: rgba(225,225,225,0.1);
   border-radius: 1rem;
+  height: 100%;
 }
 
 .card.bg-danger {
@@ -75,6 +76,16 @@ $box-shadow: 0.5rem .5rem 1rem rgba(#000, .45);
   background: linear-gradient(to right bottom, rgba(var(--bs-success-rgb), 0.6), rgba(var(--bs-success-rgb), 0.4));
 }
 
+.card.bg-primary {
+  background-color: unset !important;
+  background: linear-gradient(to right bottom, rgba(var(--bs-primary-rgb), 0.6), rgba(var(--bs-primary-rgb), 0.4));
+}
+
+.card.bg-warning {
+  background-color: unset !important;
+  background: linear-gradient(to right bottom, rgba(var(--bs-warning-rgb), 0.6), rgba(var(--bs-warning-rgb), 0.4));
+}
+
 .card.bg-dark {
   background-color: unset !important;
   background: linear-gradient(to right bottom, rgba(var(--bs-dark-rgb), 0.6), rgba(var(--bs-dark-rgb), 0.4));
@@ -82,10 +93,21 @@ $box-shadow: 0.5rem .5rem 1rem rgba(#000, .45);
 
 .indigoBg {
   background-color: unset !important;
-  background: linear-gradient(to right bottom, rgba(102, 16, 242, 0.6), rgba(102, 16, 242, 0.4));
+  background: linear-gradient(to right bottom, rgba(#6610f2, 0.6), rgba(#6610f2, 0.4)) !important;
 }
 
 .purpleBg {
   background-color: unset !important;
   background: linear-gradient(to right bottom, rgba(13, 110, 253, 0.6), rgba(13, 110, 253, 0.4));
+}
+
+.small {
+  font-size: 0.75rem;
+}
+
+.today {
+  background-color: unset !important;
+  background: linear-gradient(to right bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4));
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }
