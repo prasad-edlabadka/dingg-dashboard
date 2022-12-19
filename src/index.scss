@@ -5,6 +5,10 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-image: url(bg.jpg);
+  background-size: cover;
+  background-position: center center;
+  background-attachment: fixed;
 }
 
 code {
@@ -48,4 +52,29 @@ $box-shadow: 0.5rem .5rem 1rem rgba(#000, .45);
 
 .card-header {
   font-family: 'Evergreen' !important;
+}
+
+.card {
+  box-shadow: inset 0 0 2000px #dbdbdb80;
+  backdrop-filter: blur(1rem);
+  box-shadow: 1.3rem 1.3rem 1.3rem rgba($color: #000000, $alpha: 0.5) !important;
+  border-top-color: rgba(225,225,225,0.5);
+  border-left-color: rgba(225,225,225,0.5);
+  border-bottom-color: rgba(225,225,225,0.1);
+  border-right-color: rgba(225,225,225,0.1);
+}
+
+.card.bg-danger {
+  background-color: unset !important;
+  background: linear-gradient(to right bottom, rgba(var(--bs-danger-rgb), 0.6), rgba(var(--bs-danger-rgb), 0.4));
+}
+
+.indigoBg {
+  background-color: unset !important;
+  background: linear-gradient(to right bottom, rgba(102, 16, 242, 0.6), rgba(102, 16, 242, 0.4));
+}
+
+.purpleBg {
+  background-color: unset !important;
+  background: linear-gradient(to right bottom, rgba(13, 110, 253, 0.6), rgba(13, 110, 253, 0.4));
 }

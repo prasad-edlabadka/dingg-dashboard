@@ -21,7 +21,7 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
 
     const loadData = () => {
         const date = new Date();
-        const lastMonthDate = new Date(date.getFullYear(), date.getDate() > 9?date.getMonth()-1:date.getMonth() - 2, date.getDate() > 9?1:10);
+        const lastMonthDate = new Date(date.getFullYear(), date.getDate() > 9 ? date.getMonth() - 1 : date.getMonth() - 2, date.getDate() > 9 ? 1 : 10);
         const startDate = formatDate(lastMonthDate);
         const endDate = formatDate(date);
         const yesterday = formatDate(new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1));
@@ -37,7 +37,7 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
                 setActiveButtonIndex(0);
             });
         });
-        
+
     }
 
     const refresh = () => {
@@ -45,7 +45,7 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
         loadData();
     }
 
-    const durationValue:{[key:string]: string} = {
+    const durationValue: { [key: string]: string } = {
         "day": "Today",
         "week": "This Week",
         "month": "Financial Month",
@@ -126,7 +126,7 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
     const calculateMonth = () => {
         let endDate = new Date();
         endDate.setHours(23, 59, 59);
-        let startDate = new Date(endDate.getFullYear(), endDate.getDate() > 9?endDate.getMonth():endDate.getMonth() - 1, 10);
+        let startDate = new Date(endDate.getFullYear(), endDate.getDate() > 9 ? endDate.getMonth() : endDate.getMonth() - 1, 10);
         startDate.setHours(0, 0, 0);
         console.log(startDate, endDate);
         const currentTotal = getTotalForDuration(startDate.getTime(), endDate.getTime());
@@ -135,9 +135,9 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
 
         setDisplaySubDuration(formatDisplayDate(startDate) + " to " + formatDisplayDate(endDate));
 
-        startDate = new Date(endDate.getFullYear(), endDate.getDate() > 9?endDate.getMonth()-1:endDate.getMonth() - 2, 10);
+        startDate = new Date(endDate.getFullYear(), endDate.getDate() > 9 ? endDate.getMonth() - 1 : endDate.getMonth() - 2, 10);
         startDate.setHours(0, 0, 0);
-        endDate = new Date(endDate.getFullYear(), endDate.getDate() > 9?endDate.getMonth():endDate.getMonth() - 1, 9);
+        endDate = new Date(endDate.getFullYear(), endDate.getDate() > 9 ? endDate.getMonth() : endDate.getMonth() - 1, 9);
         endDate.setHours(23, 59, 59);
         console.log(startDate, endDate);
         const previousTotal = getTotalForDuration(startDate.getTime(), endDate.getTime());
@@ -145,7 +145,7 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
         console.log(`Previous: ${previousTotal}`)
 
         setDisplayVariation(((currentTotal - previousTotal) / previousTotal) * 100);
-        
+
     }
 
     const calculateCalendarMonth = () => {
@@ -160,9 +160,9 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
 
         setDisplaySubDuration(formatDisplayDate(startDate) + " to " + formatDisplayDate(endDate));
 
-        startDate = new Date(endDate.getFullYear(), endDate.getMonth()-1, 1);
+        startDate = new Date(endDate.getFullYear(), endDate.getMonth() - 1, 1);
         startDate.setHours(0, 0, 0);
-        endDate = addDays(new Date(endDate.getFullYear(), endDate.getMonth(), 1),-1);
+        endDate = addDays(new Date(endDate.getFullYear(), endDate.getMonth(), 1), -1);
         endDate.setHours(23, 59, 59);
         console.log(startDate, endDate);
         const previousTotal = getTotalForDuration(startDate.getTime(), endDate.getTime());
@@ -170,7 +170,7 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
         console.log(`Previous: ${previousTotal}`)
 
         setDisplayVariation(((currentTotal - previousTotal) / previousTotal) * 100);
-        
+
     }
     return (
         <Card className="shadow" bg={displayVariation > 0 ? "success" : "danger"} text="light">
@@ -185,13 +185,12 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
                                 <Button variant={activeButtonIndex === 2 ? "dark" : "light"} onClick={() => setDuration('month')}>Finance Month</Button>
                                 <Button variant={activeButtonIndex === 3 ? "dark" : "light"} onClick={() => setDuration('cal_month')}>Calendar Month</Button>
                             </ButtonGroup>
-                            <div className="position-absolute top-0 end-0" style={{ marginTop: -10 }}>
-                                <Button variant={displayVariation > 0 ? "success" : "danger"} size="lg" onClick={() => refresh()}><Icon.ArrowClockwise /></Button>
-                            </div>
+
                         </div>
                         <div className="mt-4">
-                            <h6>Sale for {displayDuration}<p><small>{displaySubDuration}</small></p></h6>
-                            
+
+                            <h6>Sale for {displayDuration}<Button style={{marginLeft: 8, backgroundColor: "transparent", border: "none"}} variant={displayVariation > 0 ? "success" : "danger"} onClick={() => refresh()}><Icon.ArrowClockwise /></Button><p style={{marginTop:-10}}><small>{displaySubDuration}</small></p></h6>
+
                             <h1 className="display-3"><strong>{formatter.format(displaySale)}</strong></h1>
                             {displayVariation > 0 ?
                                 <Icon.CaretUpFill className="me-1" /> : <Icon.CaretDownFill className="me-1" />
@@ -227,9 +226,9 @@ function addDays(dt: Date, days: number): Date {
 }
 
 function formatDisplayDate(d: Date) {
-    return  d.toLocaleDateString('en-GB', {
+    return d.toLocaleDateString('en-GB', {
         day: 'numeric', month: 'short', year: 'numeric'
-      }).replace(/ /g, '-');
+    }).replace(/ /g, '-');
 }
 
 function formatWeekDay(d: Date) {

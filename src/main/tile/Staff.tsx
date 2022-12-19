@@ -55,12 +55,12 @@ export default function Staff({ token, setToken }: { token: string, setToken: an
     }
 
     return (
-        <Card className="shadow" style={{backgroundColor:"indigo"}} text="light">
+        <Card className="shadow indigoBg" text="light">
             {
                 total === -1 ? <Card.Body><Spinner animation="grow" /></Card.Body> :
                     <Card.Body>
                         <div className="position-relative">
-                            <h3>Staff Sales Target</h3>
+                            <h2>Staff Sales Target</h2>
                             <div className="position-absolute top-0 end-0" style={{ marginTop: -10 }}>
                                 <Button variant="indigo" className="text-light" size="lg" onClick={() => refresh()}><Icon.ArrowClockwise /></Button>
                             </div>
