@@ -1,4 +1,4 @@
-import { Container, Nav, Navbar } from "react-bootstrap";
+import { Container, Navbar } from "react-bootstrap";
 import logo from './logo.png';
 
 function DinggNav() {
@@ -11,14 +11,13 @@ function DinggNav() {
               width="32"
               height="32"
               className="d-inline-block align-top"
-            />{' '}Salon Reports</Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+            />{' '} Owner's Dashboard</Navbar.Brand>
+        {/* <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
             <Nav.Link href="#home">Coming Soon...</Nav.Link>
-            {/* <Nav.Link href="#link">TBD</Nav.Link> */}
           </Nav>
-        </Navbar.Collapse>
+        </Navbar.Collapse> */}
       </Container>
     </Navbar>
   );

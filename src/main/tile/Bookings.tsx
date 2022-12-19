@@ -67,15 +67,6 @@ export default function Bookings({ token, setToken }: { token: string, setToken:
     const statusColor = ["dark", "dark", "secondary", "success", "dark", "primary", "dark", "warning"];
     const statusDesc = ["dark", "dark", "Cancelled", "Completed", "dark", "Booked", "dark", "In Progress"];
 
-    // const calculateToday = (data = reportData) => {
-    //     const len = data.data.length;
-    //     let sum = 0;
-    //     for (let i = 0; i < len; i++) {
-    //         sum += data.data[i].total;
-    //     }
-    //     setTotal(sum);
-    // }
-
     return (
         <div>
             <Row>

@@ -43,7 +43,7 @@ export default function PaymentMethods({ token, setToken }: { token: string, set
     }
 
     return (
-        <Card className="shadow purpleBg" style={{ backgroundColor: "purple" }} text="light">
+        <Card className="shadow purpleBg" text="light">
             {
                 total === -1 ? <Card.Body><Spinner animation="grow" /></Card.Body> :
                     <Card.Body>
