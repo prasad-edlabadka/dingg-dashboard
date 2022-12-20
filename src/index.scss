@@ -48,6 +48,15 @@ $body-bg: #4e4e4e;
 $red: #C02826;
 $font-family-base: 'Flama';
 $box-shadow: 0.5rem .5rem 1rem rgba(#000, .45);
+$accordion-bg: transparent;
+$accordion-button-active-bg: transparent;
+$accordion-button-focus-border-color: transparent;
+$accordion-color: var(--bs-white);
+$accordion-button-active-color: var(--bs-white);
+$accordion-icon-color: var(--bs-white);
+$accordion-padding-y: 0.2rem;
+$accordion-padding-x: 0rem;
+
 @import '~bootstrap/scss/bootstrap.scss';
 
 .card-header {
@@ -102,7 +111,7 @@ $box-shadow: 0.5rem .5rem 1rem rgba(#000, .45);
 }
 
 .small {
-  font-size: 0.75rem;
+  font-size: 0.80rem;
 }
 
 .today {

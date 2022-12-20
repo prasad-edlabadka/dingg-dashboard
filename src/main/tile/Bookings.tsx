@@ -74,7 +74,7 @@ export default function Bookings({ token, setToken }: { token: string, setToken:
                     <div className="position-relative today">
                         <h3 className="text-light">Today's Customers</h3>
                         <div className="position-absolute top-0 end-0" style={{ marginTop: -10 }}>
-                            <Button variant="indigo" className="text-light" size="lg" onClick={() => refresh()}><Icon.ArrowClockwise /></Button>
+                            <Button variant="indigo" className="text-light mt-2" size="lg" onClick={() => refresh()}><Icon.ArrowClockwise /></Button>
                         </div>
                     </div>
                 </Col>
