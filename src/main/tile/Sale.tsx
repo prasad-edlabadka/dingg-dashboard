@@ -4,13 +4,13 @@ import * as Icon from 'react-bootstrap-icons';
 import callAPI from "./Utility";
 
 export default function Sale({ token, setToken }: { token: string, setToken: any }) {
-    const [displaySale, setDisplaySale] = useState(-1);
-    const [displayPreviousSale, setDisplayPreviousSale] = useState(-1);
-    const [displayVariation, setDisplayVariation] = useState(-1);
-    const [displayDuration, setDisplayDuration] = useState('day');
-    const [displaySubDuration, setDisplaySubDuration] = useState(new Date().toLocaleDateString());
-    const [activeButtonIndex, setActiveButtonIndex] = useState(0);
-    const [reportData, setReportData] = useState({ data: [{ total: 0, date: "" }] });
+    const [_displaySale, setDisplaySale] = useState(-1);
+    const [_displayPreviousSale, setDisplayPreviousSale] = useState(-1);
+    const [_displayVariation, setDisplayVariation] = useState(-1);
+    const [_displayDuration, setDisplayDuration] = useState('day');
+    const [_displaySubDuration, setDisplaySubDuration] = useState(new Date().toLocaleDateString());
+    const [_activeButtonIndex, setActiveButtonIndex] = useState(0);
+    const [_reportData, setReportData] = useState({ data: [{ total: 0, date: "" }] });
 
     const formatter = Intl.NumberFormat('en-in', { style: "currency", currency: "INR", maximumFractionDigits: 0 });
 
@@ -79,7 +79,7 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
         }
     }
 
-    const calculateToday = (data = reportData) => {
+    const calculateToday = (data = _reportData) => {
         const len = data.data.length;
         const today = data.data[len - 1].total;
         const yesterday = data.data[len - 2].total
@@ -90,7 +90,7 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
     }
 
     const getTotalForDuration = (start: number, end: number) => {
-        const weekData = reportData.data.filter(val => {
+        const weekData = _reportData.data.filter(val => {
             let reportDate = new Date(val.date).getTime();
             return (reportDate >= start && reportDate <= end);
         });
@@ -173,29 +173,29 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
 
     }
     return (
-        <Card className="shadow" bg={displayVariation > 0 ? "success" : "danger"} text="light">
+        <Card className="shadow" bg={_displayVariation > 0 ? "success" : "danger"} text="light">
             {/* <Card.Header>Sale Summary</Card.Header> */}
             {
-                displaySale === -1 ? <Card.Body><Spinner animation="grow" /></Card.Body> :
+                _displaySale === -1 ? <Card.Body><Spinner animation="grow" /></Card.Body> :
                     <Card.Body>
                         <div className="position-relative">
                             <ButtonGroup size="sm">
-                                <Button variant={activeButtonIndex === 0 ? "dark" : "light"} onClick={() => setDuration('day')}>Today</Button>
-                                <Button variant={activeButtonIndex === 1 ? "dark" : "light"} onClick={() => setDuration('week')}>Week</Button>
-                                <Button variant={activeButtonIndex === 2 ? "dark" : "light"} onClick={() => setDuration('month')}>Finance Month</Button>
-                                <Button variant={activeButtonIndex === 3 ? "dark" : "light"} onClick={() => setDuration('cal_month')}>Calendar Month</Button>
+                                <Button variant={_activeButtonIndex === 0 ? "dark" : "light"} onClick={() => setDuration('day')}>Today</Button>
+                                <Button variant={_activeButtonIndex === 1 ? "dark" : "light"} onClick={() => setDuration('week')}>Week</Button>
+                                <Button variant={_activeButtonIndex === 2 ? "dark" : "light"} onClick={() => setDuration('month')}>Finance Month</Button>
+                                <Button variant={_activeButtonIndex === 3 ? "dark" : "light"} onClick={() => setDuration('cal_month')}>Calendar Month</Button>
                             </ButtonGroup>
 
                         </div>
                         <div className="mt-4">
 
-                            <h6>Sale for {displayDuration}<Button style={{marginLeft: 8, backgroundColor: "transparent", border: "none"}} variant={displayVariation > 0 ? "success" : "danger"} onClick={() => refresh()}><Icon.ArrowClockwise /></Button><p style={{marginTop:-10}}><small>{displaySubDuration}</small></p></h6>
+                            <h6>Sale for {_displayDuration}<Button style={{marginLeft: 8, backgroundColor: "transparent", border: "none"}} variant={_displayVariation > 0 ? "success" : "danger"} onClick={() => refresh()}><Icon.ArrowClockwise /></Button><p style={{marginTop:-10}}><small>{_displaySubDuration}</small></p></h6>
 
-                            <h1 className="display-3"><strong>{formatter.format(displaySale)}</strong></h1>
-                            {displayVariation > 0 ?
+                            <h1 className="display-3"><strong>{formatter.format(_displaySale)}</strong></h1>
+                            {_displayVariation > 0 ?
                                 <Icon.CaretUpFill className="me-1" /> : <Icon.CaretDownFill className="me-1" />
                             }
-                            <span>{Math.abs(Math.round(displayVariation))}% {displayVariation > 0 ? 'more' : 'less'} than previous {displayDuration} ({formatter.format(displayPreviousSale)})</span>
+                            <span>{Math.abs(Math.round(_displayVariation))}% {_displayVariation > 0 ? 'more' : 'less'} than previous {_displayDuration} ({formatter.format(_displayPreviousSale)})</span>
                         </div>
                     </Card.Body>
             }

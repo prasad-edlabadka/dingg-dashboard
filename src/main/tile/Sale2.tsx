@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import { Button, ButtonGroup, Card, Col, Row, Spinner } from "react-bootstrap";
 import * as Icon from 'react-bootstrap-icons';
 import callAPI from "./Utility";
 
 export default function Sale2({ token, setToken }: { token: string, setToken: any }) {
     const dataStructure = { price: -1, discount: -1, tax: -1, woTax: -1, total: -1, start: "", end: "" };
+    const [loading, setLoading] = useState(true);
     const [displaySale, setDisplaySale] = useState(dataStructure);
     const [displayPreviousSale, setDisplayPreviousSale] = useState(dataStructure);
     const [displayVariation, setDisplayVariation] = useState(dataStructure);
@@ -40,18 +41,21 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
         const startOfPrevFinMonth = new Date(today.getFullYear(), today.getDate() > 9 ? today.getMonth() - 1 : today.getMonth() - 2, 10);
         const endOfPrevFinMonth = new Date(today.getFullYear(), today.getDate() > 9 ? today.getMonth() : today.getMonth() - 1, 9);
 
-        getReportForDateRange(today, today, setTodayData);
-        calculateToday();
-        setActiveButtonIndex(0);
-        getReportForDateRange(yesterday, yesterday, setYesterdayData);
-        getReportForDateRange(startOfTheWeek, today, setCurrentWeekData);
-        getReportForDateRange(startOfPrevWeek, endOfPrevWeek, setPreviousWeekData);
-        getReportForDateRange(startOfMonth, today, setCurrentMonthData);
-        getReportForDateRange(startOfPrevMonth, endOfPrevMonth, setPreviousMonthData);
-        getReportForDateRange(startOfFinMonth, today, setCurrentFinMonthData);
-        getReportForDateRange(startOfPrevFinMonth, endOfPrevFinMonth, setPreviousFinMonthData);
-
-        
+        getReportForDateRange(today, today, (data) => {
+            setTodayData(data);
+            getReportForDateRange(yesterday, yesterday, (data2) => {
+                setYesterdayData(data2);
+                calculateToday(data, data2);
+                setActiveButtonIndex(0);
+                setLoading(false);
+                getReportForDateRange(startOfTheWeek, today, setCurrentWeekData);
+                getReportForDateRange(startOfPrevWeek, endOfPrevWeek, setPreviousWeekData);
+                getReportForDateRange(startOfMonth, today, setCurrentMonthData);
+                getReportForDateRange(startOfPrevMonth, endOfPrevMonth, setPreviousMonthData);
+                getReportForDateRange(startOfFinMonth, today, setCurrentFinMonthData);
+                getReportForDateRange(startOfPrevFinMonth, endOfPrevFinMonth, setPreviousFinMonthData);
+            });
+        });
     }
 
     const getReportForDateRange = (start: Date, end: Date, cb: (arg0: { price: number; discount: number; tax: number; woTax: number; total: number; start: string; end: string;}) => void) => {
@@ -86,6 +90,7 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
 
     const refresh = () => {
         setDisplaySale(dataStructure);
+        setLoading(true);
         loadData();
     }
 
@@ -100,7 +105,7 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
         setDisplayDuration(durationValue[duration]);
         switch (duration) {
             case "day":
-                calculateToday();
+                calculateToday(todayData, yesterdayData);
                 setActiveButtonIndex(0);
                 break;
             case "week":
@@ -135,10 +140,10 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
         };
     }
 
-    const calculateToday = () => {
-        setDisplaySale(todayData);
-        setDisplayPreviousSale(yesterdayData);
-        setDisplayVariation(getVariation(todayData, yesterdayData));
+    const calculateToday = (todayDataFromAPI: { price: number; discount: number; tax: number; woTax: number; total: number; start: string; end: string; }, yesterdayDataFromAPI: { price: number; discount: number; tax: number; woTax: number; total: number; start: string; end: string; }) => {
+        setDisplaySale(todayDataFromAPI);
+        setDisplayPreviousSale(yesterdayDataFromAPI);
+        setDisplayVariation(getVariation(todayDataFromAPI, yesterdayDataFromAPI));
         setDisplaySubDuration(formatDisplayDate(new Date()));
     }
 
@@ -164,9 +169,8 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
     }
     return (
         <Card className="shadow" bg={displayVariation.total > 0 ? "success" : "danger"} text="light">
-            {/* <Card.Header>Sale Summary</Card.Header> */}
             {
-                displaySale.total === -1 ? <Card.Body><Spinner animation="grow" /></Card.Body> :
+                loading ? <Card.Body><Spinner animation="grow" /></Card.Body> :
                     <Card.Body>
                         <div className="position-relative">
                             <ButtonGroup size="sm">
