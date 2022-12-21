@@ -5,6 +5,7 @@ import * as Icon from 'react-bootstrap-icons';
 import * as _ from "lodash";
 
 export default function Bookings({ token, setToken }: { token: string, setToken: any }) {
+    const formatter = Intl.NumberFormat('en-in', { style: "currency", currency: "INR", maximumFractionDigits: 0 });
     const [bookingData, setBookingData] = useState([
         {
             customerName: "",
@@ -14,7 +15,8 @@ export default function Bookings({ token, setToken }: { token: string, setToken:
             services: [{
                 name: "",
                 employee: ""
-            }]
+            }],
+            billAmount: 0
         }
     ]);
  
@@ -40,8 +42,10 @@ export default function Bookings({ token, setToken }: { token: string, setToken:
                     return Date.parse(a) < Date.parse(b);
                 })[0];
                 const services: { name: any; employee: any; }[] = [];
+                let billAmount = 0;
                 data.forEach((d: { extendedProps: { book: { services: string; employee_name: any; }; }; }) => {
                     d.extendedProps.book.services.split(",").map((a: any) => {
+                        billAmount += extractAmount(a);
                         services.push({
                             name: a,
                             employee: d.extendedProps.book.employee_name
@@ -54,7 +58,8 @@ export default function Bookings({ token, setToken }: { token: string, setToken:
                     start: startDate,
                     end: endDate,
                     status: data[0].extendedProps.book.status,
-                    services: services
+                    services: services,
+                    billAmount: billAmount
                 }
             }));
         });
@@ -88,7 +93,7 @@ export default function Bookings({ token, setToken }: { token: string, setToken:
                                 <Card className="shadow" bg={statusColor[booking.status] || 'dark'} text="light" >
                                     <Card.Body>
                                         <div>
-                                            <h3>{booking.customerName}</h3>
+                                            <h3>{booking.customerName} ({formatter.format(booking.billAmount)})</h3>
                                             <ul className="list-group list-group-flush">
                                                 {booking.services.map(service => {
                                                     return (<li className="list-group-item bg-transparent text-light border-white ps-0">
@@ -124,4 +129,12 @@ function formatTime(dt: Date): string {
 
 function formatDate(dt: Date): string {
     return [dt.getFullYear(), padTo2Digits(dt.getMonth() + 1), padTo2Digits(dt.getDate())].join('-');
+}
+
+function extractAmount(txt: string): number {
+    const indexOfSymbol = txt.indexOf("₹");
+    if(indexOfSymbol < 0) return 0;
+    let amountString = txt.substring(indexOfSymbol + 1);
+    amountString = amountString.substring(0, amountString.length - 1);
+    return parseFloat(amountString);
 }

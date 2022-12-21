@@ -2,7 +2,7 @@ import { Col, Row } from "react-bootstrap"
 import Bookings from "./tile/Bookings"
 import PaymentMethods from "./tile/PaymentMethods"
 //import Prediction from "./tile/Prediction"
-import Sale from "./tile/Sale"
+//import Sale from "./tile/Sale"
 import Sale2 from "./tile/Sale2"
 import Staff from "./tile/Staff"
 
