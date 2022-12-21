@@ -1,4 +1,4 @@
-import { SetStateAction, useEffect, useState } from "react";
+import {useEffect, useState } from "react";
 import { Button, ButtonGroup, Card, Col, Row, Spinner } from "react-bootstrap";
 import * as Icon from 'react-bootstrap-icons';
 import callAPI from "./Utility";
@@ -9,7 +9,7 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
     const [displaySale, setDisplaySale] = useState(dataStructure);
     const [displayPreviousSale, setDisplayPreviousSale] = useState(dataStructure);
     const [displayVariation, setDisplayVariation] = useState(dataStructure);
-    const [displayDuration, setDisplayDuration] = useState('day');
+    //const [displayDuration, setDisplayDuration] = useState('day');
     const [displaySubDuration, setDisplaySubDuration] = useState(new Date().toLocaleDateString());
     const [activeButtonIndex, setActiveButtonIndex] = useState(0);
     const [todayData, setTodayData] = useState(dataStructure);
@@ -94,15 +94,15 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
         loadData();
     }
 
-    const durationValue: { [key: string]: string } = {
-        "day": "Today",
-        "week": "This Week",
-        "month": "Financial Month",
-        "cal_month": "Calendar Month"
-    }
+    // const durationValue: { [key: string]: string } = {
+    //     "day": "Today",
+    //     "week": "This Week",
+    //     "month": "Financial Month",
+    //     "cal_month": "Calendar Month"
+    // }
 
     const setDuration = (duration: string) => {
-        setDisplayDuration(durationValue[duration]);
+        //setDisplayDuration(durationValue[duration]);
         switch (duration) {
             case "day":
                 calculateToday(todayData, yesterdayData);
@@ -130,11 +130,11 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
 
     const getVariation = (current: { price: number; discount: number; tax: number; woTax: number; total: number; start: string; end: string;}, previous: { price: number; discount: number; tax: number; woTax: number; total: number; start: string; end: string;}) => {
         return { 
-            price: Math.round(((current.price - previous.price) / previous.price) * 100), 
-            discount: Math.round(((current.discount - previous.discount) / previous.discount) * 100), 
-            tax: Math.round(((current.tax - previous.tax) / previous.tax) * 100), 
-            woTax: Math.round(((current.woTax - previous.woTax) / previous.woTax) * 100), 
-            total: Math.round(((current.total - previous.total) / previous.total) * 100), 
+            price: Math.round(((current.price - previous.price) / (previous.price===0?100:previous.price)) * 100), 
+            discount: Math.round(((current.discount - previous.discount) / (previous.discount===0?100:previous.discount)) * 100), 
+            tax: Math.round(((current.tax - previous.tax) / (previous.tax===0?100:previous.tax)) * 100), 
+            woTax: Math.round(((current.woTax - previous.woTax) / (previous.woTax===0?100:previous.woTax)) * 100), 
+            total: Math.round(((current.total - previous.total) / (previous.total===0?100:previous.total)) * 100), 
             start: current.start,
             end: current.end
         };
@@ -193,7 +193,7 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
                                 <Col xs="7">
                                     <h3 className="align-self-center mb-0">{formatter.format(displaySale.price)}</h3>
                                     <div className="small text-white-50" style={{marginTop:-2}}>previous {formatter.format(displayPreviousSale.price)} ({displayVariation.price > 0 ?
-                                        <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{displayVariation.price}%)</div>
+                                        <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.price)}%)</div>
                                     <span className="small align-self-center ps-2 float-end text-white-50"></span>
                                 </Col>
                             </Row>
@@ -202,7 +202,7 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
                                 <Col xs="7">
                                     <h3 className="align-self-center mb-0">{formatter.format(displaySale.discount)}</h3>
                                     <div className="small text-white-50" style={{marginTop:-2}}>previous {formatter.format(displayPreviousSale.discount)} ({displayVariation.discount > 0 ?
-                                        <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{displayVariation.discount}%)</div>
+                                        <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.discount)}%)</div>
                                     <span className="small align-self-center ps-2 float-end text-white-50"></span>
                                 </Col>
                                 
@@ -212,7 +212,7 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
                                 <Col xs="7">
                                     <h3 className="align-self-center mb-0">{formatter.format(displaySale.total)}</h3>
                                     <div className="small text-white-50" style={{marginTop:-2}}>previous {formatter.format(displayPreviousSale.total)} ({displayVariation.total > 0 ?
-                                        <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{displayVariation.total}%)</div>
+                                        <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.total)}%)</div>
                                     <span className="small align-self-center ps-2 float-end text-white-50"></span>
                                 </Col>
                                 
@@ -222,7 +222,7 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
                                 <Col xs="7">
                                     <h3 className="align-self-center mb-0">{formatter.format(displaySale.tax)}</h3>
                                     <div className="small text-white-50" style={{marginTop:-2}}>previous {formatter.format(displayPreviousSale.tax)} ({displayVariation.tax > 0 ?
-                                        <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{displayVariation.tax}%)</div>
+                                        <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.tax)}%)</div>
                                     <span className="small align-self-center ps-2 float-end text-white-50"></span>
                                 </Col>
                             </Row>
@@ -231,17 +231,11 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
                                 <Col xs="7">
                                     <h3 className="align-self-center mb-0">{formatter.format(displaySale.woTax)}</h3>
                                     <div className="small text-white-50" style={{marginTop:-2}}>previous {formatter.format(displayPreviousSale.woTax)} ({displayVariation.woTax > 0 ?
-                                        <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{displayVariation.woTax}%)</div>
+                                        <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.woTax)}%)</div>
                                     <span className="small align-self-center ps-2 float-end text-white-50"></span>
                                 </Col>
                             </Row>
                             <p></p>
-
-                            {/* <h1 className="display-3"><strong>{formatter.format(displaySale)}</strong></h1>
-                            {displayVariation > 0 ?
-                                <Icon.CaretUpFill className="me-1" /> : <Icon.CaretDownFill className="me-1" />
-                            }
-                            <span>{Math.abs(Math.round(displayVariation))}% {displayVariation > 0 ? 'more' : 'less'} than previous {displayDuration} ({formatter.format(displayPreviousSale)})</span> */}
                         </div>
                     </Card.Body>
             }

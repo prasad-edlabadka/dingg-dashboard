@@ -5,21 +5,21 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.bg {
+  z-index: -1;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-size: contain;
+  background-repeat: repeat-y;
   background-image: url(bg.jpg);
-  background-size: cover;
+  background-attachment: fixed;
   background-position: center center;
-}
-
-@supports (-webkit-touch-callout : none) {
-  body {
-    background-attachment: scroll
-  }
-}
-
-@supports not (-webkit-touch-callout : none) {
-  body {
-    background-attachment: fixed;
-  }
+  background-color: rgb(15, 13, 14);;
 }
 
 code {
@@ -55,7 +55,7 @@ code {
   src: local('Flama Bold Italic'), url('./fonts/Flama Bold Italic.woff') format('woff');
 }
 
-$body-bg: #4e4e4e;
+$body-bg: rgb(15, 13, 14);
 $red: #C02826;
 $font-family-base: 'Flama';
 $box-shadow: 0.5rem .5rem 1rem rgba(#000, .45);
