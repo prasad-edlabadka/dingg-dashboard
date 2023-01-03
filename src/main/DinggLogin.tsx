@@ -28,7 +28,7 @@ function DinggLogin({ setToken }:{setToken: any}) {
         <div>
            
             <Row>
-                <Col sm={{ span: 4, offset: 4 }}>
+                <Col lg={{ span: 4, offset: 4 }}>
                     <Card bg="dark" text="light">
                     <Card.Header>Login to App</Card.Header>
                         <Card.Body>
