@@ -74,6 +74,10 @@ $accordion-padding-x: 0rem;
   font-family: 'Evergreen' !important;
 }
 
+.evergreen {
+  font-family: 'Evergreen' !important;
+}
+
 .card {
   box-shadow: inset 0 0 2000px #dbdbdb80;
   backdrop-filter: blur(1rem);
@@ -129,4 +133,13 @@ $accordion-padding-x: 0rem;
   background-color: unset !important;
   background: linear-gradient(to right bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4));
   padding: 0.5rem;
+}
+
+.neonText {
+  color: #fff;
+  text-shadow:
+      0 0 27px #aaa,
+      0 0 30px #aaa,
+      0 0 51px #aaa,
+     
 }

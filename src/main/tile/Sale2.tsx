@@ -189,18 +189,18 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
                                 <Col xs="12" className="">Sale for {displaySubDuration}<Button className="align-self-center" style={{ marginLeft: 8, backgroundColor: "transparent", border: "none" }} variant={displayVariation.total > 0 ? "success" : "danger"} onClick={() => refresh()}><Icon.ArrowClockwise /></Button></Col>
                             </Row>
                             <Row className="border-bottom border-white border-opacity-25 pb-1 pt-1">
-                                <Col xs="5" className="align-self-center">Total Sale</Col>
+                                <Col xs="5" className="align-self-center text-white text-opacity-75">Total Sale</Col>
                                 <Col xs="7">
-                                    <h3 className="align-self-center mb-0">{formatter.format(displaySale.price)}</h3>
+                                    <h3 className="align-self-center mb-0 text-white text-opacity-75">{formatter.format(displaySale.price)}</h3>
                                     <div className="small text-white-50" style={{marginTop:-2}}>previous {formatter.format(displayPreviousSale.price)} ({displayVariation.price > 0 ?
                                         <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.price)}%)</div>
                                     <span className="small align-self-center ps-2 float-end text-white-50"></span>
                                 </Col>
                             </Row>
                             <Row className="border-bottom border-white border-opacity-25 pb-1 pt-1">
-                                <Col xs="5" className="align-self-center">Discount</Col>
+                                <Col xs="5" className="align-self-center text-white text-opacity-75">Discount</Col>
                                 <Col xs="7">
-                                    <h3 className="align-self-center mb-0">{formatter.format(displaySale.discount)}</h3>
+                                    <h3 className="align-self-center mb-0 text-white text-opacity-75">{formatter.format(displaySale.discount)}</h3>
                                     <div className="small text-white-50" style={{marginTop:-2}}>previous {formatter.format(displayPreviousSale.discount)} ({displayVariation.discount > 0 ?
                                         <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.discount)}%)</div>
                                     <span className="small align-self-center ps-2 float-end text-white-50"></span>
@@ -210,7 +210,7 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
                             <Row className="border-bottom border-white border-opacity-25 pb-1 pt-1">
                                 <Col xs="5" className="align-self-center">Net Before Tax</Col>
                                 <Col xs="7">
-                                    <h3 className="align-self-center mb-0">{formatter.format(displaySale.total)}</h3>
+                                    <h2 className="align-self-center mb-0 fw-bolder neonText">{formatter.format(displaySale.total)}</h2>
                                     <div className="small text-white-50" style={{marginTop:-2}}>previous {formatter.format(displayPreviousSale.total)} ({displayVariation.total > 0 ?
                                         <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.total)}%)</div>
                                     <span className="small align-self-center ps-2 float-end text-white-50"></span>
@@ -218,18 +218,18 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
                                 
                             </Row>
                             <Row className="border-bottom border-white border-opacity-25 pb-1 pt-1">
-                                <Col xs="5" className="align-self-center">Tax</Col>
+                                <Col xs="5" className="align-self-center text-white text-opacity-75">Tax</Col>
                                 <Col xs="7">
-                                    <h3 className="align-self-center mb-0">{formatter.format(displaySale.tax)}</h3>
+                                    <h3 className="align-self-center mb-0 text-white text-opacity-75">{formatter.format(displaySale.tax)}</h3>
                                     <div className="small text-white-50" style={{marginTop:-2}}>previous {formatter.format(displayPreviousSale.tax)} ({displayVariation.tax > 0 ?
                                         <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.tax)}%)</div>
                                     <span className="small align-self-center ps-2 float-end text-white-50"></span>
                                 </Col>
                             </Row>
                             <Row className="border-bottom border-white border-opacity-25 pb-1 pt-1">
-                                <Col xs="5" className="align-self-center">Net After Tax</Col>
+                                <Col xs="5" className="align-self-center text-white text-opacity-75">Net After Tax</Col>
                                 <Col xs="7">
-                                    <h3 className="align-self-center mb-0">{formatter.format(displaySale.woTax)}</h3>
+                                    <h3 className="align-self-center mb-0 text-white text-opacity-75">{formatter.format(displaySale.woTax)}</h3>
                                     <div className="small text-white-50" style={{marginTop:-2}}>previous {formatter.format(displayPreviousSale.woTax)} ({displayVariation.woTax > 0 ?
                                         <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.woTax)}%)</div>
                                     <span className="small align-self-center ps-2 float-end text-white-50"></span>

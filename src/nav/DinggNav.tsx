@@ -5,7 +5,7 @@ function DinggNav() {
   return (
     <Navbar bg="dark" variant="dark" expand="lg">
       <Container>
-        <Navbar.Brand href="#home"><img
+        <Navbar.Brand href="#home" className="evergreen"><img
               alt=""
               src={logo}
               width="32"
