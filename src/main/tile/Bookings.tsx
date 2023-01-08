@@ -19,6 +19,49 @@ export default function Bookings({ token, setToken }: { token: string, setToken:
             billAmount: 0
         }
     ]);
+
+    // const [billingData, setBilingData] = useState([
+    //     {
+    //         "id": 0,
+    //         "selected_date": "",
+    //         "bill_number": "",
+    //         "total": 0,
+    //         "paid": 0,
+    //         "payment_status": "",
+    //         "status": true,
+    //         "cancel_reason": null,
+    //         "net": 0,
+    //         "tax": 0,
+    //         "user": {
+    //             "id": 0,
+    //             "fname": "",
+    //             "lname": "",
+    //             "display_name": null,
+    //             "mobile": "",
+    //             "user_histories": [
+    //                 {
+    //                     "fname": "",
+    //                     "lname": "",
+    //                     "mobile": ""
+    //                 }
+    //             ]
+    //         },
+    //         "bill_payments": [
+    //             {
+    //                 "id": 0,
+    //                 "bill_id": 0,
+    //                 "payment_date": "",
+    //                 "payment_mode": 0,
+    //                 "amount": 0,
+    //                 "redemption": false,
+    //                 "note": "",
+    //                 "vendor_location_id": null,
+    //                 "createdAt": "",
+    //                 "updatedAt": ""
+    //             }
+    //         ]
+    //     }
+    // ])
  
     useEffect(() => {
         loadData();
@@ -69,15 +112,15 @@ export default function Bookings({ token, setToken }: { token: string, setToken:
         loadData();
     }
 
-    const statusColor = ["dark", "dark", "secondary", "success", "dark", "primary", "dark", "warning"];
-    const statusDesc = ["dark", "dark", "Cancelled", "Completed", "dark", "Booked", "dark", "In Progress"];
+    const statusColor = ["dark", "primary", "danger", "success", "dark", "primary", "dark", "warning", "warning"];
+    const statusDesc = ["Unkown", "Start Serving", "Cancelled", "Completed", "Unknown", "Upcoming", "Confirmed", "Tentative", "Customer Arrived"];
 
     return (
         <div>
             <Row>
                 <Col lg="12" xs="12">
                     <div className="position-relative today">
-                        <h3 className="text-light">Today's Customers</h3>
+                        <h3 className="text-light evergreen">Today's Customers</h3>
                         <div className="position-absolute top-0 end-0" style={{ marginTop: -10 }}>
                             <Button variant="indigo" className="text-light mt-2" size="lg" onClick={() => refresh()}><Icon.ArrowClockwise /></Button>
                         </div>

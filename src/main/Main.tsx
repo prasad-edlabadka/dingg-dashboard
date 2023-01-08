@@ -1,10 +1,9 @@
-import { useState } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import DinggLogin from "./DinggLogin";
 import Tiles from "./Tiles";
 
-function Main() {
-    const [token, setToken] = useState(localStorage.getItem("token"));
+function Main({ token, setToken }: { token: string | null, setToken: any }) {
+    
     if (!token) {
         return (
             <Container>
