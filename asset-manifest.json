@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/dingg-dashboard/static/css/main.30ea934e.css",
-    "main.js": "/dingg-dashboard/static/js/main.98d7a088.js",
+    "main.css": "/dingg-dashboard/static/css/main.32d7a692.css",
+    "main.js": "/dingg-dashboard/static/js/main.96ffa9c3.js",
     "static/js/787.01d01b5d.chunk.js": "/dingg-dashboard/static/js/787.01d01b5d.chunk.js",
     "static/media/bg.jpg": "/dingg-dashboard/static/media/bg.2a3468975b4a91e1d68b.jpg",
     "static/media/Evergreen.otf": "/dingg-dashboard/static/media/Evergreen.9ef5bb67aa47b6292aee.otf",
@@ -10,12 +10,12 @@
     "static/media/Flama Regular.woff": "/dingg-dashboard/static/media/Flama Regular.3a52dfa689fd2e0559f4.woff",
     "static/media/logo.png": "/dingg-dashboard/static/media/logo.c073a086c540be50c93b.png",
     "index.html": "/dingg-dashboard/index.html",
-    "main.30ea934e.css.map": "/dingg-dashboard/static/css/main.30ea934e.css.map",
-    "main.98d7a088.js.map": "/dingg-dashboard/static/js/main.98d7a088.js.map",
+    "main.32d7a692.css.map": "/dingg-dashboard/static/css/main.32d7a692.css.map",
+    "main.96ffa9c3.js.map": "/dingg-dashboard/static/js/main.96ffa9c3.js.map",
     "787.01d01b5d.chunk.js.map": "/dingg-dashboard/static/js/787.01d01b5d.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.30ea934e.css",
-    "static/js/main.98d7a088.js"
+    "static/css/main.32d7a692.css",
+    "static/js/main.96ffa9c3.js"
   ]
 }
