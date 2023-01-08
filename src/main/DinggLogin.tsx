@@ -14,7 +14,7 @@ function DinggLogin({ setToken }:{setToken: any}) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({"isWeb":true,"password":password,"fcm_token":"","mobile":userid})
+            body: JSON.stringify({"isWeb":false,"password":password,"fcm_token":"","mobile":userid})
         };
         fetch(apiURL, requestMetadata)
             .then(res => res.json())
