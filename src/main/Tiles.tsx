@@ -12,7 +12,7 @@ export default function Tiles({token, setToken}:{token:string, setToken:any}) {
     return (
         <div>
         <Row>
-            {tileList.map((Comp, key) => (<Col xl={4} xs={12} className="gy-4"><Comp token={token} setToken={setToken} key={'tile'+key}/></Col>))}
+            {tileList.map((Comp, key) => (<Col xl={4} xs={12} className="gy-4" key={'tilCol'+key}><Comp token={token} setToken={setToken} key={'tile'+key}/></Col>))}
         </Row>
         <Row>
             <Col xl={12} xs={12} className="gy-4"><BookingsV2 token={token} setToken={setToken} key={'tile999'}/></Col>

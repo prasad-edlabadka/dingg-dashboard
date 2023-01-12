@@ -66,11 +66,11 @@ export default function Staff({ token, setToken }: { token: string, setToken: an
                             </div>
                             </div>
                             {
-                                reportData.data.map(val => {
+                                reportData.data.map((val, index) => {
                                     const target = (staffTargets[val.stylist.trim() as keyof typeof staffTargets] || defaultTarget)
                                     const targetPercentage = Math.round(val["service price"] * 100 / target);
                                     return(
-                                    <Row>
+                                    <Row key={'staff'+index}>
                                         <Col lg={4} xs={5}>{val.stylist}</Col>
                                         <Col xs={7} className="d-lg-none text-end align-bottom">{currFormatter.format(val["service price"])} of {currFormatter.format(target)}</Col>
                                         <Col lg={4} className="mt-2">

@@ -175,22 +175,22 @@ export default function BookingsV2({ token, setToken }: { token: string, setToke
             </Row>
             <Row>
                 {
-                    billingData.map(booking => {
+                    billingData.map((booking, index) => {
                         return (
-                            <Col xl={4} xs={12} className="gy-4">
+                            <Col xl={4} xs={12} className="gy-4" key={"booking"+index}>
                                 <Card className="shadow" bg={'success'} text="light" >
                                     <Card.Body>
                                         <div>
                                             <h3>{booking.user.display_name === null? `${booking.user.fname} ${booking.user.lname}`.trim():booking.user.display_name} ({formatter.format(booking.payments.total)})</h3>
                                             <ul className="list-group list-group-flush">
-                                                {booking.services.map(service => {
-                                                    return (<li className="list-group-item bg-transparent text-light border-white ps-0">
+                                                {booking.services.map((service, index) => {
+                                                    return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={booking.id + 's' + index}>
                                                         {service.vendor_service.service} ({formatter.format(service.price)})<p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{service.employee.name}</p>
                                                     </li>);
                                                 })
                                                 }
-                                                {booking.products.map(prod => {
-                                                    return (<li className="list-group-item bg-transparent text-light border-white ps-0">
+                                                {booking.products.map((prod, index) => {
+                                                    return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={booking.id + 'p' + index}>
                                                         {prod.product.name} ({formatter.format(prod.price)})<p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{prod.employee.name}</p>
                                                     </li>);
                                                 })

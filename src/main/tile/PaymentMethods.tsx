@@ -64,10 +64,10 @@ export default function PaymentMethods({ token, setToken }: { token: string, set
                             </div>
                         </div>
                         {
-                            reportData.data.map(val => {
+                            reportData.data.map((val, index) => {
                                 const targetPercentage = Math.round(val.total * 100 / total)
                                 return (
-                                    <Row>
+                                    <Row key={'paymentmethod'+index}>
                                         <Col lg={4} xs={5}>{val["payment mode"]}</Col>
                                         <Col xs={7} className="d-lg-none text-end align-bottom">{currFormatter.format(val.total)} ({targetPercentage}%)</Col>
                                         <Col lg={4} className="mt-2">
@@ -84,10 +84,10 @@ export default function PaymentMethods({ token, setToken }: { token: string, set
                             <h3>Payments for Today</h3>
                         </div>
                         {
-                            dayReportData.data.map(val => {
+                            dayReportData.data.map((val, index) => {
                                 const targetPercentage = Math.round(val.total * 100 / dayTotal)
                                 return (
-                                    <Row>
+                                    <Row key={'paymentmethodtoday'+index}>
                                         <Col lg={4} xs={5}>{val["payment mode"]}</Col>
                                         <Col xs={7} className="d-lg-none text-end align-bottom">{currFormatter.format(val.total)} ({targetPercentage}%)</Col>
                                         <Col lg={4} className="mt-2">
