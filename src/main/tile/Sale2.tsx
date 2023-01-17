@@ -1,7 +1,7 @@
 import {useEffect, useState } from "react";
 import { Button, ButtonGroup, Card, Col, Row, Spinner } from "react-bootstrap";
 import * as Icon from 'react-bootstrap-icons';
-import callAPI from "./Utility";
+import callAPI, { addDays, formatDate, formatDisplayDate, formatWeekDay, getFirstDayOfWeek } from "./Utility";
 
 export default function Sale2({ token, setToken }: { token: string, setToken: any }) {
     const dataStructure = { price: -1, discount: -1, tax: -1, woTax: -1, total: -1, start: "", end: "" };
@@ -244,33 +244,3 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
     )
 }
 
-function padTo2Digits(num: number) {
-    return num.toString().padStart(2, '0');
-}
-
-function getFirstDayOfWeek(d: Date) {
-    const date = new Date(d);
-    const day = date.getDay();
-    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-    return new Date(date.setDate(diff));
-}
-
-function formatDate(dt: Date): string {
-    return [dt.getFullYear(), padTo2Digits(dt.getMonth() + 1), padTo2Digits(dt.getDate())].join('-');
-}
-
-function addDays(dt: Date, days: number): Date {
-    let retDate = new Date(dt);
-    const result = retDate.setDate(retDate.getDate() + days);
-    return new Date(result);
-}
-
-function formatDisplayDate(d: Date) {
-    return d.toLocaleDateString('en-GB', {
-        day: 'numeric', month: 'short', year: 'numeric'
-    }).replace(/ /g, '-');
-}
-
-function formatWeekDay(d: Date) {
-    return d.toLocaleDateString('en-GB', { weekday: 'long' })
-}

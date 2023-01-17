@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { Button, Card, Col, Row } from "react-bootstrap";
-import callAPI from "./Utility";
+import callAPI, { currencyFormatter, formatDate } from "./Utility";
 import * as Icon from 'react-bootstrap-icons';
 
 export default function BookingsV2({ token, setToken }: { token: string, setToken: any }) {
-    const formatter = Intl.NumberFormat('en-in', { style: "currency", currency: "INR", maximumFractionDigits: 0 });
     const [billingData, setBillingData] = useState([
         {
             "id": 0,
@@ -181,17 +180,17 @@ export default function BookingsV2({ token, setToken }: { token: string, setToke
                                 <Card className="shadow" bg={booking.status?'success':'danger'} text="light" >
                                     <Card.Body>
                                         <div>
-                                            <h3>{booking.user.display_name === null? `${booking.user.fname} ${booking.user.lname}`.trim():booking.user.display_name} ({formatter.format(booking.payments.total)})</h3>
+                                            <h3>{booking.user.display_name === null? `${booking.user.fname} ${booking.user.lname}`.trim():booking.user.display_name} ({currencyFormatter.format(booking.payments.total)})</h3>
                                             <ul className="list-group list-group-flush">
                                                 {booking.services.map((service, index) => {
                                                     return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={booking.id + 's' + index}>
-                                                        {service.vendor_service.service} ({formatter.format(service.price)})<p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{service.employee.name}</p>
+                                                        {service.vendor_service.service} ({currencyFormatter.format(service.price)})<p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{service.employee.name}</p>
                                                     </li>);
                                                 })
                                                 }
                                                 {booking.products.map((prod, index) => {
                                                     return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={booking.id + 'p' + index}>
-                                                        {prod.product.name} ({formatter.format(prod.price)})<p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{prod.employee.name}</p>
+                                                        {prod.product.name} ({currencyFormatter.format(prod.price)})<p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{prod.employee.name}</p>
                                                     </li>);
                                                 })
                                                 }
@@ -200,8 +199,8 @@ export default function BookingsV2({ token, setToken }: { token: string, setToke
                                     </Card.Body>
                                     {
                                         booking.status?<Card.Footer className="w-100">
-                                        <div className="text-start d-inline small">Without discount: {formatter.format(booking.payments.price)}</div>
-                                        <div className="text-end d-inline small float-end">Discount: {formatter.format(booking.payments.discount)}</div>
+                                        <div className="text-start d-inline small">Without discount: {currencyFormatter.format(booking.payments.price)}</div>
+                                        <div className="text-end d-inline small float-end">Discount: {currencyFormatter.format(booking.payments.discount)}</div>
                                     </Card.Footer>:
                                     <Card.Footer className="w-100">
                                         <div className="text-start d-inline small">Invoice Cancelled</div>
@@ -218,12 +217,4 @@ export default function BookingsV2({ token, setToken }: { token: string, setToke
         </div>
 
     )
-}
-
-function padTo2Digits(num: number) {
-    return num.toString().padStart(2, '0');
-}
-
-function formatDate(dt: Date): string {
-    return [dt.getFullYear(), padTo2Digits(dt.getMonth() + 1), padTo2Digits(dt.getDate())].join('-');
 }

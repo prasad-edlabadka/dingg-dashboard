@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button, Card, Col, OverlayTrigger, ProgressBar, Row, Spinner, Tooltip } from "react-bootstrap";
-import callAPI from "./Utility";
+import callAPI, { formatDate } from "./Utility";
 import * as Icon from 'react-bootstrap-icons';
 
 export default function Staff({ token, setToken }: { token: string, setToken: any }) {
@@ -88,12 +88,4 @@ export default function Staff({ token, setToken }: { token: string, setToken: an
 
         </Card>
     )
-}
-
-function padTo2Digits(num: number) {
-    return num.toString().padStart(2, '0');
-}
-
-function formatDate(dt: Date): string {
-    return [dt.getFullYear(), padTo2Digits(dt.getMonth() + 1), padTo2Digits(dt.getDate())].join('-');
 }

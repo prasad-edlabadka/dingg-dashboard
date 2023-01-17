@@ -88,22 +88,6 @@ export default function Stock({ token, setToken }: { token: string, setToken: an
 
                             })
                         }
-
-                        {/* <div className="accordion accordion-flush" id="accordionFlushExample">
-                            {
-                                reportData.data.map((val, index) => {
-                                    return (
-                                        val.depth === 1 ?
-                                        <div className="accordion-item" key={'stockitem'+index}>
-                                            <div id="flush-collapseOne" className="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
-                                            <div className="accordion-body">{val.name}<p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{val.quantity} available in stock. Minimum {Number(val.low_qty) + 1} should be ordered.</p><p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>Cost: {currFormatter.format(val.cost)}</p></div>
-                                            </div>
-                                        </div>
-                                        : '')
-                                        
-                                })
-                            }
-                            </div> */}
                     </Card.Body>
             }
 

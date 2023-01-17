@@ -42,5 +42,34 @@ export function padTo2Digits(num: number) {
 export function formatDate(dt: Date): string {
     return [dt.getFullYear(), padTo2Digits(dt.getMonth() + 1), padTo2Digits(dt.getDate())].join('-');
 }
+
+export function formatTime(dt: Date): string {
+  return dt.toLocaleTimeString('en-GB', { hour12: true, hour: "2-digit", minute: "2-digit" });
+}
+
+export const currencyFormatter = Intl.NumberFormat('en-in', { style: "currency", currency: "INR", maximumFractionDigits: 0 });
   
-  export {setCookie, getCookie};
+export function getFirstDayOfWeek(d: Date) {
+  const date = new Date(d);
+  const day = date.getDay();
+  const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+  return new Date(date.setDate(diff));
+}
+
+
+export function addDays(dt: Date, days: number): Date {
+  let retDate = new Date(dt);
+  const result = retDate.setDate(retDate.getDate() + days);
+  return new Date(result);
+}
+
+export function formatDisplayDate(d: Date) {
+  return d.toLocaleDateString('en-GB', {
+      day: 'numeric', month: 'short', year: 'numeric'
+  }).replace(/ /g, '-');
+}
+
+export function formatWeekDay(d: Date) {
+  return d.toLocaleDateString('en-GB', { weekday: 'long' })
+}
+export {setCookie, getCookie};

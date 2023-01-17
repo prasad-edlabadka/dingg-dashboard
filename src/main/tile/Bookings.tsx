@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { Button, Card, Col, Row } from "react-bootstrap";
-import callAPI from "./Utility";
+import callAPI, { currencyFormatter, formatDate, formatTime } from "./Utility";
 import * as Icon from 'react-bootstrap-icons';
 import * as _ from "lodash";
 
 export default function Bookings({ token, setToken }: { token: string, setToken: any }) {
-    const formatter = Intl.NumberFormat('en-in', { style: "currency", currency: "INR", maximumFractionDigits: 0 });
     const [bookingData, setBookingData] = useState([
         {
             customerName: "",
@@ -20,49 +19,6 @@ export default function Bookings({ token, setToken }: { token: string, setToken:
         }
     ]);
 
-    // const [billingData, setBilingData] = useState([
-    //     {
-    //         "id": 0,
-    //         "selected_date": "",
-    //         "bill_number": "",
-    //         "total": 0,
-    //         "paid": 0,
-    //         "payment_status": "",
-    //         "status": true,
-    //         "cancel_reason": null,
-    //         "net": 0,
-    //         "tax": 0,
-    //         "user": {
-    //             "id": 0,
-    //             "fname": "",
-    //             "lname": "",
-    //             "display_name": null,
-    //             "mobile": "",
-    //             "user_histories": [
-    //                 {
-    //                     "fname": "",
-    //                     "lname": "",
-    //                     "mobile": ""
-    //                 }
-    //             ]
-    //         },
-    //         "bill_payments": [
-    //             {
-    //                 "id": 0,
-    //                 "bill_id": 0,
-    //                 "payment_date": "",
-    //                 "payment_mode": 0,
-    //                 "amount": 0,
-    //                 "redemption": false,
-    //                 "note": "",
-    //                 "vendor_location_id": null,
-    //                 "createdAt": "",
-    //                 "updatedAt": ""
-    //             }
-    //         ]
-    //     }
-    // ])
- 
     useEffect(() => {
         loadData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -136,7 +92,7 @@ export default function Bookings({ token, setToken }: { token: string, setToken:
                                 <Card className="shadow" bg={statusColor[booking.status] || 'dark'} text="light" >
                                     <Card.Body>
                                         <div>
-                                            <h3>{booking.customerName} ({formatter.format(booking.billAmount)})</h3>
+                                            <h3>{booking.customerName} ({currencyFormatter.format(booking.billAmount)})</h3>
                                             <ul className="list-group list-group-flush">
                                                 {booking.services.map(service => {
                                                     return (<li className="list-group-item bg-transparent text-light border-white ps-0">
@@ -162,17 +118,6 @@ export default function Bookings({ token, setToken }: { token: string, setToken:
     )
 }
 
-function padTo2Digits(num: number) {
-    return num.toString().padStart(2, '0');
-}
-
-function formatTime(dt: Date): string {
-    return dt.toLocaleTimeString('en-GB', { hour12: true, hour: "2-digit", minute: "2-digit" });
-}
-
-function formatDate(dt: Date): string {
-    return [dt.getFullYear(), padTo2Digits(dt.getMonth() + 1), padTo2Digits(dt.getDate())].join('-');
-}
 
 function extractAmount(txt: string): number {
     const indexOfSymbol = txt.indexOf("₹");
