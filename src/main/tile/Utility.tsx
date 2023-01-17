@@ -34,5 +34,13 @@ function setCookie(cname: string, cvalue: string, exdays: number) {
     }
     return "";
   }
+
+export function padTo2Digits(num: number) {
+    return num.toString().padStart(2, '0');
+}
+
+export function formatDate(dt: Date): string {
+    return [dt.getFullYear(), padTo2Digits(dt.getMonth() + 1), padTo2Digits(dt.getDate())].join('-');
+}
   
   export {setCookie, getCookie};
