@@ -178,7 +178,7 @@ export default function BookingsV2({ token, setToken }: { token: string, setToke
                     billingData.map((booking, index) => {
                         return (
                             <Col xl={4} xs={12} className="gy-4" key={"booking"+index}>
-                                <Card className="shadow" bg={'success'} text="light" >
+                                <Card className="shadow" bg={booking.status?'success':'danger'} text="light" >
                                     <Card.Body>
                                         <div>
                                             <h3>{booking.user.display_name === null? `${booking.user.fname} ${booking.user.lname}`.trim():booking.user.display_name} ({formatter.format(booking.payments.total)})</h3>
@@ -198,10 +198,17 @@ export default function BookingsV2({ token, setToken }: { token: string, setToke
                                             </ul>
                                         </div>
                                     </Card.Body>
-                                    <Card.Footer className="w-100">
+                                    {
+                                        booking.status?<Card.Footer className="w-100">
                                         <div className="text-start d-inline small">Without discount: {formatter.format(booking.payments.price)}</div>
                                         <div className="text-end d-inline small float-end">Discount: {formatter.format(booking.payments.discount)}</div>
+                                    </Card.Footer>:
+                                    <Card.Footer className="w-100">
+                                        <div className="text-start d-inline small">Invoice Cancelled</div>
+                                        <div className="text-end d-inline small float-end">Reason: {booking.cancel_reason}</div>
                                     </Card.Footer>
+                                    }
+                                    
                                 </Card>
                             </Col>
                         );
