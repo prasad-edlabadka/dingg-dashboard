@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/dingg-dashboard/static/css/main.6518d81c.css",
-    "main.js": "/dingg-dashboard/static/js/main.16d9ffd7.js",
+    "main.js": "/dingg-dashboard/static/js/main.91524a2a.js",
     "static/js/787.01d01b5d.chunk.js": "/dingg-dashboard/static/js/787.01d01b5d.chunk.js",
     "static/media/bg.jpg": "/dingg-dashboard/static/media/bg.2a3468975b4a91e1d68b.jpg",
     "static/media/Evergreen.otf": "/dingg-dashboard/static/media/Evergreen.9ef5bb67aa47b6292aee.otf",
@@ -11,11 +11,11 @@
     "static/media/logo.png": "/dingg-dashboard/static/media/logo.c073a086c540be50c93b.png",
     "index.html": "/dingg-dashboard/index.html",
     "main.6518d81c.css.map": "/dingg-dashboard/static/css/main.6518d81c.css.map",
-    "main.16d9ffd7.js.map": "/dingg-dashboard/static/js/main.16d9ffd7.js.map",
+    "main.91524a2a.js.map": "/dingg-dashboard/static/js/main.91524a2a.js.map",
     "787.01d01b5d.chunk.js.map": "/dingg-dashboard/static/js/787.01d01b5d.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.6518d81c.css",
-    "static/js/main.16d9ffd7.js"
+    "static/js/main.91524a2a.js"
   ]
 }
