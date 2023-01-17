@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Accordion, Button, Card, Spinner } from "react-bootstrap";
-import callAPI, { formatDate } from "./Utility";
+import callAPI, { currencyFormatter, formatDate } from "./Utility";
 import * as Icon from 'react-bootstrap-icons';
 
 
@@ -25,7 +25,6 @@ export default function Consumption({ token, setToken }: { token: string, setTok
             // for(let i in grouped) {
             //     grouped[i] = groupBy(grouped[i], (v: string) => v["Sub Category"]);
             // }
-            console.log(grouped);
             setReportData(grouped);
             setLoading(false);
         });
@@ -64,7 +63,7 @@ export default function Consumption({ token, setToken }: { token: string, setTok
                                                 {
                                                     val.map((item: { [x: string]: string }, index2: string) => {
                                                         return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={keyName + 'item' + index2}>
-                                                            {item["product name"]}<p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{item["consumed"]} of {item["total volume"]} consumed. {item["status"] === "CONSUMED"?"It is fully consumed.": ""}</p></li>
+                                                            {item["product name"]}<p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{item["consumed"]} of {item["total volume"]} consumed. {item["status"] === "CONSUMED"?`It is fully consumed. Cost: ${currencyFormatter.format(Number(item["purchase price"]))}`: ""}</p></li>
                                                     )})
                                                 }
 
