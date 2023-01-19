@@ -9,13 +9,13 @@ export default function Staff({ token, setToken }: { token: string, setToken: an
     const currFormatter = Intl.NumberFormat('en-in', {style:"currency", currency:"INR", maximumFractionDigits: 0});
 
     const staffTargets = {
-        "Nadeem": 76000,
+        "Anand": 88000,
         "Pooja": 60000,
         "Deepa": 46000,
         "Jassi": 112000,
         "Manager": 52000,
         "Prasad": 72000,
-        "Rutja": 40000
+        "Rutuja": 40000
     }
 
     const defaultTarget = 100000;

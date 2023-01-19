@@ -98,6 +98,42 @@ export default function BookingsV2({ token, setToken }: { token: string, setToke
                     "bill_service_splits": []
                 }
             ],
+            "memberships": 
+                {
+                    "id": 0,
+                    "price": 0,
+                    "qty": 0,
+                    "discount": 0,
+                    "tax": 0,
+                    "total": 0,
+                    "net": 0,
+                    "paid": 0,
+                    "redeem": 0,
+                    "discount_id": "",
+                    "discount_type": "",
+                    "emp_share_on_redeem": 0,
+                    "p_modes": [
+                        {
+                            "amount": 0,
+                            "payment_mode": 0
+                        }
+                    ],
+                    "tax_percent": 0,
+                    "tax_1_percent": 0,
+                    "tax_2_percent": 0,
+                    "employee": {
+                        "id": 0,
+                        "name": ""
+                    },
+                    "membership": {
+                        id: 0,
+                        membership_type: {
+                            id: 0,
+                            type: ""
+                        }
+                    },
+                    "bill_service_splits": []
+                },
             "payments": {
                 "price": 0,
                 "discount": 0,
@@ -139,8 +175,9 @@ export default function BookingsV2({ token, setToken }: { token: string, setToke
                 const billURL = `https://api.dingg.app/api/v1//bill?bill_id=${bill.bill_payments[0].bill_id}`;
                 // eslint-disable-next-line no-loop-func
                 callAPI(billURL, token, setToken, (billData: any) => {
-                    bill.services = billData.data.billSItems;
-                    bill.products = billData.data.billPItems;
+                    bill.services = billData.data.billSItems || [];
+                    bill.products = billData.data.billPItems || [];
+                    bill.memberships = billData.data.billmitem;
                     bill.payments = {};
                     bill.payments.price = billData.data.price;
                     bill.payments.discount = billData.data.discount;
@@ -193,6 +230,11 @@ export default function BookingsV2({ token, setToken }: { token: string, setToke
                                                         {prod.product.name} ({currencyFormatter.format(prod.price)})<p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{prod.employee.name}</p>
                                                     </li>);
                                                 })
+                                                }
+                                                {booking.memberships !== null? 
+                                                    <li className="list-group-item bg-transparent text-light border-white ps-0" key={booking.id + 'm' + index}>
+                                                        <Icon.StarFill style={{marginTop: -4}} color="gold"/> {booking.memberships.membership.membership_type.type} ({currencyFormatter.format(booking.memberships.price)})<p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{booking.memberships.employee.name}</p>
+                                                    </li>:''
                                                 }
                                             </ul>
                                         </div>
