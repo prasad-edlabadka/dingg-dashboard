@@ -43,6 +43,10 @@ export function formatDate(dt: Date): string {
     return [dt.getFullYear(), padTo2Digits(dt.getMonth() + 1), padTo2Digits(dt.getDate())].join('-');
 }
 
+export function getStartOfMonth(dt: Date): string {
+  return [dt.getFullYear(), padTo2Digits(dt.getMonth() + 1), "01"].join('-');
+}
+
 export function formatTime(dt: Date): string {
   return dt.toLocaleTimeString('en-GB', { hour12: true, hour: "2-digit", minute: "2-digit" });
 }

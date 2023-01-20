@@ -64,12 +64,11 @@ export default function Stock({ token, setToken }: { token: string, setToken: an
                                 return (
                                     <Accordion flush key={'stockitem' + index}>
                                         <Accordion.Header className="w-100">
-                                            <div  className="w-100 pe-2 pb-2">
-                                            <div className="text-start d-inline h5">{val.name}</div>
-                                        <div className="text-end d-inline float-end">{val.items.length} items <p className="d-inline small text-white-50 mb-0">({currFormatter.format(val.itemsTotal)})</p></div>
-                                            
+                                            <div className="w-100 pe-2 pb-2">
+                                                <div className="text-start d-inline h5">{val.name}</div>
+                                                <div className="text-end d-inline float-end">{val.items.length} items <p className="d-inline small text-white-50 mb-0">({currFormatter.format(val.itemsTotal)})</p></div>
                                             </div>
-                                       
+
                                         </Accordion.Header>
                                         <Accordion.Body>
                                             <ul className="list-group list-group-flush">
@@ -77,7 +76,8 @@ export default function Stock({ token, setToken }: { token: string, setToken: an
                                                     val.items.map((item, index2) => {
                                                         return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={val.name + 'item' + index2}>
                                                             {item.name}<p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{item.quantity} available in stock. Minimum {Number(item.low_qty) + 1} should be ordered.</p><p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>Cost: {currFormatter.format(item.cost)}</p></li>
-                                                    )})
+                                                        )
+                                                    })
                                                 }
 
                                             </ul>
