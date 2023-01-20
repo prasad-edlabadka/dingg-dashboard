@@ -13,6 +13,7 @@ export default function Consumption({ token, setToken }: { token: string, setTok
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    // eslint-disable-next-line no-sequences
     const groupBy = (x: any[],f: { (v: string): any; (arg0: any, arg1: any, arg2: any): string | number; })=>x.reduce((a,b,i)=>((a[f(b,i,x)]||=[]).push(b),a),{});
 
     const loadData = () => {

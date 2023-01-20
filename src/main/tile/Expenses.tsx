@@ -7,6 +7,7 @@ export default function Expenses({ token, setToken }: { token: string, setToken:
     const [expenseData, setExpenseData] = useState({});
     const [loading, setLoading] = useState(true);
     const [total, setTotal] = useState(-1);
+    // eslint-disable-next-line no-sequences
     const groupBy = (x: any[], f: { (v: string): any; (arg0: any, arg1: any, arg2: any): string | number; }) => x.reduce((a, b, i) => ((a[f(b, i, x)] ||= []).push(b), a), {});
 
     useEffect(() => {
@@ -37,7 +38,7 @@ export default function Expenses({ token, setToken }: { token: string, setToken:
                 loading ? <Card.Body><Spinner animation="grow" /></Card.Body> :
                     <Card.Body>
                         <div className="position-relative">
-                            <h2>Expenses for current month<p className="small text-white-50 mb-0">Total: {currencyFormatter.format(total)}</p></h2>
+                            <h2>Monthly Expenses<p className="small mb-0">Total: {currencyFormatter.format(total)}</p></h2>
                             <div className="position-absolute top-0 end-0" style={{ marginTop: -6 }}>
                                 <Button variant="indigo" className="text-light" size="lg" onClick={() => refresh()}><Icon.ArrowClockwise /></Button>
                             </div>
@@ -49,9 +50,9 @@ export default function Expenses({ token, setToken }: { token: string, setToken:
                                 return (
                                     <Accordion flush key={'expense' + index}>
                                         <Accordion.Header className="w-100">
-                                            <div className="w-100 pe-2 pb-2">
+                                            <div className="w-100 pe-2 pb-1">
                                                 <div className="text-start d-inline h5">{keyName}</div>
-                                                <div className="text-end d-inline float-end">{val.length} items <p className="d-inline small text-white-50 mb-0">({currencyFormatter.format(getTotal(val))})</p></div>
+                                                <div className="text-end d-inline float-end"><p className="d-inline mb-0">{currencyFormatter.format(getTotal(val))}</p></div>
                                             </div>
                                         </Accordion.Header>
                                         <Accordion.Body>

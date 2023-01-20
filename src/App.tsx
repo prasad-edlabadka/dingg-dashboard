@@ -7,10 +7,11 @@ import { useState } from 'react';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
+  const [navOption, setNavOption] = useState("home");
   return (
     <div>
-      <DinggNav token={token} setToken={setToken}/>
-      <Main token={token} setToken={setToken}/>
+      <DinggNav token={token} setToken={setToken} navOption={navOption} setNavOption={setNavOption}/>
+      <Main token={token} setToken={setToken} navOption={navOption} setNavOption={setNavOption}/>
     </div>
   );
 }

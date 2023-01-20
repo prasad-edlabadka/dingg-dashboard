@@ -1,9 +1,9 @@
 import { Container, Nav, Navbar } from "react-bootstrap";
 import logo from './logo.png';
 
-function DinggNav({ token, setToken }: { token: string | null, setToken: any }) {
+function DinggNav({ token, setToken, navOption, setNavOption }: { token: string | null, setToken: any, navOption: string | null, setNavOption: any }) {
   return (
-    <Navbar bg="dark" variant="dark" expand="lg">
+    <Navbar bg="dark" variant="dark" expand="lg" collapseOnSelect>
       <Container>
         <Navbar.Brand href="#home" className="evergreen"><img
           alt=""
@@ -16,6 +16,9 @@ function DinggNav({ token, setToken }: { token: string | null, setToken: any }) 
         {token !== null ?
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
+              <Nav.Link href="#home" onClick={() => setNavOption('home')}>Home</Nav.Link>
+              <Nav.Link href="#home" onClick={() => setNavOption('products')}>Products</Nav.Link>
+              <Nav.Link href="#home" onClick={() => setNavOption('customers')}>Customers</Nav.Link>
               <Nav.Link href="#home" onClick={() => setToken(null)}>Logout</Nav.Link>
             </Nav>
           </Navbar.Collapse> : ''
