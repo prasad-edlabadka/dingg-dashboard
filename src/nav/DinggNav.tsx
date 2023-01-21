@@ -18,7 +18,7 @@ function DinggNav({ token, setToken, navOption, setNavOption }: { token: string 
             <Nav className="me-auto">
               <Nav.Link href="#home" onClick={() => setNavOption('home')}>Home</Nav.Link>
               <Nav.Link href="#home" onClick={() => setNavOption('products')}>Products</Nav.Link>
-              <Nav.Link href="#home" onClick={() => setNavOption('customers')}>Customers</Nav.Link>
+              <Nav.Link href="#home" onClick={() => setNavOption('finance')}>Finance</Nav.Link>
               <Nav.Link href="#home" onClick={() => setToken(null)}>Logout</Nav.Link>
             </Nav>
           </Navbar.Collapse> : ''
