@@ -2,6 +2,8 @@ import { SetStateAction, useEffect, useState } from "react";
 import { Button, Card, Col, Row } from "react-bootstrap";
 import callAPI, { currencyFormatter, formatDate } from "./Utility";
 import * as Icon from 'react-bootstrap-icons';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpa } from "@fortawesome/free-solid-svg-icons";
 
 export default function BookingsV2({ token, setToken }: { token: string, setToken: any }) {
     const [billingData, setBillingData] = useState([
@@ -135,6 +137,41 @@ export default function BookingsV2({ token, setToken }: { token: string, setToke
                     },
                     "bill_service_splits": []
                 },
+                "packages": {
+                    "id": 0,
+                "employee_id": 0,
+                "price": 0,
+                "qty": 0,
+                "discount": 0,
+                "tax": 0,
+                "total": 0,
+                "net": 0,
+                "paid": 0,
+                "redeem": 0,
+                "discount_id": null,
+                "discount_type": null,
+                "emp_share_on_redeem": 0,
+                "p_modes": [
+                    {
+                        "amount": 0,
+                        "payment_mode": 0
+                    }
+                ],
+                "tax_percent": 0,
+                "tax_1_percent": 0,
+                "tax_2_percent": 0,
+                "package": {
+                    "id": 0,
+                    "package_type": {
+                        "id": 0,
+                        "package_name": ""
+                    }
+                },
+                "employee": {
+                    "id": 0,
+                    "name": ""
+                }
+            },
             "payments": {
                 "price": 0,
                 "discount": 0,
@@ -167,7 +204,7 @@ export default function BookingsV2({ token, setToken }: { token: string, setToke
 
     const loadData = () => {
         const apiURL = `https://api.dingg.app/api/v1/vendor/bills?web=true&page=1&limit=1000&start=${formatDate(new Date())}&end=${formatDate(new Date())}&term=&is_product_only=`;
-        //const apiURL = `https://api.dingg.app/api/v1/calender/booking?date=2022-12-18`
+        //const apiURL = `https://api.dingg.app/api/v1/vendor/bills?web=true&page=1&limit=1000&start=2023-01-22&end=2023-01-22&term=&is_product_only=`
         callAPI(apiURL, token, setToken, (data: any) => {
             let counter = 0;
             for(var billIndex in data.data) {
@@ -178,6 +215,7 @@ export default function BookingsV2({ token, setToken }: { token: string, setToke
                     bill.services = billData.data.billSItems || [];
                     bill.products = billData.data.billPItems || [];
                     bill.memberships = billData.data.billmitem;
+                    bill.packages = billData.data.billpkitem;
                     bill.payments = {};
                     bill.payments.price = billData.data.price;
                     bill.payments.discount = billData.data.discount;
@@ -193,7 +231,7 @@ export default function BookingsV2({ token, setToken }: { token: string, setToke
         });
     }
 
-    const identifyMembers = (data: { data: SetStateAction<{ id: number; selected_date: string; bill_number: string; total: number; paid: number; payment_status: string; status: boolean; cancel_reason: string; net: number; tax: number; roundoff: number; user: { id: number; fname: string; lname: string; display_name: string; mobile: string; is_member: boolean; }; products: { employee_id: number; price: number; qty: number; discount: number; tax: number; total: number; net: number; paid: number; redeem: number; discount_id: string; discount_type: string; emp_share_on_redeem: number; p_modes: { amount: number; payment_mode: number; }[]; product_lot_id: string; tax_percent: number; tax_1_percent: number; tax_2_percent: number; product: { id: string; name: string; sac_code: number; }; employee: { id: number; name: string; }; product_lot: null; }[]; services: { id: number; price: number; qty: number; discount: number; tax: number; total: number; net: number; paid: number; redeem: number; discount_id: string; discount_type: string; emp_share_on_redeem: number; p_modes: { amount: number; payment_mode: number; }[]; tax_percent: number; tax_1_percent: number; tax_2_percent: number; employee: { id: number; name: string; }; vendor_service: { id: number; service: string; service_time: string; sub_category: { sac_code: string; }; }; bill_service_splits: never[]; }[]; memberships: { id: number; price: number; qty: number; discount: number; tax: number; total: number; net: number; paid: number; redeem: number; discount_id: string; discount_type: string; emp_share_on_redeem: number; p_modes: { amount: number; payment_mode: number; }[]; tax_percent: number; tax_1_percent: number; tax_2_percent: number; employee: { id: number; name: string; }; membership: { id: number; membership_type: { id: number; type: string; }; }; bill_service_splits: never[]; }; payments: { price: number; discount: number; tax: number; total: number; }; bill_payments: { id: number; bill_id: number; payment_date: string; payment_mode: number; amount: number; redemption: boolean; note: string; vendor_location_id: string; createdAt: string; updatedAt: string; }[]; }[]>; }) => {
+    const identifyMembers = (data: { data: SetStateAction<{ id: number; selected_date: string; bill_number: string; total: number; paid: number; payment_status: string; status: boolean; cancel_reason: string; net: number; tax: number; roundoff: number; user: { id: number; fname: string; lname: string; display_name: string; mobile: string; is_member: boolean; }; products: { employee_id: number; price: number; qty: number; discount: number; tax: number; total: number; net: number; paid: number; redeem: number; discount_id: string; discount_type: string; emp_share_on_redeem: number; p_modes: { amount: number; payment_mode: number; }[]; product_lot_id: string; tax_percent: number; tax_1_percent: number; tax_2_percent: number; product: { id: string; name: string; sac_code: number; }; employee: { id: number; name: string; }; product_lot: null; }[]; services: { id: number; price: number; qty: number; discount: number; tax: number; total: number; net: number; paid: number; redeem: number; discount_id: string; discount_type: string; emp_share_on_redeem: number; p_modes: { amount: number; payment_mode: number; }[]; tax_percent: number; tax_1_percent: number; tax_2_percent: number; employee: { id: number; name: string; }; vendor_service: { id: number; service: string; service_time: string; sub_category: { sac_code: string; }; }; bill_service_splits: never[]; }[]; memberships: { id: number; price: number; qty: number; discount: number; tax: number; total: number; net: number; paid: number; redeem: number; discount_id: string; discount_type: string; emp_share_on_redeem: number; p_modes: { amount: number; payment_mode: number; }[]; tax_percent: number; tax_1_percent: number; tax_2_percent: number; employee: { id: number; name: string; }; membership: { id: number; membership_type: { id: number; type: string; }; }; bill_service_splits: never[]; }; packages: { id: number; employee_id: number; price: number; qty: number; discount: number; tax: number; total: number; net: number; paid: number; redeem: number; discount_id: null; discount_type: null; emp_share_on_redeem: number; p_modes: { amount: number; payment_mode: number; }[]; tax_percent: number; tax_1_percent: number; tax_2_percent: number; package: { id: number; package_type: { id: number; package_name: string; }; }; employee: { id: number; name: string; }; }; payments: { price: number; discount: number; tax: number; total: number; }; bill_payments: { id: number; bill_id: number; payment_date: string; payment_mode: number; amount: number; redemption: boolean; note: string; vendor_location_id: string; createdAt: string; updatedAt: string; }[]; }[]>; }) => {
         const memberURL = `https://api.dingg.app/api/v1//vendor/customer_list?page=1&limit=500&amount_start=0&membership_type=0&amount_start=0&is_multi_location=false`;
         callAPI(memberURL, token, setToken, (memberData: any) => {
             for(var billIndex in data.data) {
@@ -237,15 +275,20 @@ export default function BookingsV2({ token, setToken }: { token: string, setToke
                                             <ul className="list-group list-group-flush">
                                                 {booking.services.map((service, index) => {
                                                     return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={booking.id + 's' + index}>
-                                                        {service.vendor_service.service} ({currencyFormatter.format(service.price)})<p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{service.employee.name}</p>
+                                                        <FontAwesomeIcon icon={faSpa} className="text-warning"/>  {service.vendor_service.service} ({currencyFormatter.format(service.price)})<p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{service.employee.name}</p>
                                                     </li>);
                                                 })
                                                 }
                                                 {booking.products.map((prod, index) => {
                                                     return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={booking.id + 'p' + index}>
-                                                        {prod.product.name} ({currencyFormatter.format(prod.price)})<p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{prod.employee.name}</p>
+                                                        <Icon.BoxSeam style={{marginTop: -4}} color="gold"/> {prod.product.name} ({currencyFormatter.format(prod.price)})<p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{prod.employee.name}</p>
                                                     </li>);
                                                 })
+                                                }
+                                                {booking.packages !== null? 
+                                                    <li className="list-group-item bg-transparent text-light border-white ps-0" key={booking.id + 'pk' + index}>
+                                                        <Icon.UiChecksGrid style={{marginTop: -4}} color="gold"/> {booking.packages.package.package_type.package_name} ({currencyFormatter.format(booking.packages.price)})<p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{booking.packages.employee.name}</p>
+                                                    </li>:''
                                                 }
                                                 {booking.memberships !== null? 
                                                     <li className="list-group-item bg-transparent text-light border-white ps-0" key={booking.id + 'm' + index}>
