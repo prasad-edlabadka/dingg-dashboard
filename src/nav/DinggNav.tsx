@@ -1,30 +1,17 @@
 import { Container, Nav, Navbar } from "react-bootstrap";
-import logo from './logo.png';
+import * as Icon from 'react-bootstrap-icons';
 
 function DinggNav({ token, setToken, navOption, setNavOption }: { token: string | null, setToken: any, navOption: string | null, setNavOption: any }) {
   return (
-    <Navbar bg="dark" variant="dark" expand="lg" collapseOnSelect>
+    <Navbar bg="dark" variant="dark" expand="lg" collapseOnSelect fixed="bottom">
+      {token !== null?
       <Container>
-        <Navbar.Brand href="#home" className="evergreen"><img
-          alt=""
-          src={logo}
-          width="32"
-          height="32"
-          className="d-inline-block align-top"
-        />{' '} Owner's Dashboard</Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        {token !== null ?
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="me-auto">
-              <Nav.Link href="#home" onClick={() => setNavOption('home')}>Home</Nav.Link>
-              <Nav.Link href="#home" onClick={() => setNavOption('products')}>Products</Nav.Link>
-              <Nav.Link href="#home" onClick={() => setNavOption('finance')}>Finance</Nav.Link>
-              <Nav.Link href="#home" onClick={() => setToken(null)}>Logout</Nav.Link>
-            </Nav>
-          </Navbar.Collapse> : ''
-        }
-
-      </Container>
+        <Nav.Link className={`fs-5 text-center ${navOption === 'home' ? 'text-danger' : 'text-white'}`} href="#home" onClick={() => setNavOption('home')}><Icon.HouseDoor style={{ marginTop: -4, marginRight: 4 }} /><p className="small" style={{ marginTop: -4 }}>Home</p></Nav.Link>
+        <Nav.Link className={`fs-5 text-center ${navOption === 'products' ? 'text-danger' : 'text-white'}`} href="#home" onClick={() => setNavOption('products')}><Icon.CartCheck style={{ marginTop: -4, marginRight: 4 }} /><p className="small" style={{ marginTop: -4 }}>Products</p></Nav.Link>
+        <Nav.Link className={`fs-5 text-center ${navOption === 'finance' ? 'text-danger' : 'text-white'}`} href="#home" onClick={() => setNavOption('finance')}><Icon.CurrencyDollar style={{ marginTop: -4, marginRight: 4 }} /><p className="small" style={{ marginTop: -4 }}>Finance</p></Nav.Link>
+        <Nav.Link className={`fs-5 text-center ${navOption === 'reload' ? 'text-danger' : 'text-white'}`} href="#home" onClick={() => window.location.reload()}><Icon.ArrowClockwise style={{ marginTop: -4, marginRight: 4 }} /><p className="small" style={{ marginTop: -4 }}>Reload</p></Nav.Link>
+        <Nav.Link className={`fs-5 text-center ${navOption === 'logout' ? 'text-danger' : 'text-white'}`} href="#home" onClick={() => setToken(null)}><Icon.Power style={{ marginTop: -4, marginRight: 4 }} /><p className="small" style={{ marginTop: -4 }}>Logout</p></Nav.Link>
+      </Container>:''}
     </Navbar>
   );
 }

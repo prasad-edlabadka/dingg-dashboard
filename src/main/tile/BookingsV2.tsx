@@ -258,7 +258,7 @@ export default function BookingsV2({ token, setToken }: { token: string, setToke
                                     {
                                         booking.status?<Card.Footer className="w-100">
                                         <div className="text-start d-inline small">Without discount: {currencyFormatter.format(booking.payments.price)}</div>
-                                        <div className="text-end d-inline small float-end">Discount: {currencyFormatter.format(booking.payments.discount)} ({booking.payments.discount * 100 / booking.payments.price}%)</div>
+                                        <div className="text-end d-inline small float-end">Discount: {currencyFormatter.format(booking.payments.discount)} ({Math.round(booking.payments.discount * 100 / booking.payments.price)}%)</div>
                                     </Card.Footer>:
                                     <Card.Footer className="w-100">
                                         <div className="text-start d-inline small">Invoice Cancelled</div>

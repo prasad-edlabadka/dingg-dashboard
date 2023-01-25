@@ -5,6 +5,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
 }
 
 .bg {
@@ -15,8 +16,8 @@ body {
   height: 100%;
   width: 100%;
   background-size: contain;
-  background-repeat: repeat-y;
-  background-image: url(bg.jpg);
+  background-repeat:space;
+  background-image: url(bg.png);
   background-attachment: fixed;
   background-position: center center;
   background-color: rgb(15, 13, 14);;
@@ -73,7 +74,7 @@ $input-color: white;
 @import '~bootstrap/scss/bootstrap.scss';
 
 .card-header {
-  font-family: 'Evergreen' !important;
+  font-family: 'Flama' !important;
 }
 
 .evergreen {

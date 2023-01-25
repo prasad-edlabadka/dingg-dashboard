@@ -25,10 +25,9 @@ function DinggLogin({ setToken }:{setToken: any}) {
             });
     };
     return (
-        <div>
-           
+        <div className="position-absolute top-50 start-50 translate-middle w-75">
             <Row>
-                <Col lg={{ span: 4, offset: 4 }}>
+                <Col>
                     <Card bg="dark" text="light">
                     <Card.Header>Login to App</Card.Header>
                         <Card.Body>
@@ -42,7 +41,7 @@ function DinggLogin({ setToken }:{setToken: any}) {
                                     <Form.Label>Password</Form.Label>
                                     <Form.Control type="password" placeholder="Password" ref={passwordRef}/>
                                 </Form.Group>
-                                <Button variant="primary" type="button" onClick={handleClick}>Login</Button>
+                                <Button variant="primary" type="button" className="bg-danger border-0" onClick={handleClick}>Login</Button>
                             </Form>
                         </Card.Body>
                     </Card>
