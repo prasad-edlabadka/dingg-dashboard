@@ -25,11 +25,11 @@ function DinggLogin({ setToken }:{setToken: any}) {
             });
     };
     return (
-        <div className="position-absolute top-50 start-50 translate-middle w-75">
+        <div className="position-absolute top-50 start-50 translate-middle w-75" style={{marginTop: -160}}>
             <Row>
                 <Col>
                     <Card bg="dark" text="light">
-                    <Card.Header>Login to App</Card.Header>
+                    <Card.Header><h2>Login</h2></Card.Header>
                         <Card.Body>
                             <Form>
                                 <Form.Group className="mb-3" controlId="phone">
