@@ -38,7 +38,7 @@ export default function Expenses({ token, setToken }: { token: string, setToken:
                 loading ? <Card.Body><Spinner animation="grow" /></Card.Body> :
                     <Card.Body>
                         <div className="position-relative">
-                            <h2>Monthly Expenses<p className="small mb-0">Total: {currencyFormatter.format(total)}</p></h2>
+                            <h2>Monthly Expenses<p className="small mb-0 text-white-50">Total: {currencyFormatter.format(total)}</p></h2>
                             <div className="position-absolute top-0 end-0" style={{ marginTop: -6 }}>
                                 <Button variant="indigo" className="text-light" size="lg" onClick={() => refresh()}><Icon.ArrowClockwise /></Button>
                             </div>
