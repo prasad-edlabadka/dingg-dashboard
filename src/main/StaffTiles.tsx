@@ -1,9 +1,9 @@
 import { Col, Row } from "react-bootstrap"
-import Expenses from "./tile/Expenses"
-import PaymentMethods from "./tile/PaymentMethods"
+import Salary from "./tile/Salary"
+import Staff from "./tile/Staff"
 
-export default function FinanceTiles({ token, setToken }: { token: string, setToken: any }) {
-    const tileList = [Expenses, PaymentMethods]
+export default function StaffTiles({ token, setToken }: { token: string, setToken: any }) {
+    const tileList = [Staff, Salary]
     return (
         <div>
             <Row>

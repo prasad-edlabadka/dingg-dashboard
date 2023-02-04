@@ -3,13 +3,15 @@ import DinggLogin from "./DinggLogin";
 import ProductTiles from "./ProductTiles";
 import Tiles from "./Tiles";
 import FinanceTiles from "./FinanceTiles";
+import StaffTiles from "./StaffTiles";
 
 function Main({ token, setToken, navOption, setNavOption }: { token: string | null, setToken: any, navOption: string | null, setNavOption: any }) {
 
     const screens = {
         "home": Tiles,
         "products": ProductTiles,
-        "finance": FinanceTiles
+        "finance": FinanceTiles,
+        "staff":StaffTiles
     }
     if (!token) {
         return (

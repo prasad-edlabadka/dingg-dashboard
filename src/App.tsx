@@ -29,7 +29,7 @@ function App() {
     <div  {...handlers}>
       <DinggNav token={token} setToken={setToken} navOption={navOption} setNavOption={setNavOption}/>
       <Main token={token} setToken={setToken} navOption={navOption} setNavOption={setNavOption}/>
-      <div style={{height: 72}}/>
+      <div style={{height: 96}}/>
     </div>
   );
 }

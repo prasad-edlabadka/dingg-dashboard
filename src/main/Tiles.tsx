@@ -5,15 +5,15 @@ import Sale2 from "./tile/Sale2"
 
 
 export default function Tiles({ token, setToken }: { token: string, setToken: any }) {
-    const tileList = [Salary]
+    const tileList = [Sale2]
     return (
         <div>
             <Row>
                 {tileList.map((Comp, key) => (<Col xl={4} xs={12} className="gy-2" key={'tilCol' + key}><Comp token={token} setToken={setToken} key={'tile' + key} /></Col>))}
             </Row>
-            {/* <Row>
+            <Row>
                 <Col xl={12} xs={12} className="gy-4"><BookingsV2 token={token} setToken={setToken} key={'tile999'} /></Col>
-            </Row> */}
+            </Row>
             <Row>
                 <Col>&nbsp;</Col>
             </Row>
