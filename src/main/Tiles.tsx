@@ -1,6 +1,5 @@
 import { Col, Row } from "react-bootstrap"
 import BookingsV2 from "./tile/BookingsV2"
-import Salary from "./tile/Salary"
 import Sale2 from "./tile/Sale2"
 
 
