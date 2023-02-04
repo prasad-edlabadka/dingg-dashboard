@@ -23,7 +23,7 @@ function App() {
       setNavOption(navs[i]);
     },
   });
-  const navs = ['home', 'products', 'finance'];
+  const navs = ['home', 'products', 'finance', 'staff'];
   const [index, setIndex] = useState(0);
   return (
     <div  {...handlers}>
