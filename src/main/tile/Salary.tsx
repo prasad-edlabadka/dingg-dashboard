@@ -249,7 +249,7 @@ export default function Salary({ token, setToken }: { token: string, setToken: a
                     <Form.Label>Choose Attendance File</Form.Label>
                     <Form.Control type="file" onChange={(e) => { loadFile((e.target as HTMLInputElement).files) }} />
                 </Form.Group>
-                {loading ? '' : <><h3>Salary Calculation for {reportInfo.month} {reportInfo.year}</h3>
+                {loading ? '' : <><h3>Salary Calculation for {reportInfo.month} {reportInfo.year}<p className="small text-white-50">Total: {currencyFormatter.format(reportData.reduce((v: any, current) => v + current.pay, 0))}</p></h3>
                     {reportData.map((val) => {
                         return (<Accordion flush key={val.name}>
                             <Accordion.Header className="w-100">
@@ -271,8 +271,8 @@ export default function Salary({ token, setToken }: { token: string, setToken: a
 
                                     <li className="list-group-item bg-transparent text-light border-white ps-0" key={val.name + 'item2present'}>
                                         <Row>
-                                            <Col xs="6">Base salary</Col>
-                                            <Col xs="6" className="text-end">{currencyFormatter.format(staffTimings[val.name].salary)}</Col>
+                                            <Col xs="8">Base salary</Col>
+                                            <Col xs="4" className="text-end">{currencyFormatter.format(staffTimings[val.name].salary)}</Col>
                                         </Row>
                                         <Row>
                                             <Col xs="6">Overtime</Col>
@@ -283,24 +283,24 @@ export default function Salary({ token, setToken }: { token: string, setToken: a
                                             <Col xs="6" className="text-end">- {currencyFormatter.format(val.dayOff.filter(v => !v.ignored).length * getHalfDaySalary(staffTimings[val.name].salary) * 2)}</Col>
                                         </Row>
                                         <Row>
-                                            <Col xs="6">Late Arrival Deduction</Col>
-                                            <Col xs="6" className="text-end">- {currencyFormatter.format(val.lateDays.filter(v => !v.ignored).length * lateMarkPenalty)}</Col>
+                                            <Col xs="8">Late Mark</Col>
+                                            <Col xs="4" className="text-end">- {currencyFormatter.format(val.lateDays.filter(v => !v.ignored).length * lateMarkPenalty)}</Col>
                                         </Row>
                                         <Row>
-                                            <Col xs="9">Half Day For Late Arrival Deduction</Col>
+                                            <Col xs="9">Half Day - Late Arrival</Col>
                                             <Col xs="3" className="text-end">- {currencyFormatter.format(val.halfDays.filter(v => !v.ignored).length * getHalfDaySalary(staffTimings[val.name].salary))}</Col>
                                         </Row>
                                         <Row>
-                                            <Col xs="9">Half Day For Early Exit Deduction</Col>
+                                            <Col xs="9">Half Day - Early Exit</Col>
                                             <Col xs="3" className="text-end">- {currencyFormatter.format(val.earlyExitDays.filter(v => !v.ignored).length * getHalfDaySalary(staffTimings[val.name].salary))}</Col>
                                         </Row>
                                         <Row>
-                                            <Col xs="9">Half Day For Missed Entry Deduction</Col>
+                                            <Col xs="9">Half Day - Missed Entry</Col>
                                             <Col xs="3" className="text-end">- {currencyFormatter.format(val.missedEntry.filter(v => !v.ignored).length * getHalfDaySalary(staffTimings[val.name].salary))}</Col>
                                         </Row>
                                         <Row>
-                                            <Col xs="9"><strong>Total</strong></Col>
-                                            <Col xs="3" className="text-end"><strong>{currencyFormatter.format(val.pay)}</strong></Col>
+                                            <Col xs="8"><strong>Total</strong></Col>
+                                            <Col xs="4" className="text-end"><strong>{currencyFormatter.format(val.pay)}</strong></Col>
                                         </Row>
                                     </li>
 
