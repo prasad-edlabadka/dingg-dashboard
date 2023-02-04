@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Accordion, Form, Card } from "react-bootstrap";
+import { Accordion, Form, Card, Row, Col } from "react-bootstrap";
 import { currencyFormatter, formatMinutes, nth } from "./Utility";
 import { read } from 'xlsx';
 import moment from 'moment';
@@ -105,6 +105,10 @@ export default function Salary({ token, setToken }: { token: string, setToken: a
                 reportMonth = reportDate.format("MMMM");
                 const calculatedData = [];
                 for (let i = startRow; i < data.length; i += 3) {
+                    if(!data[i][nameColumn]) {
+                        i++;
+                        continue;
+                    }
                     let record = { name: "", dates: [{}] };
                     record.name = data[i][nameColumn].v as string;
                     if (staffTimings[record.name]) {
@@ -112,13 +116,18 @@ export default function Salary({ token, setToken }: { token: string, setToken: a
                         for (let j = dateStartColumn; j < 32; j++) {
                             let time = { day: j, start: "", end: "" };
                             const dateTimes = (data[i + 2] || [])[j];
+                            let additionalDateTime: string = (data[i + 3] || [])[j]?.v as string || '';
+                            console.log(`additional time: ${additionalDateTime}:${JSON.stringify(dateTimes)}`)
+                            additionalDateTime = additionalDateTime.trim().match(/^[0-2][0-3]:[0-5][0-9]$/)?additionalDateTime.trim():'';
+
                             if (dateTimes) {
                                 let dateTimesSplit = (dateTimes?.v as string).split("\n");
                                 time.start = dateTimesSplit[0];
-                                time.end = dateTimesSplit[1];
+                                time.end = additionalDateTime === ''?dateTimesSplit[dateTimesSplit.length - 1]:additionalDateTime;
                             }
                             record.dates.push(time);
                         }
+                        console.log(record);
                         calculatedData.push(calculateSalary(record, reportDate.daysInMonth()));
                     }
                 }
@@ -201,10 +210,12 @@ export default function Salary({ token, setToken }: { token: string, setToken: a
                 overtimeDays.push({ day: dt.day, by: end.diff(overtimeStartTime, "minutes"), time: dt.end, ignored: false });
             }
         }
-        let presentDays = daysInMonth - dayOff.length;
+        let presentDays = daysInMonth;
 
+        //deduct leaves
+        let presentDaysWithLateDays = presentDays - (dayOff.filter(v => !v.ignored).length)
         //deduct half days
-        let presentDaysWithLateDays = presentDays - (halfDays.filter(v => !v.ignored).length / 2);
+        presentDaysWithLateDays -= (halfDays.filter(v => !v.ignored).length / 2);
         //deduct early exits
         presentDaysWithLateDays -= (earlyExit.filter(v => !v.ignored).length / 2);
         //deduct missed punches
@@ -225,6 +236,10 @@ export default function Salary({ token, setToken }: { token: string, setToken: a
         console.log(`${record.name} should be paid ${currencyFormatter.format(pay)} including overtime of ${currencyFormatter.format(otPay)}`);
 
         return { name: record.name, workdays: presentDays, dayOff: dayOff, missedEntry: missedEntry, halfDays: halfDays, lateDays: lateDays, earlyExitDays: earlyExit, overTimeDays: overtimeDays, pay: pay, ot: otPay };
+    }
+
+    const getHalfDaySalary = (baseSal: number) => {
+        return (baseSal / reportInfo.days) * 0.5;
     }
 
     return (
@@ -252,6 +267,41 @@ export default function Salary({ token, setToken }: { token: string, setToken: a
                                         <div><FontAwesomeIcon icon={faArrowRightFromBracket} />&nbsp;    {`Early Exit for ${val.earlyExitDays.length} days`}</div>
                                         <div><FontAwesomeIcon icon={faPersonWalkingArrowRight} />&nbsp;    {`Missed attendance for ${val.missedEntry.length} days (${val.missedEntry.filter(v => v.ignored).length} days ignored)`}</div>
                                         <div><FontAwesomeIcon icon={faFaceSmile} />&nbsp;    {`Overtime for ${val.overTimeDays.length} days`}</div>
+                                    </li>
+
+                                    <li className="list-group-item bg-transparent text-light border-white ps-0" key={val.name + 'item2present'}>
+                                        <Row>
+                                            <Col xs="6">Base salary</Col>
+                                            <Col xs="6" className="text-end">{currencyFormatter.format(staffTimings[val.name].salary)}</Col>
+                                        </Row>
+                                        <Row>
+                                            <Col xs="6">Overtime</Col>
+                                            <Col xs="6" className="text-end">+ {currencyFormatter.format(val.ot)}</Col>
+                                        </Row>
+                                        <Row>
+                                            <Col xs="6">Leaves Deduction</Col>
+                                            <Col xs="6" className="text-end">- {currencyFormatter.format(val.dayOff.filter(v => !v.ignored).length * getHalfDaySalary(staffTimings[val.name].salary) * 2)}</Col>
+                                        </Row>
+                                        <Row>
+                                            <Col xs="6">Late Arrival Deduction</Col>
+                                            <Col xs="6" className="text-end">- {currencyFormatter.format(val.lateDays.filter(v => !v.ignored).length * lateMarkPenalty)}</Col>
+                                        </Row>
+                                        <Row>
+                                            <Col xs="9">Half Day For Late Arrival Deduction</Col>
+                                            <Col xs="3" className="text-end">- {currencyFormatter.format(val.halfDays.filter(v => !v.ignored).length * getHalfDaySalary(staffTimings[val.name].salary))}</Col>
+                                        </Row>
+                                        <Row>
+                                            <Col xs="9">Half Day For Early Exit Deduction</Col>
+                                            <Col xs="3" className="text-end">- {currencyFormatter.format(val.earlyExitDays.filter(v => !v.ignored).length * getHalfDaySalary(staffTimings[val.name].salary))}</Col>
+                                        </Row>
+                                        <Row>
+                                            <Col xs="9">Half Day For Missed Entry Deduction</Col>
+                                            <Col xs="3" className="text-end">- {currencyFormatter.format(val.missedEntry.filter(v => !v.ignored).length * getHalfDaySalary(staffTimings[val.name].salary))}</Col>
+                                        </Row>
+                                        <Row>
+                                            <Col xs="9"><strong>Total</strong></Col>
+                                            <Col xs="3" className="text-end"><strong>{currencyFormatter.format(val.pay)}</strong></Col>
+                                        </Row>
                                     </li>
 
                                     {
