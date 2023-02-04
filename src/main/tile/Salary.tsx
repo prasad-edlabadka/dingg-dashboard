@@ -234,7 +234,7 @@ export default function Salary({ token, setToken }: { token: string, setToken: a
                     <Form.Label>Choose Attendance File</Form.Label>
                     <Form.Control type="file" onChange={(e) => { loadFile((e.target as HTMLInputElement).files) }} />
                 </Form.Group>
-                {loading ? '' : <><h2>Salary Calculation for {reportInfo.month} {reportInfo.year}</h2>
+                {loading ? '' : <><h3>Salary Calculation for {reportInfo.month} {reportInfo.year}</h3>
                     {reportData.map((val) => {
                         return (<Accordion flush key={val.name}>
                             <Accordion.Header className="w-100">
