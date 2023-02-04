@@ -1,3 +1,4 @@
+import moment from 'moment';
 export default function callAPI(url: string, token: string, setToken: any, cb: any) {
     const requestMetadata = {
         method: 'GET',
@@ -77,3 +78,9 @@ export function formatWeekDay(d: Date) {
   return d.toLocaleDateString('en-GB', { weekday: 'long' })
 }
 export {setCookie, getCookie};
+
+export function formatMinutes(d: number) {
+  return moment.duration(d, "minute").humanize()
+}
+
+export function nth(n: number){return["st","nd","rd"][(((n<0?-n:n)+90)%100-10)%10-1]||"th"}
