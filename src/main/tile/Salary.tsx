@@ -106,11 +106,13 @@ export default function Salary({ token, setToken }: { token: string, setToken: a
                 const calculatedData = [];
                 for (let i = startRow; i < data.length; i += 3) {
                     if(!data[i][nameColumn]) {
-                        i++;
+                        console.log("Name not found. Incrementing i", i);
+                        i-=2;
                         continue;
                     }
                     let record = { name: "", dates: [{}] };
                     record.name = data[i][nameColumn].v as string;
+                    console.log(`Processing ${record.name}`);
                     if (staffTimings[record.name]) {
                         record.dates.pop();
                         for (let j = dateStartColumn; j < 32; j++) {
@@ -129,6 +131,8 @@ export default function Salary({ token, setToken }: { token: string, setToken: a
                         }
                         console.log(record);
                         calculatedData.push(calculateSalary(record, reportDate.daysInMonth()));
+                    } else {
+                        console.log("Staff name not found", record.name);
                     }
                 }
                 setReportInfo({ month: reportMonth, days: reportDate.daysInMonth(), year: reportDate.format("yyyy") })
