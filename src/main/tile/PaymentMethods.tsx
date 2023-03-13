@@ -43,6 +43,20 @@ export default function PaymentMethods({ token, setToken }: { token: string, set
         loadData();
     }
 
+    const methods = {
+        "marideal": "Payal's QR",
+        "defideal": "Mrunalini's QR",
+        "deal.mu": "Renuka's QR"
+    }
+    const getPaymentMethodName = (n: string) => {
+        return methods[n.toLowerCase()] || titleCase(n);
+    };
+
+    function titleCase(st: string) {
+        return st.toLowerCase().split(" ").reduce( (s, c) =>
+        s +""+(c.charAt(0).toUpperCase() + c.slice(1) +" "), '');
+      }
+
     const calculateToday = (data = reportData) => {
         const len = data.data.length;
         let sum = 0;
@@ -68,7 +82,7 @@ export default function PaymentMethods({ token, setToken }: { token: string, set
                                 const targetPercentage = Math.round(val.total * 100 / total)
                                 return (
                                     <Row key={'paymentmethod'+index}>
-                                        <Col lg={4} xs={5}>{val["payment mode"]}</Col>
+                                        <Col lg={4} xs={5}>{getPaymentMethodName(val["payment mode"])}</Col>
                                         <Col xs={7} className="d-lg-none text-end align-bottom">{currFormatter.format(val.total)} ({targetPercentage}%)</Col>
                                         <Col lg={4} className="mt-2">
                                             <OverlayTrigger overlay={
@@ -88,7 +102,7 @@ export default function PaymentMethods({ token, setToken }: { token: string, set
                                 const targetPercentage = Math.round(val.total * 100 / dayTotal)
                                 return (
                                     <Row key={'paymentmethodtoday'+index}>
-                                        <Col lg={4} xs={5}>{val["payment mode"]}</Col>
+                                        <Col lg={4} xs={5}>{getPaymentMethodName(val["payment mode"])}</Col>
                                         <Col xs={7} className="d-lg-none text-end align-bottom">{currFormatter.format(val.total)} ({targetPercentage}%)</Col>
                                         <Col lg={4} className="mt-2">
                                             <OverlayTrigger overlay={
