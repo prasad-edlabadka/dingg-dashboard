@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Accordion, Button, Card, Spinner } from "react-bootstrap";
-import callAPI, { currencyFormatter, formatDate, getStartOfMonth } from "./Utility";
+import callAPI, { currencyFormatter, formatDate, formatDisplayDate, getStartOfFinanceMonth, getStartOfFinanceMonthDate, getStartOfMonth } from "./Utility";
 import * as Icon from 'react-bootstrap-icons';
 
 export default function Expenses({ token, setToken }: { token: string, setToken: any }) {
@@ -17,7 +17,7 @@ export default function Expenses({ token, setToken }: { token: string, setToken:
 
     const loadData = () => {
         setLoading(true);
-        const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${getStartOfMonth(new Date())}&report_type=by_expense&end_date=${formatDate(new Date())}&locations=null&app_type=web`;
+        const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${getStartOfFinanceMonth(new Date())}&report_type=by_expense&end_date=${formatDate(new Date())}&locations=null&app_type=web`;
         callAPI(apiURL, token, setToken, (data: any) => {
             setExpenseData(groupBy(data.data, v => v["expense type"]));
             let total = 0;
@@ -38,7 +38,7 @@ export default function Expenses({ token, setToken }: { token: string, setToken:
                 loading ? <Card.Body><Spinner animation="grow" /></Card.Body> :
                     <Card.Body>
                         <div className="position-relative">
-                            <h2>Monthly Expenses<p className="small mb-0 text-white-50">Total: {currencyFormatter.format(total)}</p></h2>
+                            <h2>Monthly Expenses <p className="small mb-1">{formatDisplayDate(getStartOfFinanceMonthDate(new Date()))} to {formatDisplayDate(new Date())}</p><p className="small mb-0 text-white-50">Total: {currencyFormatter.format(total)}</p></h2>
                             <div className="position-absolute top-0 end-0" style={{ marginTop: -6 }}>
                                 <Button variant="indigo" className="text-light" size="lg" onClick={() => refresh()}><Icon.ArrowClockwise /></Button>
                             </div>
@@ -81,45 +81,6 @@ export default function Expenses({ token, setToken }: { token: string, setToken:
             }
 
         </Card>
-        // <div>
-        //     <Row>
-        //         <Col lg="12" xs="12">
-        //             <div className="position-relative today">
-        //                 <h3 className="text-light evergreen">Today's Customers</h3>
-        //                 <div className="position-absolute top-0 end-0" style={{ marginTop: -10 }}>
-        //                     <Button variant="indigo" className="text-light mt-2" size="lg" onClick={() => refresh()}><Icon.ArrowClockwise /></Button>
-        //                 </div>
-        //             </div>
-        //         </Col>
-        //     </Row>
-        //     <Row>
-
-        //         <Col xl={4} xs={12} className="gy-4">
-        //             <Card className="shadow" bg={'success'} text="light" >
-        //                 <Card.Body>
-        //                     <ul className="list-group list-group-flush">
-        //                         {expenseData.map((expense, index) => {
-        //                             return (
-        //                                 <li className="list-group-item bg-transparent text-light border-white ps-0" key={'expense' + index}>
-        //                                     <div className="w-100 pe-2">
-        //                                         <div className="text-start d-inline h5">{expense["expense type"]} ({currencyFormatter.format(expense.amount)})</div>
-        //                                         <div className="text-end d-inline float-end">{expense.date}</div>
-        //                                     </div>
-
-        //                                     <p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{expense["given to"]}</p>
-        //                                     <p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{expense.description}</p>
-        //                                 </li>)
-
-        //                         })}
-        //                     </ul>
-
-        //                 </Card.Body>
-
-        //             </Card>
-        //         </Col>
-
-        //     </Row>
-        // </div>
 
     )
 

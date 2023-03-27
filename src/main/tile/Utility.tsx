@@ -48,6 +48,28 @@ export function getStartOfMonth(dt: Date): string {
   return [dt.getFullYear(), padTo2Digits(dt.getMonth() + 1), "01"].join('-');
 }
 
+export function getStartOfFinanceMonth(dt: Date): string {
+  //if current date is before 10th, get previous month's 10th else get current month's 10th
+  const date = new Date(dt);
+  const day = date.getDate();
+  const month = date.getMonth();
+  const year = date.getFullYear();
+  const financeMonth = day < 10 ? month - 1 : month;
+  const financeYear = financeMonth < 0 ? year - 1 : year;
+  return [financeYear, padTo2Digits(financeMonth + 1), "10"].join('-');
+}
+
+export function getStartOfFinanceMonthDate(dt: Date): Date {
+  //if current date is before 10th, get previous month's 10th else get current month's 10th
+  const date = new Date(dt);
+  const day = date.getDate();
+  const month = date.getMonth();
+  const year = date.getFullYear();
+  const financeMonth = day < 10 ? month - 1 : month;
+  const financeYear = financeMonth < 0 ? year - 1 : year;
+  return new Date(financeYear, financeMonth, 10);
+}
+
 export function formatTime(dt: Date): string {
   return dt.toLocaleTimeString('en-GB', { hour12: true, hour: "2-digit", minute: "2-digit" });
 }

@@ -15,7 +15,8 @@ export default function Staff({ token, setToken }: { token: string, setToken: an
         "Jassi": 112000,
         "Manager": 52000,
         "Prasad": 72000,
-        "Rutuja": 40000
+        "Rutuja": 40000,
+        "Janvi (B)": 40000,
     }
 
     const defaultTarget = 100000;
