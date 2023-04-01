@@ -326,7 +326,7 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
                                 <h3 className="align-self-center mb-0 fw-bolder">{currencyFormatter.format(reportData.new_cust_time_one.existing_customer_rev)}</h3>
                                 <h6 className="mb-0 small text-white-50">Revenue from</h6>
                                 <h3 className="align-self-center mb-0 fw-bolder">{reportData.new_cust_time_one.existing_customer}</h3>
-                                <h6 className="mb-0 small text-white-50">New Customers</h6>
+                                <h6 className="mb-0 small text-white-50">Exising Customers</h6>
                             </Col>
                         </Row>
                     </Card.Body>}
