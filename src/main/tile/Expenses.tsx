@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Accordion, Button, Card, Spinner } from "react-bootstrap";
-import callAPI, { currencyFormatter, formatDate, formatDisplayDate, getStartOfFinanceMonth, getStartOfFinanceMonthDate, getStartOfMonth } from "./Utility";
+import callAPI, { currencyFormatter, formatDate, formatDisplayDate, getStartOfFinanceMonth, getStartOfFinanceMonthDate } from "./Utility";
 import * as Icon from 'react-bootstrap-icons';
 
 export default function Expenses({ token, setToken }: { token: string, setToken: any }) {
