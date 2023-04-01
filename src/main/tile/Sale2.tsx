@@ -26,6 +26,8 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
             total_stat_bill: [{ time_one_count: 0, time_two_count: 0, time_one_avg: 0, time_two_avg: 0 }],
             total_stat: [{ time_one_expense: 0, time_two_expense: 0, time_one_collection: 0, time_two_collection: 0 }],
             membership_detail: [{ count_active_membership: 0, count_membership: 0 }],
+            new_cust_time_one: { new_customer: 0, new_customer_rev: 0, existing_customer: 0, existing_customer_rev: 0 },
+            new_cust_time_two: { new_customer: 0, new_customer_rev: 0, existing_customer: 0, existing_customer_rev: 0 },
         }
     );
 
@@ -65,7 +67,7 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
             });
         });
 
-        
+
     }
 
     const getStatsReport = (start1: Date, end1: Date, start2: Date, end2: Date) => {
@@ -263,7 +265,7 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
                 }
 
             </Card>
-            <Card className="shadow mb-3 mt-3" bg={reportData.total_stat[0].time_one_collection - reportData.total_stat[0].time_one_expense > 0?"success":"danger"} text="light">
+            <Card className="shadow mb-3 mt-3" bg={reportData.total_stat[0].time_one_collection - reportData.total_stat[0].time_one_expense > 0 ? "success" : "danger"} text="light">
                 {statsLoading ? <Card.Body><Spinner animation="grow" /></Card.Body> :
                     <Card.Body>
                         <Row>
@@ -286,14 +288,14 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
                         </Row>
                     </Card.Body>}
             </Card>
-            <Card className="shadow mb-3 mt-3" bg="success" text="light">
+            <Card className="shadow mb-3 mt-3" bg="primary" text="light">
                 {statsLoading ? <Card.Body><Spinner animation="grow" /></Card.Body> :
                     <Card.Body>
                         <Row>
                             <Col xs="4">
                                 <h6 className="mb-0">Customers</h6>
                                 <h3 className="align-self-center mb-0 fw-bolder">{reportData.total_stat_bill[0].time_one_count}</h3>
-                                <div className="small text-white-50" style={{ marginTop: -2 }}>last month {reportData.total_stat_bill[0].time_two_count}</div>
+                                <div className="small text-white-50" style={{ marginTop: -2 }}>previous {reportData.total_stat_bill[0].time_two_count}</div>
                             </Col>
 
                             <Col xs="4">
@@ -305,6 +307,26 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
                                 <h6 className="mb-0">Ticket Size</h6>
                                 <h3 className="align-self-center mb-0 fw-bolder">{currencyFormatter.format(reportData.total_stat_bill[0].time_one_avg)}</h3>
                                 <div className="small text-white-50" style={{ marginTop: -2 }}>previous {currencyFormatter.format(reportData.total_stat_bill[0].time_two_avg)}</div>
+                            </Col>
+                        </Row>
+                    </Card.Body>}
+            </Card>
+            <Card className="shadow mb-3 mt-3" bg="primary" text="light">
+                {statsLoading ? <Card.Body><Spinner animation="grow" /></Card.Body> :
+                    <Card.Body>
+                        <Row>
+                            <Col xs="6">
+                                <h3 className="align-self-center mb-0 fw-bolder">{currencyFormatter.format(reportData.new_cust_time_one.new_customer_rev)}</h3>
+                                <h6 className="mb-0 small text-white-50">Revenue from</h6>
+                                <h3 className="align-self-center mb-0 fw-bolder">{reportData.new_cust_time_one.new_customer}</h3>
+                                <h6 className="mb-0 small text-white-50">New Customers</h6>
+                            </Col>
+
+                            <Col xs="6">
+                                <h3 className="align-self-center mb-0 fw-bolder">{currencyFormatter.format(reportData.new_cust_time_one.existing_customer_rev)}</h3>
+                                <h6 className="mb-0 small text-white-50">Revenue from</h6>
+                                <h3 className="align-self-center mb-0 fw-bolder">{reportData.new_cust_time_one.existing_customer}</h3>
+                                <h6 className="mb-0 small text-white-50">New Customers</h6>
                             </Col>
                         </Row>
                     </Card.Body>}
