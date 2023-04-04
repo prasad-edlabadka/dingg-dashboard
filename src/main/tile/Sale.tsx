@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button, ButtonGroup, Card, Spinner } from "react-bootstrap";
 import * as Icon from 'react-bootstrap-icons';
-import callAPI from "./Utility";
+import callAPI, { currencyFormatter } from "./Utility";
 
 export default function Sale({ token, setToken }: { token: string, setToken: any }) {
     const [_displaySale, setDisplaySale] = useState(-1);
@@ -11,8 +11,6 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
     const [_displaySubDuration, setDisplaySubDuration] = useState(new Date().toLocaleDateString());
     const [_activeButtonIndex, setActiveButtonIndex] = useState(0);
     const [_reportData, setReportData] = useState({ data: [{ total: 0, date: "" }] });
-
-    const formatter = Intl.NumberFormat('en-in', { style: "currency", currency: "INR", maximumFractionDigits: 0 });
 
     useEffect(() => {
         loadData();
@@ -191,11 +189,11 @@ export default function Sale({ token, setToken }: { token: string, setToken: any
 
                             <h6>Sale for {_displayDuration}<Button style={{marginLeft: 8, backgroundColor: "transparent", border: "none"}} variant={_displayVariation > 0 ? "success" : "danger"} onClick={() => refresh()}><Icon.ArrowClockwise /></Button><p style={{marginTop:-10}}><small>{_displaySubDuration}</small></p></h6>
 
-                            <h1 className="display-3"><strong>{formatter.format(_displaySale)}</strong></h1>
+                            <h1 className="display-3"><strong>{currencyFormatter.format(_displaySale)}</strong></h1>
                             {_displayVariation > 0 ?
                                 <Icon.CaretUpFill className="me-1" /> : <Icon.CaretDownFill className="me-1" />
                             }
-                            <span>{Math.abs(Math.round(_displayVariation))}% {_displayVariation > 0 ? 'more' : 'less'} than previous {_displayDuration} ({formatter.format(_displayPreviousSale)})</span>
+                            <span>{Math.abs(Math.round(_displayVariation))}% {_displayVariation > 0 ? 'more' : 'less'} than previous {_displayDuration} ({currencyFormatter.format(_displayPreviousSale)})</span>
                         </div>
                     </Card.Body>
             }

@@ -3,7 +3,7 @@ import { Card, Spinner } from "react-bootstrap";
 import { NeuralNetwork } from 'brain.js';
 // import trainingData from './TrainingData.json'
 import { INeuralNetworkData } from "brain.js/dist/src/neural-network";
-import callAPI from "./Utility";
+import callAPI, { currencyFormatter } from "./Utility";
 
 export default function Prediction({ token, setToken }: { token: string, setToken: any }) {
     const [modelReady, setModelReady] = useState(false);
@@ -72,7 +72,7 @@ export default function Prediction({ token, setToken }: { token: string, setToke
                 !modelReady ? <Card.Body><Spinner animation="grow" /></Card.Body> :
                     <Card.Body>
                         <h3>Today's Sales Prediction</h3>
-                        <h1 className="display-3"><strong>{Intl.NumberFormat('en-in', { style: "currency", currency: "INR" }).format(prediction)}</strong></h1>
+                        <h1 className="display-3"><strong>{currencyFormatter.format(prediction)}</strong></h1>
                     </Card.Body>
             }
 

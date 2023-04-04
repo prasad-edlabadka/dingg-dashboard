@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import { Button, Card, Col, OverlayTrigger, ProgressBar, Row, Spinner, Tooltip } from "react-bootstrap";
-import callAPI, { formatDate } from "./Utility";
+import callAPI, { currencyFormatter, formatDate } from "./Utility";
 import * as Icon from 'react-bootstrap-icons';
 
 export default function Staff({ token, setToken }: { token: string, setToken: any }) {
     const [reportData, setReportData] = useState({ data: [{ "service price": 0, stylist: "" }] });
     const [total, setTotal] = useState(-1);
-    const currFormatter = Intl.NumberFormat('en-in', {style:"currency", currency:"INR", maximumFractionDigits: 0});
 
     const staffTargets = {
         "Anand": 88000,
@@ -74,14 +73,14 @@ export default function Staff({ token, setToken }: { token: string, setToken: an
                                     return(
                                     <Row key={'staff'+index}>
                                         <Col lg={4} xs={5}>{val.stylist}</Col>
-                                        <Col xs={7} className="d-lg-none text-end align-bottom">{currFormatter.format(val["service price"])} of {currFormatter.format(target)}</Col>
+                                        <Col xs={7} className="d-lg-none text-end align-bottom">{currencyFormatter.format(val["service price"])} of {currencyFormatter.format(target)}</Col>
                                         <Col lg={4} className="mt-2">
                                         <OverlayTrigger overlay={
                                         <Tooltip id="tooltip-disabled">{targetPercentage}% Achieved</Tooltip>}>
                                             <ProgressBar now={Math.round(val["service price"] * 100 / (staffTargets[val.stylist.trim() as keyof typeof staffTargets] || 100000))} style={{height: 6, marginBottom: 12}} variant="danger"/>
                                             </OverlayTrigger>
                                         </Col>
-                                        <Col lg={4} className="d-none d-lg-block">{currFormatter.format(val["service price"])}</Col>
+                                        <Col lg={4} className="d-none d-lg-block">{currencyFormatter.format(val["service price"])}</Col>
                                     </Row>)
                                 })
                             }

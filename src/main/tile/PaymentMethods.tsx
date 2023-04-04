@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button, ButtonGroup, Card, Col, OverlayTrigger, ProgressBar, Row, Spinner, Tooltip } from "react-bootstrap";
-import callAPI, { formatDate } from "./Utility";
+import callAPI, { currencyFormatter, formatDate } from "./Utility";
 import * as Icon from 'react-bootstrap-icons';
 
 export default function PaymentMethods({ token, setToken }: { token: string, setToken: any }) {
@@ -11,8 +11,6 @@ export default function PaymentMethods({ token, setToken }: { token: string, set
     const [activeButtonIndex, setActiveButtonIndex] = useState(0);
     const [endDate, setEndDate] = useState(new Date());
     const [startDate, setStartDate] = useState(new Date(endDate.getFullYear(), endDate.getMonth(), 1));
-
-    const currFormatter = Intl.NumberFormat('en-in', { style: "currency", currency: "INR", maximumFractionDigits: 0 });
 
     useEffect(() => {
         const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${formatDate(startDate)}&report_type=by_payment_mode&end_date=${formatDate(endDate)}&app_type=web`
@@ -108,14 +106,14 @@ export default function PaymentMethods({ token, setToken }: { token: string, set
                                 return (
                                     <Row key={'paymentmethod' + index}>
                                         <Col lg={4} xs={5}>{getPaymentMethodName(val["payment mode"])}</Col>
-                                        <Col xs={7} className="d-lg-none text-end align-bottom">{currFormatter.format(val.total)} ({targetPercentage}%)</Col>
+                                        <Col xs={7} className="d-lg-none text-end align-bottom">{currencyFormatter.format(val.total)} ({targetPercentage}%)</Col>
                                         <Col lg={4} className="mt-2">
                                             <OverlayTrigger overlay={
                                                 <Tooltip id="tooltip-disabled">{targetPercentage}% Achieved</Tooltip>}>
                                                 <ProgressBar now={targetPercentage} style={{ height: 6, marginBottom: 12 }} variant="danger" />
                                             </OverlayTrigger>
                                         </Col>
-                                        <Col lg={4} className="d-none d-lg-block">{currFormatter.format(val.total)}</Col>
+                                        <Col lg={4} className="d-none d-lg-block">{currencyFormatter.format(val.total)}</Col>
                                     </Row>)
                             })
                         }
@@ -128,14 +126,14 @@ export default function PaymentMethods({ token, setToken }: { token: string, set
                                 return (
                                     <Row key={'paymentmethodtoday' + index}>
                                         <Col lg={4} xs={5}>{getPaymentMethodName(val["payment mode"])}</Col>
-                                        <Col xs={7} className="d-lg-none text-end align-bottom">{currFormatter.format(val.total)} ({targetPercentage}%)</Col>
+                                        <Col xs={7} className="d-lg-none text-end align-bottom">{currencyFormatter.format(val.total)} ({targetPercentage}%)</Col>
                                         <Col lg={4} className="mt-2">
                                             <OverlayTrigger overlay={
                                                 <Tooltip id="tooltip-disabled">{targetPercentage}% Achieved</Tooltip>}>
                                                 <ProgressBar now={targetPercentage} style={{ height: 6, marginBottom: 12 }} variant="danger" />
                                             </OverlayTrigger>
                                         </Col>
-                                        <Col lg={4} className="d-none d-lg-block">{currFormatter.format(val.total)}</Col>
+                                        <Col lg={4} className="d-none d-lg-block">{currencyFormatter.format(val.total)}</Col>
                                     </Row>)
                             })
                         }
