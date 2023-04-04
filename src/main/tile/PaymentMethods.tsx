@@ -42,8 +42,10 @@ export default function PaymentMethods({ token, setToken }: { token: string, set
     }, [startDate, endDate, token, setToken]);
 
     const refresh = () => {
-        setStartDate(new Date());
-        setEndDate(new Date(startDate.getFullYear(), startDate.getMonth(), 1));
+        const dt = new Date();
+        setEndDate(dt);
+        setStartDate(new Date(dt.getFullYear(), dt.getMonth(), 1));
+        setActiveButtonIndex(0);
     }
 
     const methods = {
