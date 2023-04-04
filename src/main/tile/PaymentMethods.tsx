@@ -15,7 +15,6 @@ export default function PaymentMethods({ token, setToken }: { token: string, set
     const currFormatter = Intl.NumberFormat('en-in', { style: "currency", currency: "INR", maximumFractionDigits: 0 });
 
     useEffect(() => {
-        console.log(startDate, endDate);
         const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${formatDate(startDate)}&report_type=by_payment_mode&end_date=${formatDate(endDate)}&app_type=web`
         callAPI(apiURL, token, setToken, (data: any) => {
             data.data = data.data.sort((a: any, b: any) => {
