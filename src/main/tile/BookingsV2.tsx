@@ -266,7 +266,7 @@ export default function BookingsV2({ token, setToken }: { token: string, setToke
             <Row>
                 <Col lg="12" xs="12">
                     <div className="position-relative today">
-                        <h3 className="text-light evergreen">Today's Customers</h3>
+                        <h3 className="text-light">Today's Customers</h3>
                         <div className="position-absolute top-0 end-0" style={{ marginTop: -10 }}>
                             <Button variant="indigo" className="text-light mt-2" size="lg" onClick={() => refresh()}><Icon.ArrowClockwise /></Button>
                         </div>

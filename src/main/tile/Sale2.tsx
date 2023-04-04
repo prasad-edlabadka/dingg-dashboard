@@ -224,16 +224,16 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
                                 <Row className="border-bottom border-white border-opacity-25 pb-1 pt-1">
                                     <Col xs="4" className="align-self-top text-white text-opacity-75 small">Without Discount</Col>
                                     <Col xs="8">
-                                        <h5 className="align-self-center mb-0 text-white text-opacity-75"><strong>{formatter.format(displaySale.price)}</strong></h5>
+                                        <h5 className="align-self-center mb-0 text-white text-opacity-75">{formatter.format(displaySale.price)}</h5>
                                         <div className="small text-white-50" style={{ marginTop: -2 }}>previous {formatter.format(displayPreviousSale.price)} ({displayVariation.price > 0 ?
                                             <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.price)}%)</div>
                                         <span className="small align-self-center ps-2 float-end text-white-50"></span>
                                     </Col>
                                 </Row>
                                 <Row className="border-bottom border-white border-opacity-25 pb-1 pt-1">
-                                    <Col xs="4" className="align-self-top text-white text-opacity-75 small">Discount</Col>
+                                    <Col xs="4" className="align-self-top text-white text-opacity-75 small">Total Discount</Col>
                                     <Col xs="8">
-                                        <h5 className="align-self-center mb-0 text-white text-opacity-75"><strong>{formatter.format(displaySale.discount)}</strong></h5>
+                                        <h5 className="align-self-center mb-0 text-white text-opacity-75">{formatter.format(displaySale.discount)}</h5>
                                         <div className="small text-white-50" style={{ marginTop: -2 }}>previous {formatter.format(displayPreviousSale.discount)} ({displayVariation.discount > 0 ?
                                             <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.discount)}%)</div>
                                         <span className="small align-self-center ps-2 float-end text-white-50"></span>
@@ -244,7 +244,7 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
                                 <Row className="border-bottom border-white border-opacity-25 pb-1 pt-1">
                                     <Col xs="4" className="align-self-top text-white text-opacity-75 small">Tax</Col>
                                     <Col xs="8">
-                                        <h5 className="align-self-center mb-0 text-white text-opacity-75"><strong>{formatter.format(displaySale.tax)}</strong></h5>
+                                        <h5 className="align-self-center mb-0 text-white text-opacity-75">{formatter.format(displaySale.tax)}</h5>
                                         <div className="small text-white-50" style={{ marginTop: -2 }}>previous {formatter.format(displayPreviousSale.tax)} ({displayVariation.tax > 0 ?
                                             <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.tax)}%)</div>
                                         <span className="small align-self-center ps-2 float-end text-white-50"></span>
@@ -253,7 +253,7 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
                                 <Row className="border-bottom border-white border-opacity-25 pb-1 pt-1">
                                     <Col xs="4" className="align-self-top text-white text-opacity-75 small">After Tax</Col>
                                     <Col xs="8">
-                                        <h5 className="align-self-center mb-0 text-white text-opacity-75"><strong>{formatter.format(displaySale.woTax)}</strong></h5>
+                                        <h5 className="align-self-center mb-0 text-white text-opacity-75">{formatter.format(displaySale.woTax)}</h5>
                                         <div className="small text-white-50" style={{ marginTop: -2 }}>previous {formatter.format(displayPreviousSale.woTax)} ({displayVariation.woTax > 0 ?
                                             <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.woTax)}%)</div>
                                         <span className="small align-self-center ps-2 float-end text-white-50"></span>

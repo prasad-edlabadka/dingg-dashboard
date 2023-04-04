@@ -16,7 +16,7 @@ export default function Staff({ token, setToken }: { token: string, setToken: an
         "Manager": 52000,
         "Prasad": 72000,
         "Rutuja": 40000,
-        "Janvi (B)": 40000,
+        "Janvi (B)": 50000,
         "Talib": 120000,
     }
 
