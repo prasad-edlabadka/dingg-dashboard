@@ -40,6 +40,7 @@ export default function Expenses({ token, setToken }: { token: string, setToken:
         callPOSTAPI("https://api.dingg.app/api/v1/vendor/expense", data, token, setToken, (response: any) => {
             if (response.success) {
                 setErrorMessage('');
+                refresh();
                 handleClose();
             } else {
                 setErrorMessage(response.message);
