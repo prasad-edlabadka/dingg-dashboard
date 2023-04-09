@@ -33,7 +33,7 @@ export default function Staff({ token, setToken }: { token: string, setToken: an
         const endDate = formatDate(date);
         const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${startDate}&report_type=staff_service_summary&end_date=${endDate}&app_type=web`
         callAPI(apiURL, token, setToken, (data: any) => {
-            data.data = data.data.sort((a:any, b:any) => {
+            data.data = data.data.sort((a: any, b: any) => {
                 return b["service price"] - a["service price"];
             });
             setReportData(data);
@@ -65,25 +65,35 @@ export default function Staff({ token, setToken }: { token: string, setToken: an
                             <div className="position-absolute top-0 end-0" style={{ marginTop: -10 }}>
                                 <Button variant="indigo" className="text-light" size="lg" onClick={() => refresh()}><Icon.ArrowClockwise /></Button>
                             </div>
-                            </div>
-                            {
-                                reportData.data.map((val, index) => {
-                                    const target = (staffTargets[val.stylist.trim() as keyof typeof staffTargets] || defaultTarget)
-                                    const targetPercentage = Math.round(val["service price"] * 100 / target);
-                                    return(
-                                    <Row key={'staff'+index}>
-                                        <Col lg={4} xs={5}>{val.stylist}</Col>
-                                        <Col xs={7} className="d-lg-none text-end align-bottom">{currencyFormatter.format(val["service price"])} of {currencyFormatter.format(target)}</Col>
-                                        <Col lg={4} className="mt-2">
-                                        <OverlayTrigger overlay={
-                                        <Tooltip id="tooltip-disabled">{targetPercentage}% Achieved</Tooltip>}>
-                                            <ProgressBar now={Math.round(val["service price"] * 100 / (staffTargets[val.stylist.trim() as keyof typeof staffTargets] || 100000))} style={{height: 6, marginBottom: 12}} variant="danger"/>
+                        </div>
+                        {
+                            reportData.data.map((val, index) => {
+                                const target = (staffTargets[val.stylist.trim() as keyof typeof staffTargets] || defaultTarget)
+                                const targetPercentage = Math.round(val["service price"] * 100 / target);
+                                const targetNoDiscountPercentage = Math.round(val["service amount"] * 100 / target);
+                                return (
+                                    <Row key={'staff' + index} className="mt-3 pt-2 rounded black-bg">
+                                        <Col lg={4} xs={5}><h3>{val.stylist}</h3></Col>
+                                        <Col xs={7} className="text-end align-bottom text-white-50">Target {currencyFormatter.format(target)}</Col>
+                                        <Col lg={4} xs={5} className="text-white-50">Without discount</Col>
+                                        <Col xs={7} className="text-end align-bottom">{currencyFormatter.format(val["service price"])}</Col>
+                                        <Col lg={4} className="mt-1">
+                                            <OverlayTrigger overlay={
+                                                <Tooltip id="tooltip-disabled">{targetPercentage}% Achieved</Tooltip>}>
+                                                <ProgressBar now={Math.round(val["service price"] * 100 / (staffTargets[val.stylist.trim() as keyof typeof staffTargets] || 100000))} style={{ height: 6, marginBottom: 12 }} variant="danger" />
                                             </OverlayTrigger>
                                         </Col>
-                                        <Col lg={4} className="d-none d-lg-block">{currencyFormatter.format(val["service price"])}</Col>
+                                        <Col lg={4} xs={5} className="text-white-50">With discount</Col>
+                                        <Col xs={7} className="text-end align-bottom">{currencyFormatter.format(val["service amount"])}</Col>
+                                        <Col lg={4} className="mt-1">
+                                            <OverlayTrigger overlay={
+                                                <Tooltip id="tooltip-disabled">{targetNoDiscountPercentage}% Achieved</Tooltip>}>
+                                                <ProgressBar now={Math.round(val["service amount"] * 100 / (staffTargets[val.stylist.trim() as keyof typeof staffTargets] || 100000))} style={{ height: 6, marginBottom: 12 }} variant="danger" />
+                                            </OverlayTrigger>
+                                        </Col>
                                     </Row>)
-                                })
-                            }
+                            })
+                        }
                     </Card.Body>
             }
 
