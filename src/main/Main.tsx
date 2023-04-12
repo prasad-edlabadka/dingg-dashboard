@@ -26,6 +26,7 @@ function Main() {
         )
     }
     const SelectedScreen = screens[navOption || 'home'];
+    console.log(navOption || 'home');
     return (<Container>
         {<SelectedScreen />}
     </Container>)
