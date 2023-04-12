@@ -69,6 +69,12 @@ export function getStartOfMonthDate(dt: Date): Date {
   return new Date(dt.getFullYear(), dt.getMonth(), 1);
 }
 
+export function getLastMonth() {
+  const date = new Date();
+  const lastMonthDate = new Date(date.getFullYear(), date.getMonth(), 1);
+  return new Date(lastMonthDate.getTime() - 1);
+}
+
 export function getStartOfFinanceMonth(dt: Date): string {
   //if current date is before 10th, get previous month's 10th else get current month's 10th
   const date = new Date(dt);

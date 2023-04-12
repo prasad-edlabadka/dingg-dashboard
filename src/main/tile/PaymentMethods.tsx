@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { Button, ButtonGroup, Card, Col, OverlayTrigger, ProgressBar, Row, Spinner, Tooltip } from "react-bootstrap";
-import { currencyFormatter, formatDate } from "./Utility";
+import { currencyFormatter, formatDate, getLastMonth } from "./Utility";
 import * as Icon from 'react-bootstrap-icons';
 import { TokenContext } from "../../App";
 
@@ -77,12 +77,6 @@ export default function PaymentMethods() {
             setActiveButtonIndex(1);
         }
         // setTimeout(()=> refresh(), 1);
-    }
-
-    const getLastMonth = () => {
-        const date = new Date();
-        const lastMonthDate = new Date(date.getFullYear(), date.getMonth(), 1);
-        return new Date(lastMonthDate.getTime() - 1);
     }
 
     return (

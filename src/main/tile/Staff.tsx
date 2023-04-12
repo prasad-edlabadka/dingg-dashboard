@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext } from "react";
-import { Button, Card, Col, OverlayTrigger, ProgressBar, Row, Spinner, Tooltip } from "react-bootstrap";
-import { currencyFormatter, formatDate } from "./Utility";
+import { Button, ButtonGroup, Card, Col, OverlayTrigger, ProgressBar, Row, Spinner, Tooltip } from "react-bootstrap";
+import { currencyFormatter, formatDate, getLastMonth } from "./Utility";
 import * as Icon from 'react-bootstrap-icons';
 import { TokenContext } from "../../App";
 
@@ -8,6 +8,9 @@ export default function Staff() {
     const { callAPI } = useContext(TokenContext)
     const [reportData, setReportData] = useState({ data: [{ "service price": 0, stylist: "" }] });
     const [total, setTotal] = useState(-1);
+    const [activeButtonIndex, setActiveButtonIndex] = useState(0);
+    const [endDate, setEndDate] = useState(new Date());
+    const [startDate, setStartDate] = useState(new Date(endDate.getFullYear(), endDate.getMonth(), 1));
 
     const staffTargets = {
         "Anand": 88000,
@@ -24,16 +27,7 @@ export default function Staff() {
     const defaultTarget = 100000;
 
     useEffect(() => {
-        loadData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    const loadData = () => {
-        const date = new Date();
-        const lastMonthDate = new Date(date.getFullYear(), date.getMonth(), 1);
-        const startDate = formatDate(lastMonthDate);
-        const endDate = formatDate(date);
-        const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${startDate}&report_type=staff_service_summary&end_date=${endDate}&app_type=web`
+        const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${formatDate(startDate)}&report_type=staff_service_summary&end_date=${formatDate(endDate)}&app_type=web`
         callAPI(apiURL, (data: any) => {
             data.data = data.data.sort((a: any, b: any) => {
                 return b["service price"] - a["service price"];
@@ -41,20 +35,37 @@ export default function Staff() {
             setReportData(data);
             calculateToday(data);
         });
-    }
+        const calculateToday = (data: { data: string | any[]; }) => {
+            const len = data.data.length;
+            let sum = 0;
+            for (let i = 0; i < len; i++) {
+                sum += data.data[i]["service price"];
+            }
+            setTotal(sum);
+        }
+    }, [startDate, endDate, callAPI]);
 
     const refresh = () => {
         setTotal(-1);
-        loadData();
+        setEndDate(new Date());
+        setStartDate(new Date(endDate.getFullYear(), endDate.getMonth(), 1));
     }
 
-    const calculateToday = (data = reportData) => {
-        const len = data.data.length;
-        let sum = 0;
-        for (let i = 0; i < len; i++) {
-            sum += data.data[i]["service price"];
+    const setDuration = (type: string) => {
+        if (type === 'current') {
+            const date = new Date();
+            const lastMonthDate = new Date(date.getFullYear(), date.getMonth(), 1);
+            setStartDate(lastMonthDate);
+            setEndDate(date);
+            setActiveButtonIndex(0);
+        } else {
+            const date = new Date();
+            const lastMonthDate = new Date(date.getFullYear(), date.getMonth(), 1);
+            setStartDate(new Date(date.getFullYear(), date.getMonth() - 1, 1));
+            setEndDate(new Date(lastMonthDate.getTime() - 1));
+            setActiveButtonIndex(1);
         }
-        setTotal(sum);
+        // setTimeout(()=> refresh(), 1);
     }
 
     return (
@@ -62,11 +73,18 @@ export default function Staff() {
             {
                 total === -1 ? <Card.Body><Spinner animation="grow" /></Card.Body> :
                     <Card.Body>
+                        
                         <div className="position-relative">
                             <h2>Staff Sales Target</h2>
                             <div className="position-absolute top-0 end-0" style={{ marginTop: -10 }}>
                                 <Button variant="indigo" className="text-light" size="lg" onClick={() => refresh()}><Icon.ArrowClockwise /></Button>
                             </div>
+                        </div>
+                        <div className="position-relative mt-3">
+                            <ButtonGroup size="sm">
+                                <Button variant={activeButtonIndex === 0 ? "dark" : "light"} onClick={() => setDuration('current')}>{(new Date()).toLocaleDateString('en-GB', { month: 'long' })}</Button>
+                                <Button variant={activeButtonIndex === 1 ? "dark" : "light"} onClick={() => setDuration('previous')}>{getLastMonth().toLocaleDateString('en-GB', { month: 'long' })}</Button>
+                            </ButtonGroup>
                         </div>
                         {
                             reportData.data.map((val, index) => {
