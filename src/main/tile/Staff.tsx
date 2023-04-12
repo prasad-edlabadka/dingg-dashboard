@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Button, Card, Col, OverlayTrigger, ProgressBar, Row, Spinner, Tooltip } from "react-bootstrap";
-import callAPI, { currencyFormatter, formatDate } from "./Utility";
+import { currencyFormatter, formatDate } from "./Utility";
 import * as Icon from 'react-bootstrap-icons';
+import { TokenContext } from "../../App";
 
-export default function Staff({ token, setToken }: { token: string, setToken: any }) {
+export default function Staff() {
+    const { callAPI } = useContext(TokenContext)
     const [reportData, setReportData] = useState({ data: [{ "service price": 0, stylist: "" }] });
     const [total, setTotal] = useState(-1);
 
@@ -32,7 +34,7 @@ export default function Staff({ token, setToken }: { token: string, setToken: an
         const startDate = formatDate(lastMonthDate);
         const endDate = formatDate(date);
         const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${startDate}&report_type=staff_service_summary&end_date=${endDate}&app_type=web`
-        callAPI(apiURL, token, setToken, (data: any) => {
+        callAPI(apiURL, (data: any) => {
             data.data = data.data.sort((a: any, b: any) => {
                 return b["service price"] - a["service price"];
             });

@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Button, ButtonGroup, Card, Col, Row, Spinner } from "react-bootstrap";
 import * as Icon from 'react-bootstrap-icons';
-import callAPI, { addDays, currencyFormatter, formatDate, formatDisplayDate, formatWeekDay, getFirstDayOfWeek } from "./Utility";
+import { addDays, currencyFormatter, formatDate, formatDisplayDate, formatWeekDay, getFirstDayOfWeek } from "./Utility";
+import { TokenContext } from "../../App";
 
-export default function Sale2({ token, setToken }: { token: string, setToken: any }) {
+export default function Sale2() {
+    const { callAPI } = useContext(TokenContext);
     const dataStructure = { price: -1, discount: -1, tax: -1, woTax: -1, total: -1, start: "", end: "" };
     const [loading, setLoading] = useState(true);
     const [statsLoading, setStatsLoading] = useState(true);
@@ -71,7 +73,7 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
     const getStatsReport = (start1: Date, end1: Date, start2: Date, end2: Date) => {
         setStatsLoading(true);
         const apiURL = `https://api.dingg.app/api/v1/vendor/report/consolidated?time_one_start=${formatDate(start1)}&time_one_end=${formatDate(end1)}&time_two_start=${formatDate(start2)}&time_two_end=${formatDate(end2)}`
-        callAPI(apiURL, token, setToken, (data: any) => {
+        callAPI(apiURL, (data: any) => {
             setStatsLoading(false);
             setReportData(data.data.length === 0 ? [] : data.data)
         });
@@ -81,7 +83,7 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
         const startDate = formatDate(start);
         const endDate = formatDate(end);
         const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${startDate}&end_date=${endDate}&report_type=by_type&app_type=web`;
-        callAPI(apiURL, token, setToken, (data: any) => {
+        callAPI(apiURL, (data: any) => {
             let price = 0;
             let discount = 0;
             let tax = 0;
@@ -113,12 +115,6 @@ export default function Sale2({ token, setToken }: { token: string, setToken: an
         loadData();
     }
 
-    // const durationValue: { [key: string]: string } = {
-    //     "day": "Today",
-    //     "week": "This Week",
-    //     "month": "Financial Month",
-    //     "cal_month": "Calendar Month"
-    // }
 
     const setDuration = (duration: string) => {
         //setDisplayDuration(durationValue[duration]);

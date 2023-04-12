@@ -1,25 +1,26 @@
 import moment from 'moment';
-export default function callAPI(url: string, token: string, setToken: any, cb: any) {
+export default function callAPI(url: string, token: string | null, setToken: any, cb: any) {
   const requestMetadata = {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': token
+      'Authorization': token || ''
     }
   };
   fetch(url, requestMetadata)
     .then(res => res.status === 401 ? setToken(null) : res.json())
     .then(data => {
       cb(data);
-    });
+    })
+    .catch(err => {console.log(err);cb();});
 }
 
-export function callPOSTAPI(url: string, data: object, token: string, setToken: any, cb: any) {
+export function callPOSTAPI(url: string, data: object, token: string | null, setToken: any, cb: any) {
   const requestMetadata = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': token
+      'Authorization': token || ''
     },
     body: JSON.stringify(data)
   };
@@ -62,6 +63,10 @@ export function formatDate(dt: Date): string {
 
 export function getStartOfMonth(dt: Date): string {
   return [dt.getFullYear(), padTo2Digits(dt.getMonth() + 1), "01"].join('-');
+}
+
+export function getStartOfMonthDate(dt: Date): Date {
+  return new Date(dt.getFullYear(), dt.getMonth(), 1);
 }
 
 export function getStartOfFinanceMonth(dt: Date): string {

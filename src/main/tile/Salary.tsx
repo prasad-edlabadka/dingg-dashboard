@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFaceSmile, faCalendarDays, faCalendarXmark } from "@fortawesome/free-regular-svg-icons";
 import { faArrowRightFromBracket, faArrowRightToBracket, faPersonWalkingArrowRight, faPersonRunning } from "@fortawesome/free-solid-svg-icons";
 
-export default function Salary({ token, setToken }: { token: string, setToken: any }) {
+export default function Salary() {
     const [reportData, setReportData] = useState([{
         name: "",
         halfDays: [

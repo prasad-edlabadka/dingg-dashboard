@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Accordion, Button, Card, Spinner } from "react-bootstrap";
-import callAPI, { currencyFormatter, formatDate } from "./Utility";
+import { currencyFormatter, formatDate } from "./Utility";
 import * as Icon from 'react-bootstrap-icons';
+import { TokenContext } from "../../App";
 
 
-export default function Consumption({ token, setToken }: { token: string, setToken: any }) {
+export default function Consumption() {
     const [reportData, setReportData] = useState({});
     const [loading, setLoading] = useState(true);
+    const {callAPI} = useContext(TokenContext)
 
     useEffect(() => {
         loadData();
@@ -21,7 +23,7 @@ export default function Consumption({ token, setToken }: { token: string, setTok
         
         const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${formatDate(new Date())}&report_type=product_consumption_log&locations=null&app_type=web`;
         //const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=2023-01-15&report_type=product_consumption_log&locations=null&app_type=web`;
-        callAPI(apiURL, token, setToken, (data: any) => {
+        callAPI(apiURL, (data: any) => {
             let grouped = groupBy(data.data, (v: string) => (`${v["Category"]} - ${v["Sub Category"]}`));
             // for(let i in grouped) {
             //     grouped[i] = groupBy(grouped[i], (v: string) => v["Sub Category"]);

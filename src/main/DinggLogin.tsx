@@ -1,11 +1,12 @@
-import { useRef } from "react";
+import { useContext, useRef } from "react";
 import { Button, Card, Col, Form, Row } from "react-bootstrap";
-import PropTypes from 'prop-types';
+import { TokenContext } from "../App";
 
-function DinggLogin({ setToken }:{setToken: any}) {
+function DinggLogin() { 
     const apiURL = "https://api.dingg.app/api/v1/vendor/login";
     const phoneRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
+    const {updateToken} = useContext(TokenContext);
     const handleClick = () => {
         const  userid="91"+phoneRef.current?.value;
         const  password=passwordRef.current?.value;
@@ -19,9 +20,7 @@ function DinggLogin({ setToken }:{setToken: any}) {
         fetch(apiURL, requestMetadata)
             .then(res => res.json())
             .then(recipes => {
-                setToken(recipes.token);
-                localStorage.clear();
-                localStorage.setItem("token", recipes.token);
+                updateToken(recipes.token);
             });
     };
     return (
@@ -51,7 +50,3 @@ function DinggLogin({ setToken }:{setToken: any}) {
     )
 }
 export default DinggLogin;
-
-DinggLogin.propTypes = {
-    setToken: PropTypes.func.isRequired
-  }

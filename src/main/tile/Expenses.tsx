@@ -1,15 +1,20 @@
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Accordion, Button, ButtonGroup, Card, Col, Form, Offcanvas, Row, Spinner } from "react-bootstrap";
-import callAPI, { callPOSTAPI, currencyFormatter, formatDate, formatDisplayDate, getStartOfFinanceMonth, getStartOfFinanceMonthDate } from "./Utility";
+import { addDays, currencyFormatter, formatDate, formatDisplayDate, getStartOfFinanceMonthDate, getStartOfMonthDate } from "./Utility";
 import * as Icon from 'react-bootstrap-icons';
+import { TokenContext } from "../../App";
 
-export default function Expenses({ token, setToken }: { token: string, setToken: any }) {
+export default function Expenses() {
+    const { callAPI, callPOSTAPI } = useContext(TokenContext)
     const [expenseData, setExpenseData] = useState({});
     const [loading, setLoading] = useState(true);
     const [total, setTotal] = useState(-1);
     const [show, setShow] = useState(false);
     const [activeButtonIndex, setActiveButtonIndex] = useState(0);
+    const [expenseActiveButtonIndex, setExpenseActiveButtonIndex] = useState(0);
     const [expenseTypes, setExpenseTypes] = useState([]);
+    const [startDate, setStartDate] = useState(getStartOfFinanceMonthDate(new Date()));
+    const [endDate, setEndDate] = useState(new Date());
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
@@ -37,7 +42,7 @@ export default function Expenses({ token, setToken }: { token: string, setToken:
             "vendor_account_id": activeButtonIndex === 0 ? "712" : "2348",
         }
 
-        callPOSTAPI("https://api.dingg.app/api/v1/vendor/expense", data, token, setToken, (response: any) => {
+        callPOSTAPI("https://api.dingg.app/api/v1/vendor/expense", data, (response: any) => {
             if (response.success) {
                 setErrorMessage('');
                 refresh();
@@ -45,39 +50,16 @@ export default function Expenses({ token, setToken }: { token: string, setToken:
             } else {
                 setErrorMessage(response.message);
             }
-        })
-
-        // const requestMetadata = {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //         'Authorization': token
-        //     },
-        //     body: JSON.stringify(data)
-        // };
-        // fetch("https://api.dingg.app/api/v1/vendor/expense", requestMetadata)
-        //     .then(res => res.json())
-        //     .then(response => {
-        //         if(response.success) {
-        //             setErrorMessage('');
-        //             handleClose();
-        //         } else {
-        //             setErrorMessage(response.message);
-        //         }
-        //     });
+        });
     }
     // eslint-disable-next-line no-sequences
     const groupBy = (x: any[], f: { (v: string): any; (arg0: any, arg1: any, arg2: any): string | number; }) => x.reduce((a, b, i) => ((a[f(b, i, x)] ||= []).push(b), a), {});
 
     useEffect(() => {
-        loadData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    const loadData = () => {
         setLoading(true);
-        const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${getStartOfFinanceMonth(new Date())}&report_type=by_expense&end_date=${formatDate(new Date())}&locations=null&app_type=web`;
-        callAPI(apiURL, token, setToken, (data: any) => {
+        console.log(formatDate(startDate), formatDate(endDate));
+        const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${formatDate(startDate)}&report_type=by_expense&end_date=${formatDate(endDate)}&locations=null&app_type=web`;
+        callAPI(apiURL, (data: any) => {
             setExpenseData(groupBy(data.data, v => v["expense type"]));
             let total = 0;
             total += data.data.reduce((v: any, current: { amount: any; }) => v + current.amount, 0);
@@ -86,14 +68,37 @@ export default function Expenses({ token, setToken }: { token: string, setToken:
         });
 
         const expenseTypesURL = `https://api.dingg.app/api/v1/vendor/expense/type`;
-        callAPI(expenseTypesURL, token, setToken, (data: any) => {
+        callAPI(expenseTypesURL, (data: any) => {
             setExpenseTypes(data.data.map((v: { value: string; name: string; }) => { return { id: v.value, name: v.name } }));
         });
-    }
+    }, [startDate, endDate, callAPI]);
 
     const refresh = () => {
-        loadData();
+        setStartDate(getStartOfFinanceMonthDate(new Date()));
+        setEndDate(new Date());
+        setExpenseActiveButtonIndex(0);
     }
+
+    const setDuration = (duration: string) => {
+        if (duration === 'month') {
+            setExpenseActiveButtonIndex(0);
+            setStartDate(getStartOfFinanceMonthDate(new Date()));
+            setEndDate(new Date());
+        } else if (duration === 'cal_month') {
+            setExpenseActiveButtonIndex(1);
+            setStartDate(getStartOfMonthDate(new Date()));
+            setEndDate(new Date());
+        } else if (duration === 'prev_month') {
+            setExpenseActiveButtonIndex(2);
+            setStartDate(getStartOfFinanceMonthDate(addDays(getStartOfFinanceMonthDate(new Date()), -1)));
+            setEndDate(addDays(getStartOfFinanceMonthDate(new Date()), -1));
+        } else if (duration === 'prev_cal_month') {
+            setExpenseActiveButtonIndex(3);
+            setStartDate(getStartOfMonthDate(addDays(getStartOfMonthDate(new Date()), -1)));
+            setEndDate(addDays(getStartOfMonthDate(new Date()), -1));
+        }
+    }
+
 
     return (
 
@@ -101,8 +106,16 @@ export default function Expenses({ token, setToken }: { token: string, setToken:
             {
                 loading ? <Card.Body><Spinner animation="grow" /></Card.Body> :
                     <Card.Body>
+                        <div className="position-relative mb-3">
+                                <ButtonGroup size="sm">
+                                    <Button variant={expenseActiveButtonIndex === 0 ? "dark" : "light"} onClick={() => setDuration('month')}>Fin Month</Button>
+                                    <Button variant={expenseActiveButtonIndex === 1 ? "dark" : "light"} onClick={() => setDuration('cal_month')}>Cal Month</Button>
+                                    <Button variant={expenseActiveButtonIndex === 2 ? "dark" : "light"} onClick={() => setDuration('prev_month')}>Prev. Fin Month</Button>
+                                    <Button variant={expenseActiveButtonIndex === 3 ? "dark" : "light"} onClick={() => setDuration('prev_cal_month')}>Prev. Cal Month</Button>
+                                </ButtonGroup>
+                            </div>
                         <div className="position-relative">
-                            <h2>Monthly Expenses <p className="small mb-1">{formatDisplayDate(getStartOfFinanceMonthDate(new Date()))} to {formatDisplayDate(new Date())}</p><p className="small mb-0 text-white-50">Total: {currencyFormatter.format(total)}</p></h2>
+                            <h2>Monthly Expenses <p className="small mb-1">{formatDisplayDate(startDate)} to {formatDisplayDate(endDate)}</p><p className="small mb-0 text-white-50">Total: {currencyFormatter.format(total)}</p></h2>
                             <div className="position-absolute top-0 end-0" style={{ marginTop: -6 }}>
                                 {/* <Button variant="danger" className="text-light" size="sm" onClick={() => handleShow()}>Add New Expense</Button> */}
                                 <Button variant="indigo" className="text-light" size="lg" onClick={() => handleShow()}><Icon.PlusLg /></Button>

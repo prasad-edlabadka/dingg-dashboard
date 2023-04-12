@@ -3,35 +3,66 @@ import './App.css';
 
 import DinggNav from './nav/DinggNav';
 import Main from './main/Main';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
+import callAPI, { callPOSTAPI } from './main/tile/Utility';
+
+interface ITokenContext {
+  token: string | null;
+  updateToken: (token: string | null) => void;
+  navOption: string;
+  setNavOption: any;
+  callAPI: (url: string, cb: any) => void;
+  callPOSTAPI: (url: string, data: any, cb: any) => void;
+}
+
+const TokenContext = React.createContext<ITokenContext>({ token: null, updateToken: () => {}, navOption: '', setNavOption: () => {}, callAPI: () => {}, callPOSTAPI: () => {}});
 
 function App() {
+
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [navOption, setNavOption] = useState("home");
   const handlers = useSwipeable({
     onSwipedLeft: () => {
-      const i = index === (navs.length - 1)? 0:index + 1; 
+      const i = index === (navs.length - 1) ? 0 : index + 1;
       //console.log('Swipe left', i)
-      setIndex(i); 
+      setIndex(i);
       setNavOption(navs[i]);
     },
     onSwipedRight: () => {
-      const i = index === 0? navs.length - 1:index - 1; 
+      const i = index === 0 ? navs.length - 1 : index - 1;
       //console.log('Swipe right', i)
-      setIndex(i); 
+      setIndex(i);
       setNavOption(navs[i]);
     },
   });
   const navs = ['home', 'products', 'finance', 'staff'];
   const [index, setIndex] = useState(0);
+  const updateToken = (token: string | null) => {
+    setToken(token);
+    localStorage.removeItem("token");
+    if(token !== null) {
+      localStorage.setItem("token", token);
+    }
+  }
+  const callGetAPI = (url: string, cb: any) => {
+    callAPI(url, token, setToken, cb);
+  }
+
+  const callPOSTAPI2 = (url: string, data: object, cb: any) => {
+    callPOSTAPI(url, data, token, setToken, cb);
+  }
   return (
-    <div  {...handlers}>
-      <DinggNav token={token} setToken={setToken} navOption={navOption} setNavOption={setNavOption}/>
-      <Main token={token} setToken={setToken} navOption={navOption} setNavOption={setNavOption}/>
-      <div style={{height: 96}}/>
-    </div>
+    <TokenContext.Provider value={{ token, updateToken, navOption, setNavOption, callAPI: callGetAPI, callPOSTAPI: callPOSTAPI2 }}>
+      <div  {...handlers}>
+        <DinggNav />
+        <Main />
+        <div style={{ height: 96 }} />
+      </div>
+    </TokenContext.Provider>
   );
 }
+
+export { TokenContext };
 
 export default App;

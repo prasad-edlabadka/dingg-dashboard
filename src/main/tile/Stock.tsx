@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Accordion, Button, Card, Spinner } from "react-bootstrap";
-import callAPI, { currencyFormatter } from "./Utility";
+import { currencyFormatter } from "./Utility";
 import * as Icon from 'react-bootstrap-icons';
+import { TokenContext } from "../../App";
 
-export default function Stock({ token, setToken }: { token: string, setToken: any }) {
+export default function Stock() {
     const [reportData, setReportData] = useState([{ itemsTotal: 0, "depth": 0, name: "", quantity: 0, cost: 0, low_qty: 0, items: [{ "depth": 0, name: "", quantity: 0, cost: 0, low_qty: 0 }] }]);
     const [loading, setLoading] = useState(true);
     const [total, setTotal] = useState(-1);
+    const {callAPI} = useContext(TokenContext)
 
     useEffect(() => {
         loadData();
@@ -16,7 +18,7 @@ export default function Stock({ token, setToken }: { token: string, setToken: an
     const loadData = () => {
         setLoading(true);
         const apiURL = ` https://api.dingg.app/api/v1/product/sub-categories-products?product_name=&types=&category_ids=&subcategory_ids=&is_low_qty=true&brand=`
-        callAPI(apiURL, token, setToken, (data: any) => {
+        callAPI(apiURL, (data: any) => {
             //setReportData(data);
             let tot = 0;
             let sortedData = [];

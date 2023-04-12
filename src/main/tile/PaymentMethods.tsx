@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Button, ButtonGroup, Card, Col, OverlayTrigger, ProgressBar, Row, Spinner, Tooltip } from "react-bootstrap";
-import callAPI, { currencyFormatter, formatDate } from "./Utility";
+import { currencyFormatter, formatDate } from "./Utility";
 import * as Icon from 'react-bootstrap-icons';
+import { TokenContext } from "../../App";
 
-export default function PaymentMethods({ token, setToken }: { token: string, setToken: any }) {
+export default function PaymentMethods() {
+    const { callAPI } = useContext(TokenContext);
     const [reportData, setReportData] = useState({ data: [{ total: 0, "payment mode": "" }] });
     const [total, setTotal] = useState(-1);
     const [dayReportData, setDayReportData] = useState({ data: [{ total: 0, "payment mode": "" }] });
@@ -14,14 +16,14 @@ export default function PaymentMethods({ token, setToken }: { token: string, set
 
     useEffect(() => {
         const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${formatDate(startDate)}&report_type=by_payment_mode&end_date=${formatDate(endDate)}&app_type=web`
-        callAPI(apiURL, token, setToken, (data: any) => {
+        callAPI(apiURL, (data: any) => {
             data.data = data.data.sort((a: any, b: any) => {
                 return b.total - a.total;
             });
             setReportData(data);
             setTotal(calculateToday(data));
             const dayApiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${formatDate(new Date())}&report_type=by_payment_mode&end_date=${formatDate(new Date())}&app_type=web`
-            callAPI(dayApiURL, token, setToken, (dayData: any) => {
+            callAPI(dayApiURL, (dayData: any) => {
                 dayData.data = dayData.data.sort((a: any, b: any) => {
                     return b.total - a.total;
                 });
@@ -37,7 +39,7 @@ export default function PaymentMethods({ token, setToken }: { token: string, set
             }
             return sum;
         }
-    }, [startDate, endDate, token, setToken]);
+    }, [startDate, endDate, callAPI]);
 
     const refresh = () => {
         const dt = new Date();

@@ -4,9 +4,11 @@ import ProductTiles from "./ProductTiles";
 import Tiles from "./Tiles";
 import FinanceTiles from "./FinanceTiles";
 import StaffTiles from "./StaffTiles";
+import { useContext } from "react";
+import { TokenContext } from "../App";
 
-function Main({ token, setToken, navOption, setNavOption }: { token: string | null, setToken: any, navOption: string | null, setNavOption: any }) {
-
+function Main() {
+    const {token, navOption} = useContext(TokenContext);
     const screens = {
         "home": Tiles,
         "products": ProductTiles,
@@ -19,13 +21,13 @@ function Main({ token, setToken, navOption, setNavOption }: { token: string | nu
                 <Row>
                     <Col style={{ height: 40 }}></Col>
                 </Row>
-                <DinggLogin setToken={setToken} />
+                <DinggLogin />
             </Container>
         )
     }
     const SelectedScreen = screens[navOption || 'home'];
     return (<Container>
-        {<SelectedScreen token={token} setToken={setToken} />}
+        {<SelectedScreen />}
     </Container>)
 }
 
