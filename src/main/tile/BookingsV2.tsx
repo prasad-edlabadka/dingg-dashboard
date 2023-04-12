@@ -315,8 +315,6 @@ export default function BookingsV2() {
         return parseFloat(amountString);
     }
 
-
-
     const refresh = () => {
         setLoading(true);
         setReload(!reload);
