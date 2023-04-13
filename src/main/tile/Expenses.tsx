@@ -3,6 +3,7 @@ import { Accordion, Button, ButtonGroup, Card, Col, Form, Offcanvas, Row, Spinne
 import { addDays, currencyFormatter, formatDate, formatDisplayDate, getStartOfFinanceMonthDate, getStartOfMonthDate } from "./Utility";
 import * as Icon from 'react-bootstrap-icons';
 import { TokenContext } from "../../App";
+import DiwaButtonGroup from "../../components/button/DiwaButtonGroup";
 
 export default function Expenses() {
     const { callAPI, callPOSTAPI } = useContext(TokenContext)
@@ -10,8 +11,9 @@ export default function Expenses() {
     const [loading, setLoading] = useState(true);
     const [total, setTotal] = useState(-1);
     const [show, setShow] = useState(false);
+    const buttonState = useState(0);
+    const [, setButtonIndex] = buttonState;
     const [activeButtonIndex, setActiveButtonIndex] = useState(0);
-    const [expenseActiveButtonIndex, setExpenseActiveButtonIndex] = useState(0);
     const [expenseTypes, setExpenseTypes] = useState([]);
     const [startDate, setStartDate] = useState(getStartOfFinanceMonthDate(new Date()));
     const [endDate, setEndDate] = useState(new Date());
@@ -76,29 +78,33 @@ export default function Expenses() {
     const refresh = () => {
         setStartDate(getStartOfFinanceMonthDate(new Date()));
         setEndDate(new Date());
-        setExpenseActiveButtonIndex(0);
+        setButtonIndex(0);
     }
 
     const setDuration = (duration: string) => {
         if (duration === 'month') {
-            setExpenseActiveButtonIndex(0);
             setStartDate(getStartOfFinanceMonthDate(new Date()));
             setEndDate(new Date());
         } else if (duration === 'cal_month') {
-            setExpenseActiveButtonIndex(1);
             setStartDate(getStartOfMonthDate(new Date()));
             setEndDate(new Date());
         } else if (duration === 'prev_month') {
-            setExpenseActiveButtonIndex(2);
             setStartDate(getStartOfFinanceMonthDate(addDays(getStartOfFinanceMonthDate(new Date()), -1)));
             setEndDate(addDays(getStartOfFinanceMonthDate(new Date()), -1));
         } else if (duration === 'prev_cal_month') {
-            setExpenseActiveButtonIndex(3);
             setStartDate(getStartOfMonthDate(addDays(getStartOfMonthDate(new Date()), -1)));
             setEndDate(addDays(getStartOfMonthDate(new Date()), -1));
         }
     }
 
+    const buttons = [
+        { title: 'Fin Month', onClick: () => setDuration('month') },
+        { title: 'Cal Month', onClick: () => setDuration('cal_month') },
+        { title: 'Prev. Fin Month', onClick: () => setDuration('prev_month') },
+        { title: 'Prev. Cal Month', onClick: () => setDuration('prev_cal_month') },
+    ];
+
+   
 
     return (
 
@@ -106,14 +112,7 @@ export default function Expenses() {
             {
                 loading ? <Card.Body><Spinner animation="grow" /></Card.Body> :
                     <Card.Body>
-                        <div className="position-relative mb-3">
-                                <ButtonGroup size="sm">
-                                    <Button variant={expenseActiveButtonIndex === 0 ? "dark" : "light"} onClick={() => setDuration('month')}>Fin Month</Button>
-                                    <Button variant={expenseActiveButtonIndex === 1 ? "dark" : "light"} onClick={() => setDuration('cal_month')}>Cal Month</Button>
-                                    <Button variant={expenseActiveButtonIndex === 2 ? "dark" : "light"} onClick={() => setDuration('prev_month')}>Prev. Fin Month</Button>
-                                    <Button variant={expenseActiveButtonIndex === 3 ? "dark" : "light"} onClick={() => setDuration('prev_cal_month')}>Prev. Cal Month</Button>
-                                </ButtonGroup>
-                            </div>
+                        <DiwaButtonGroup buttons={buttons} state={buttonState}/>
                         <div className="position-relative">
                             <h2>Monthly Expenses <p className="small mb-1">{formatDisplayDate(startDate)} to {formatDisplayDate(endDate)}</p><p className="small mb-0 text-white-50">Total: {currencyFormatter.format(total)}</p></h2>
                             <div className="position-absolute top-0 end-0" style={{ marginTop: -6 }}>

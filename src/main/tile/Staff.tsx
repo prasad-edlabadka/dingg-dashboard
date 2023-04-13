@@ -1,14 +1,16 @@
 import { useEffect, useState, useContext } from "react";
-import { Button, ButtonGroup, Card, Col, OverlayTrigger, ProgressBar, Row, Spinner, Tooltip } from "react-bootstrap";
+import { Button, Card, Col, OverlayTrigger, ProgressBar, Row, Spinner, Tooltip } from "react-bootstrap";
 import { currencyFormatter, formatDate, getLastMonth } from "./Utility";
 import * as Icon from 'react-bootstrap-icons';
 import { TokenContext } from "../../App";
+import DiwaButtonGroup from "../../components/button/DiwaButtonGroup";
 
 export default function Staff() {
     const { callAPI } = useContext(TokenContext)
     const [reportData, setReportData] = useState({ data: [{ "service price": 0, stylist: "" }] });
     const [total, setTotal] = useState(-1);
-    const [activeButtonIndex, setActiveButtonIndex] = useState(0);
+    const buttonState = useState(0);
+    const [, setActiveButtonIndex] = buttonState;
     const [endDate, setEndDate] = useState(new Date());
     const [startDate, setStartDate] = useState(new Date(endDate.getFullYear(), endDate.getMonth(), 1));
 
@@ -47,26 +49,28 @@ export default function Staff() {
 
     const refresh = () => {
         setTotal(-1);
-        setEndDate(new Date());
-        setStartDate(new Date(endDate.getFullYear(), endDate.getMonth(), 1));
+        setDuration('current');
+        setActiveButtonIndex(0);
     }
 
     const setDuration = (type: string) => {
         if (type === 'current') {
             const date = new Date();
-            const lastMonthDate = new Date(date.getFullYear(), date.getMonth(), 1);
-            setStartDate(lastMonthDate);
+            setStartDate(new Date(date.getFullYear(), date.getMonth(), 1));
             setEndDate(date);
-            setActiveButtonIndex(0);
         } else {
             const date = new Date();
             const lastMonthDate = new Date(date.getFullYear(), date.getMonth(), 1);
             setStartDate(new Date(date.getFullYear(), date.getMonth() - 1, 1));
             setEndDate(new Date(lastMonthDate.getTime() - 1));
-            setActiveButtonIndex(1);
         }
         // setTimeout(()=> refresh(), 1);
     }
+
+    const buttons = [
+        { title: (new Date()).toLocaleDateString('en-GB', { month: 'long' }), onClick: () => setDuration('current') },
+        { title: getLastMonth().toLocaleDateString('en-GB', { month: 'long' }), onClick: () => setDuration('previous') }
+    ];
 
     return (
         <Card className="shadow indigoBg" text="light">
@@ -80,12 +84,7 @@ export default function Staff() {
                                 <Button variant="indigo" className="text-light" size="lg" onClick={() => refresh()}><Icon.ArrowClockwise /></Button>
                             </div>
                         </div>
-                        <div className="position-relative mt-3">
-                            <ButtonGroup size="sm">
-                                <Button variant={activeButtonIndex === 0 ? "dark" : "light"} onClick={() => setDuration('current')}>{(new Date()).toLocaleDateString('en-GB', { month: 'long' })}</Button>
-                                <Button variant={activeButtonIndex === 1 ? "dark" : "light"} onClick={() => setDuration('previous')}>{getLastMonth().toLocaleDateString('en-GB', { month: 'long' })}</Button>
-                            </ButtonGroup>
-                        </div>
+                        <DiwaButtonGroup buttons={buttons} state={buttonState} />
                         {
                             reportData.data.map((val, index) => {
                                 const target = (staffTargets[val.stylist.trim() as keyof typeof staffTargets] || defaultTarget)

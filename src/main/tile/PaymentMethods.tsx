@@ -1,8 +1,9 @@
 import { useContext, useEffect, useState } from "react";
-import { Button, ButtonGroup, Card, Col, OverlayTrigger, ProgressBar, Row, Spinner, Tooltip } from "react-bootstrap";
+import { Button, Card, Col, OverlayTrigger, ProgressBar, Row, Spinner, Tooltip } from "react-bootstrap";
 import { currencyFormatter, formatDate, getLastMonth } from "./Utility";
 import * as Icon from 'react-bootstrap-icons';
 import { TokenContext } from "../../App";
+import DiwaButtonGroup from "../../components/button/DiwaButtonGroup";
 
 export default function PaymentMethods() {
     const { callAPI } = useContext(TokenContext);
@@ -10,7 +11,8 @@ export default function PaymentMethods() {
     const [total, setTotal] = useState(-1);
     const [dayReportData, setDayReportData] = useState({ data: [{ total: 0, "payment mode": "" }] });
     const [dayTotal, setDayTotal] = useState(-1);
-    const [activeButtonIndex, setActiveButtonIndex] = useState(0);
+    const buttonState = useState(0);
+    const [, setActiveButtonIndex] = buttonState;
     const [endDate, setEndDate] = useState(new Date());
     const [startDate, setStartDate] = useState(new Date(endDate.getFullYear(), endDate.getMonth(), 1));
 
@@ -68,28 +70,32 @@ export default function PaymentMethods() {
             const lastMonthDate = new Date(date.getFullYear(), date.getMonth(), 1);
             setStartDate(lastMonthDate);
             setEndDate(date);
-            setActiveButtonIndex(0);
         } else {
             const date = new Date();
             const lastMonthDate = new Date(date.getFullYear(), date.getMonth(), 1);
             setStartDate(new Date(date.getFullYear(), date.getMonth() - 1, 1));
             setEndDate(new Date(lastMonthDate.getTime() - 1));
-            setActiveButtonIndex(1);
         }
         // setTimeout(()=> refresh(), 1);
     }
+
+    const buttons = [
+        {title: (new Date()).toLocaleDateString('en-GB', { month: 'long' }), onClick: () => setDuration('current')},
+        {title: getLastMonth().toLocaleDateString('en-GB', { month: 'long' }), onClick: () => setDuration('previous')}
+    ]
 
     return (
         <Card className="shadow purpleBg" text="light">
             {
                 total === -1 ? <Card.Body><Spinner animation="grow" /></Card.Body> :
                     <Card.Body>
-                        <div className="position-relative">
+                        <DiwaButtonGroup buttons={buttons} state={buttonState} />
+                        {/* <div className="position-relative">
                             <ButtonGroup size="sm">
                                 <Button variant={activeButtonIndex === 0 ? "dark" : "light"} onClick={() => setDuration('current')}>{(new Date()).toLocaleDateString('en-GB', { month: 'long' })}</Button>
                                 <Button variant={activeButtonIndex === 1 ? "dark" : "light"} onClick={() => setDuration('previous')}>{getLastMonth().toLocaleDateString('en-GB', { month: 'long' })}</Button>
                             </ButtonGroup>
-                        </div>
+                        </div> */}
                         <div className="position-relative">
                             <h3>Payments for {startDate.toLocaleDateString('en-GB', { month: 'long' })}</h3>
                             <div className="position-absolute top-0 end-0" style={{ marginTop: -10 }}>

@@ -1,8 +1,9 @@
 import { useContext, useEffect, useState } from "react";
-import { Button, ButtonGroup, Card, Col, Row, Spinner } from "react-bootstrap";
+import { Button, Card, Col, Row, Spinner } from "react-bootstrap";
 import * as Icon from 'react-bootstrap-icons';
 import { addDays, currencyFormatter, formatDate, formatDisplayDate, formatWeekDay, getFirstDayOfWeek } from "./Utility";
 import { TokenContext } from "../../App";
+import DiwaButtonGroup from "../../components/button/DiwaButtonGroup";
 
 export default function Sale2() {
     const { callAPI } = useContext(TokenContext);
@@ -14,7 +15,6 @@ export default function Sale2() {
     const [displayVariation, setDisplayVariation] = useState(dataStructure);
     //const [displayDuration, setDisplayDuration] = useState('day');
     const [displaySubDuration, setDisplaySubDuration] = useState(new Date().toLocaleDateString());
-    const [activeButtonIndex, setActiveButtonIndex] = useState(0);
     const [todayData, setTodayData] = useState(dataStructure);
     const [yesterdayData, setYesterdayData] = useState(dataStructure);
     const [currentWeekData, setCurrentWeekData] = useState(dataStructure);
@@ -56,7 +56,6 @@ export default function Sale2() {
             getReportForDateRange(yesterday, yesterday, (data2) => {
                 setYesterdayData(data2);
                 calculateToday(data, data2);
-                setActiveButtonIndex(0);
                 setLoading(false);
                 getReportForDateRange(startOfTheWeek, today, setCurrentWeekData);
                 getReportForDateRange(startOfPrevWeek, endOfPrevWeek, setPreviousWeekData);
@@ -121,19 +120,15 @@ export default function Sale2() {
         switch (duration) {
             case "day":
                 calculateToday(todayData, yesterdayData);
-                setActiveButtonIndex(0);
                 break;
             case "week":
                 calculateWeek();
-                setActiveButtonIndex(1);
                 break;
             case "month":
                 calculateMonth();
-                setActiveButtonIndex(2);
                 break;
             case "cal_month":
                 calculateCalendarMonth();
-                setActiveButtonIndex(3);
                 break;
             default:
                 setDisplaySale(dataStructure);
@@ -186,21 +181,21 @@ export default function Sale2() {
         setDisplaySubDuration(formatDisplayDate(new Date(currentMonthData.start)) + " to " + formatDisplayDate(new Date(currentMonthData.end)));
         getStatsReport(new Date(currentMonthData.start), new Date(currentMonthData.end), new Date(previousMonthData.start), new Date(previousMonthData.end));
     }
+
+    const buttons = [
+        { title: "Today", onClick: () => setDuration('day') },
+        { title: "Week", onClick: () => setDuration('week') },
+        { title: "Finance Month", onClick: () => setDuration('month') },
+        { title: "Calendar Month", onClick: () => setDuration('cal_month') }
+    ];
+    const buttonState = useState(0);
     return (
         <>
             <Card className="shadow" bg={displayVariation.total > 0 ? "success" : "danger"} text="light">
                 {
                     loading ? <Card.Body><Spinner animation="grow" /></Card.Body> :
                         <Card.Body>
-                            <div className="position-relative">
-                                <ButtonGroup size="sm">
-                                    <Button variant={activeButtonIndex === 0 ? "dark" : "light"} onClick={() => setDuration('day')}>Today</Button>
-                                    <Button variant={activeButtonIndex === 1 ? "dark" : "light"} onClick={() => setDuration('week')}>Week</Button>
-                                    <Button variant={activeButtonIndex === 2 ? "dark" : "light"} onClick={() => setDuration('month')}>Finance Month</Button>
-                                    <Button variant={activeButtonIndex === 3 ? "dark" : "light"} onClick={() => setDuration('cal_month')}>Calendar Month</Button>
-                                </ButtonGroup>
-
-                            </div>
+                            <DiwaButtonGroup buttons={buttons} state={buttonState} />
                             <div className="mt-2">
                                 <Row className="border-bottom border-white pb-2 pt-2">
                                     <Col xs="12" className="">Sale for {displaySubDuration}<Button className="align-self-center" style={{ marginLeft: 8, backgroundColor: "transparent", border: "none" }} variant={displayVariation.total > 0 ? "success" : "danger"} onClick={() => refresh()}><Icon.ArrowClockwise /></Button></Col>

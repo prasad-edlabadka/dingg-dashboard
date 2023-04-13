@@ -1,20 +1,29 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import DiwaButtonGroup from "./DiwaButtonGroup";
+import { useState } from "react";
 
 const buttons = [
     { title: 'Button 1', onClick: () => {}},
     { title: 'Button 2', onClick: () => {}},
     { title: 'Button 3', onClick: () => {}}
 ]
+
+const Wrapper = ({ wrapButtons }: { wrapButtons: { title: string,  onClick: any, onClickParams?: any[] }[] }) => {
+    const btn = useState(0);
+    return (
+        <DiwaButtonGroup buttons={wrapButtons} state={btn} />
+    );
+}
+
 describe('DiwaButtonGroup component tests', () => {
     test('DiwaButtonGroup component renders', () => {
-        render(<DiwaButtonGroup buttons={buttons} />);
+        render(<Wrapper wrapButtons={buttons} />);
         const parent = screen.getByTestId('button-parent');
         expect(parent).toBeInTheDocument();
     });
 
     test('DiwaButtonGroup component renders with correct number of buttons', () => {
-        render(<DiwaButtonGroup buttons={buttons} />);
+        render(<Wrapper wrapButtons={buttons} />);
         const parent = screen.getByTestId('button-parent');
         expect(parent).toBeInTheDocument();
         const buttonsCount = screen.getAllByTestId('button');
@@ -22,7 +31,7 @@ describe('DiwaButtonGroup component tests', () => {
     });
 
     test('DiwaButtonGroup component renders with correct buttons', () => {
-        render(<DiwaButtonGroup buttons={buttons} />);
+        render(<Wrapper wrapButtons={buttons} />);
         const parent = screen.getByTestId('button-parent');
         expect(parent).toBeInTheDocument();
         const buttonsCount = screen.getAllByTestId('button');
@@ -33,14 +42,14 @@ describe('DiwaButtonGroup component tests', () => {
     });
 
     test('DiwaButtonGroup component renders buttons in a horizontal layout', () => {
-        render(<DiwaButtonGroup buttons={buttons} />);
+        render(<Wrapper wrapButtons={buttons} />);
         const parent = screen.getByTestId('button-parent');
         expect(parent).toBeInTheDocument();
         expect(parent).not.toHaveClass('btn-group-vertical');
     });
 
     test('DiwaButtonGroup component renders first button as active by default', () => {
-        render(<DiwaButtonGroup buttons={buttons} />);
+        render(<Wrapper wrapButtons={buttons} />);
         const parent = screen.getByTestId('button-parent');
         expect(parent).toBeInTheDocument();
         const buttonsCount = screen.getAllByTestId('button');
@@ -49,7 +58,7 @@ describe('DiwaButtonGroup component tests', () => {
     });
 
     test('DiwaButtonGroup component renders active button as dark', () => {
-        render(<DiwaButtonGroup buttons={buttons} />);
+        render(<Wrapper wrapButtons={buttons} />);
         const parent = screen.getByTestId('button-parent');
         expect(parent).toBeInTheDocument();
         const buttonsCount = screen.getAllByTestId('button');
@@ -59,7 +68,7 @@ describe('DiwaButtonGroup component tests', () => {
     });
 
     test('DiwaButtonGroup component renders inactive button as light', () => {
-        render(<DiwaButtonGroup buttons={buttons} />);
+        render(<Wrapper wrapButtons={buttons} />);
         const parent = screen.getByTestId('button-parent');
         expect(parent).toBeInTheDocument();
         const buttonsCount = screen.getAllByTestId('button');
@@ -69,7 +78,7 @@ describe('DiwaButtonGroup component tests', () => {
     });
 
     test('DiwaButtonGroup component renders small size buttons', () => {
-        render(<DiwaButtonGroup buttons={buttons} />);
+        render(<Wrapper wrapButtons={buttons} />);
         const parent = screen.getByTestId('button-parent');
         expect(parent).toBeInTheDocument();
         expect(parent).toHaveClass('btn-group-sm');
@@ -78,7 +87,7 @@ describe('DiwaButtonGroup component tests', () => {
 
 describe('DiwaButtonGroup component interaction tests', () => {
     test('DiwaButtonGroup component changes active button to clicked button when clicked', () => {
-        render(<DiwaButtonGroup buttons={buttons} />);
+        render(<Wrapper wrapButtons={buttons} />);
         const parent = screen.getByTestId('button-parent');
         expect(parent).toBeInTheDocument();
         fireEvent.click(screen.getByText('Button 2'));
@@ -90,7 +99,7 @@ describe('DiwaButtonGroup component interaction tests', () => {
     });
 
     test('DiwaButtonGroup component changes active button to inactive when another button is clicked', () => {
-        render(<DiwaButtonGroup buttons={buttons} />);
+        render(<Wrapper wrapButtons={buttons} />);
         const parent = screen.getByTestId('button-parent');
         expect(parent).toBeInTheDocument();
         fireEvent.click(screen.getByText('Button 2'));
@@ -107,7 +116,7 @@ describe('DiwaButtonGroup component interaction tests', () => {
             { title: 'Button 2', onClick: onClick},
             { title: 'Button 3', onClick: onClick}
         ]
-        render(<DiwaButtonGroup buttons={buttons} />);
+        render(<Wrapper wrapButtons={buttons} />);
         const parent = screen.getByTestId('button-parent');
         expect(parent).toBeInTheDocument();
         fireEvent.click(screen.getByText('Button 2'));
@@ -125,7 +134,7 @@ describe('DiwaButtonGroup component interaction tests', () => {
             { title: 'Button 2', onClick: onClick, onClickParams:onClickParams},
             { title: 'Button 3', onClick: onClick, onClickParams:onClickParams2}
         ]
-        render(<DiwaButtonGroup buttons={buttons} />);
+        render(<Wrapper wrapButtons={buttons} />);
         const parent = screen.getByTestId('button-parent');
         expect(parent).toBeInTheDocument();
         fireEvent.click(screen.getByText('Button 2'));
@@ -141,7 +150,7 @@ describe('DiwaButtonGroup component interaction tests', () => {
             { title: 'Button 2', onClick: null},
             { title: 'Button 3', onClick: onClick}
         ]
-        render(<DiwaButtonGroup buttons={buttons} />);
+        render(<Wrapper wrapButtons={buttons} />);
         const parent = screen.getByTestId('button-parent');
         expect(parent).toBeInTheDocument();
         fireEvent.click(screen.getByText('Button 2'));
