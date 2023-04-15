@@ -1,11 +1,13 @@
 import { SetStateAction, useContext, useEffect, useState } from "react";
-import { Button, Card, Col, Row, Spinner } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 import { currencyFormatter, formatDate, formatTime } from "./Utility";
 import * as Icon from 'react-bootstrap-icons';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpa } from "@fortawesome/free-solid-svg-icons";
 import * as _ from "lodash";
 import { TokenContext } from "../../App";
+import DiwaCard from "../../components/card/DiwaCard";
+import DiwaRefreshButton from "../../components/button/DiwaRefreshButton";
 
 export default function BookingsV2() {
     const [loading, setLoading] = useState(true);
@@ -320,69 +322,68 @@ export default function BookingsV2() {
         setReload(!reload);
     }
 
+    type Varient = "danger" | "success" | "primary" | "warning" | "dark" | "indigo" | "purple";
+
     return (
         <div>
             <Row>
                 <Col lg="12" xs="12">
                     <div className="position-relative today">
                         <h3 className="text-light">Today's Customers</h3>
-                        <div className="position-absolute top-0 end-0" style={{ marginTop: -10 }}>
-                            <Button variant="indigo" className="text-light mt-2" size="lg" onClick={() => refresh()}><Icon.ArrowClockwise /></Button>
-                        </div>
+                        <DiwaRefreshButton refresh={() => refresh()} />
                     </div>
                 </Col>
             </Row>
             <Row>
                 {
-                    billingData.length === 0 ? <Col xl={4} xs={12} className="gy-4"><Card className="shadow" bg="primary" text="light"><Card.Body><h2>{loading ? 'Fetching customer list' : 'No customers yet.'}</h2></Card.Body></Card></Col> :
+                    billingData.length === 0 ? <Col xl={4} xs={12} className="gy-4">
+                        <DiwaCard varient="primary" loadingTracker={loading}>
+                            <h2>No customers yet</h2>
+                        </DiwaCard>
+                        </Col> :
                         billingData.map((booking, index) => {
                             return (
                                 <Col xl={4} xs={12} className="gy-4" key={"booking" + index}>
-                                    <Card className="shadow" bg={booking.status ? 'success' : 'danger'} text="light" >
-                                        {
-                                            loading ? <Card.Body><Spinner animation="grow" /></Card.Body> :
-                                                <Card.Body>
-                                                    <div>
-                                                        <h3>{booking.user.is_member ? <Icon.StarFill style={{ marginTop: -4, paddingRight: 4 }} color="gold" /> : ''}{booking.user.display_name || `${booking.user.fname || ""} ${booking.user.lname || ""}`.trim()} ({currencyFormatter.format(booking.payments.total)})</h3>
-                                                        <ul className="list-group list-group-flush">
-                                                            {booking.services.map((service, index) => {
-                                                                return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={booking.id + 's' + index}>
-                                                                    <FontAwesomeIcon icon={faSpa} className="text-warning" />  {service.vendor_service.service}<p className="small text-white-50 mb-0" style={{ marginTop: -3, marginLeft: "1.38rem" }}>{service.employee.name} - {currencyFormatter.format(service.price)}</p>
-                                                                </li>);
-                                                            })
-                                                            }
-                                                            {booking.products.map((prod, index) => {
-                                                                return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={booking.id + 'p' + index}>
-                                                                    <Icon.BoxSeam style={{ marginTop: -4 }} color="gold" />  {prod.product.name}<p className="small text-white-50 mb-0 ms-4" style={{ marginTop: -4 }}>{prod.employee.name} - {currencyFormatter.format(prod.price)}</p>
-                                                                </li>);
-                                                            })
-                                                            }
-                                                            {booking.packages !== null ?
-                                                                <li className="list-group-item bg-transparent text-light border-white ps-0" key={booking.id + 'pk' + index}>
-                                                                    <Icon.UiChecksGrid style={{ marginTop: -4 }} color="gold" />  {booking.packages.package.package_type.package_name}<p className="small text-white-50 mb-0" style={{ marginTop: -4, marginLeft: "1.37rem" }}>{booking.packages.employee.name} - {currencyFormatter.format(booking.packages.price)}</p>
-                                                                </li> : ''
-                                                            }
-                                                            {booking.memberships !== null ?
-                                                                <li className="list-group-item bg-transparent text-light border-white ps-0" key={booking.id + 'm' + index}>
-                                                                    <Icon.StarFill style={{ marginTop: -4 }} color="gold" />  {booking.memberships.membership.membership_type.type}<p className="small text-white-50 mb-0 ms-4" style={{ marginTop: -4 }}>{booking.memberships.employee.name} - {currencyFormatter.format(booking.memberships.price)}</p>
-                                                                </li> : ''
-                                                            }
-                                                        </ul>
-                                                    </div>
-                                                </Card.Body>
-                                        }
-                                        {
-                                            !loading ? (
-                                                booking.status ? <Card.Footer className="w-100">
-                                                    <div className="text-start d-inline small">Without discount: {currencyFormatter.format(booking.payments.price)}</div>
-                                                    <div className="text-end d-inline small float-end">Discount: {currencyFormatter.format(booking.payments.discount)} ({Math.round(booking.payments.discount * 100 / booking.payments.price)}%)</div>
-                                                </Card.Footer> :
-                                                    <Card.Footer className="w-100">
+                                    <DiwaCard varient={booking.status ? 'success' : 'danger'} loadingTracker={loading}>
+                                        <div>
+                                            <h3>{booking.user.is_member ? <Icon.StarFill style={{ marginTop: -4, paddingRight: 4 }} color="gold" /> : ''}{booking.user.display_name || `${booking.user.fname || ""} ${booking.user.lname || ""}`.trim()} ({currencyFormatter.format(booking.payments.total)})</h3>
+                                            <ul className="list-group list-group-flush">
+                                                {booking.services.map((service, index) => {
+                                                    return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={booking.id + 's' + index}>
+                                                        <FontAwesomeIcon icon={faSpa} className="text-warning" />  {service.vendor_service.service}<p className="small text-white-50 mb-0" style={{ marginTop: -3, marginLeft: "1.38rem" }}>{service.employee.name} - {currencyFormatter.format(service.price)}</p>
+                                                    </li>);
+                                                })
+                                                }
+                                                {booking.products.map((prod, index) => {
+                                                    return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={booking.id + 'p' + index}>
+                                                        <Icon.BoxSeam style={{ marginTop: -4 }} color="gold" />  {prod.product.name}<p className="small text-white-50 mb-0 ms-4" style={{ marginTop: -4 }}>{prod.employee.name} - {currencyFormatter.format(prod.price)}</p>
+                                                    </li>);
+                                                })
+                                                }
+                                                {booking.packages !== null ?
+                                                    <li className="list-group-item bg-transparent text-light border-white ps-0" key={booking.id + 'pk' + index}>
+                                                        <Icon.UiChecksGrid style={{ marginTop: -4 }} color="gold" />  {booking.packages.package.package_type.package_name}<p className="small text-white-50 mb-0" style={{ marginTop: -4, marginLeft: "1.37rem" }}>{booking.packages.employee.name} - {currencyFormatter.format(booking.packages.price)}</p>
+                                                    </li> : ''
+                                                }
+                                                {booking.memberships !== null ?
+                                                    <li className="list-group-item bg-transparent text-light border-white ps-0" key={booking.id + 'm' + index}>
+                                                        <Icon.StarFill style={{ marginTop: -4 }} color="gold" />  {booking.memberships.membership.membership_type.type}<p className="small text-white-50 mb-0 ms-4" style={{ marginTop: -4 }}>{booking.memberships.employee.name} - {currencyFormatter.format(booking.memberships.price)}</p>
+                                                    </li> : ''
+                                                }
+                                            </ul>
+                                            <hr className="mt-1 mb-1" />
+                                            <div className="w-100">
+                                                {
+                                                    booking.status ?
+                                                        <>
+                                                            <div className="text-start d-inline small align-top">Without discount: {currencyFormatter.format(booking.payments.price)}</div>
+                                                            <div className="text-end d-inline small float-end align-top">Discount: {currencyFormatter.format(booking.payments.discount)} ({Math.round(booking.payments.discount * 100 / booking.payments.price)}%)</div>
+                                                        </> :
                                                         <div className="text-start d-inline small">Cancellation Reason: {booking.cancel_reason}</div>
-                                                    </Card.Footer>) : ''
-                                        }
-
-                                    </Card>
+                                                }
+                                            </div>
+                                        </div>
+                                    </DiwaCard>
                                 </Col>
                             );
                         })
@@ -391,28 +392,27 @@ export default function BookingsV2() {
             <Row>
                 {
                     bookingData.map(booking => {
-
+                        const varient = (statusColor[booking.status] || 'dark') as Varient;
                         return (
                             <Col xl={4} xs={12} className="gy-4" key={booking.customerName}>
-                                <Card className="shadow" bg={statusColor[booking.status] || 'dark'} text="light" >
-                                    <Card.Body>
-                                        <div>
-                                            <h3>{booking.customerName} ({currencyFormatter.format(booking.billAmount)})</h3>
-                                            <ul className="list-group list-group-flush">
-                                                {booking.services.map(service => {
-                                                    return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={booking.customerName + service.name}>
-                                                        {service.name}<p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{service.employee}</p>
-                                                    </li>);
-                                                })
-                                                }
-                                            </ul>
-                                        </div>
-                                    </Card.Body>
-                                    <Card.Footer className="w-100">
-                                        <div className="text-start d-inline small">{statusDesc[booking.status] || "Unknown"}</div>
-                                        <div className="text-end d-inline small float-end">{formatTime(new Date(booking.start))} - {formatTime(new Date(booking.end))}</div>
-                                    </Card.Footer>
-                                </Card>
+                                <DiwaCard varient={varient} loadingTracker={loading}>
+                                    <div>
+                                        <h3>{booking.customerName} ({currencyFormatter.format(booking.billAmount)})</h3>
+                                        <ul className="list-group list-group-flush">
+                                            {booking.services.map(service => {
+                                                return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={booking.customerName + service.name}>
+                                                    {service.name}<p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{service.employee}</p>
+                                                </li>);
+                                            })
+                                            }
+                                        </ul>
+                                    </div>
+                                    <hr className="mt-1 mb-1" />
+                                    <div className="w-100">
+                                        <div className="text-start d-inline small align-top">{statusDesc[booking.status] || "Unknown"}</div>
+                                        <div className="text-end d-inline small float-end align-top">{formatTime(new Date(booking.start))} - {formatTime(new Date(booking.end))}</div>
+                                    </div>
+                                </DiwaCard>
                             </Col>
                         );
                     })

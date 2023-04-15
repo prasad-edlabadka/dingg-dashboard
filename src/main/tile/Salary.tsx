@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { Accordion, Form, Card, Row, Col } from "react-bootstrap";
+import { Accordion, Form, Row, Col } from "react-bootstrap";
 import { currencyFormatter, formatMinutes, nth } from "./Utility";
 import { read } from 'xlsx';
 import moment from 'moment';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFaceSmile, faCalendarDays, faCalendarXmark } from "@fortawesome/free-regular-svg-icons";
 import { faArrowRightFromBracket, faArrowRightToBracket, faPersonWalkingArrowRight, faPersonRunning } from "@fortawesome/free-solid-svg-icons";
+import DiwaCard from "../../components/card/DiwaCard";
 
 export default function Salary() {
     const [reportData, setReportData] = useState([{
@@ -105,9 +106,9 @@ export default function Salary() {
                 reportMonth = reportDate.format("MMMM");
                 const calculatedData = [];
                 for (let i = startRow; i < data.length; i += 3) {
-                    if(!data[i][nameColumn]) {
+                    if (!data[i][nameColumn]) {
                         console.log("Name not found. Incrementing i", i);
-                        i-=2;
+                        i -= 2;
                         continue;
                     }
                     let record = { name: "", dates: [{}] };
@@ -120,12 +121,12 @@ export default function Salary() {
                             const dateTimes = (data[i + 2] || [])[j];
                             let additionalDateTime: string = (data[i + 3] || [])[j]?.v as string || '';
                             console.log(`additional time: ${additionalDateTime}:${JSON.stringify(dateTimes)}`)
-                            additionalDateTime = additionalDateTime.trim().match(/^[0-2][0-3]:[0-5][0-9]$/)?additionalDateTime.trim():'';
+                            additionalDateTime = additionalDateTime.trim().match(/^[0-2][0-3]:[0-5][0-9]$/) ? additionalDateTime.trim() : '';
 
                             if (dateTimes) {
                                 let dateTimesSplit = (dateTimes?.v as string).split("\n");
                                 time.start = dateTimesSplit[0];
-                                time.end = additionalDateTime === ''?dateTimesSplit[dateTimesSplit.length - 1]:additionalDateTime;
+                                time.end = additionalDateTime === '' ? dateTimesSplit[dateTimesSplit.length - 1] : additionalDateTime;
                             }
                             record.dates.push(time);
                         }
@@ -247,116 +248,114 @@ export default function Salary() {
     }
 
     return (
-        <Card className="shadow" text="light" bg="primary">
-            <Card.Body>
-                <Form.Group controlId="formFile" className="mb-3">
-                    <Form.Label>Choose Attendance File</Form.Label>
-                    <Form.Control type="file" onChange={(e) => { loadFile((e.target as HTMLInputElement).files) }} />
-                </Form.Group>
-                {loading ? '' : <><h3>Salary Calculation for {reportInfo.month} {reportInfo.year}<p className="small text-white-50">Total: {currencyFormatter.format(reportData.reduce((v: any, current) => v + current.pay, 0))}</p></h3>
-                    {reportData.map((val) => {
-                        return (<Accordion flush key={val.name}>
-                            <Accordion.Header className="w-100">
-                                <div className="w-100 pe-2 pb-2">
-                                    <div className="text-start d-inline h5 text-capitalize">{val.name.toLowerCase()}<span className="small text-white-50"> including overtime of {currencyFormatter.format(val.ot)}</span> </div>
-                                    <div className="text-end d-inline float-end">{currencyFormatter.format(val.pay)}</div>
-                                </div>
-                            </Accordion.Header>
-                            <Accordion.Body>
-                                <ul className="list-group list-group-flush">
-                                    <li className="list-group-item bg-transparent text-light border-white ps-0" key={val.name + 'item1present'}>
-                                        <div><FontAwesomeIcon icon={faCalendarDays} />&nbsp;    {`Salary for ${reportInfo.days - val.dayOff.filter(v => !v.ignored).length} days (including ${val.dayOff.filter(v => v.ignored).length} offs + ${val.dayOff.filter(v => !v.ignored).length} leaves)`}</div>
-                                        <div><FontAwesomeIcon icon={faPersonRunning} />&nbsp;    {`Late Mark for ${val.lateDays.length} days (${val.lateDays.filter(v => v.ignored).length} days ignored)`}</div>
-                                        <div><FontAwesomeIcon icon={faArrowRightToBracket} />&nbsp;    {`Half Days for ${val.halfDays.length} days (${val.halfDays.filter(v => v.ignored).length} days ignored)`}</div>
-                                        <div><FontAwesomeIcon icon={faArrowRightFromBracket} />&nbsp;    {`Early Exit for ${val.earlyExitDays.length} days`}</div>
-                                        <div><FontAwesomeIcon icon={faPersonWalkingArrowRight} />&nbsp;    {`Missed attendance for ${val.missedEntry.length} days (${val.missedEntry.filter(v => v.ignored).length} days ignored)`}</div>
-                                        <div><FontAwesomeIcon icon={faFaceSmile} />&nbsp;    {`Overtime for ${val.overTimeDays.length} days`}</div>
-                                    </li>
+        <DiwaCard varient={"primary"} loadingTracker={false}>
+            <Form.Group controlId="formFile" className="mb-3">
+                <Form.Label>Choose Attendance File</Form.Label>
+                <Form.Control type="file" onChange={(e) => { loadFile((e.target as HTMLInputElement).files) }} />
+            </Form.Group>
+            {loading ? '' : <><h3>Salary Calculation for {reportInfo.month} {reportInfo.year}<p className="small text-white-50">Total: {currencyFormatter.format(reportData.reduce((v: any, current) => v + current.pay, 0))}</p></h3>
+                {reportData.map((val) => {
+                    return (<Accordion flush key={val.name}>
+                        <Accordion.Header className="w-100">
+                            <div className="w-100 pe-2 pb-2">
+                                <div className="text-start d-inline h5 text-capitalize">{val.name.toLowerCase()}<span className="small text-white-50"> including overtime of {currencyFormatter.format(val.ot)}</span> </div>
+                                <div className="text-end d-inline float-end">{currencyFormatter.format(val.pay)}</div>
+                            </div>
+                        </Accordion.Header>
+                        <Accordion.Body>
+                            <ul className="list-group list-group-flush">
+                                <li className="list-group-item bg-transparent text-light border-white ps-0" key={val.name + 'item1present'}>
+                                    <div><FontAwesomeIcon icon={faCalendarDays} />&nbsp;    {`Salary for ${reportInfo.days - val.dayOff.filter(v => !v.ignored).length} days (including ${val.dayOff.filter(v => v.ignored).length} offs + ${val.dayOff.filter(v => !v.ignored).length} leaves)`}</div>
+                                    <div><FontAwesomeIcon icon={faPersonRunning} />&nbsp;    {`Late Mark for ${val.lateDays.length} days (${val.lateDays.filter(v => v.ignored).length} days ignored)`}</div>
+                                    <div><FontAwesomeIcon icon={faArrowRightToBracket} />&nbsp;    {`Half Days for ${val.halfDays.length} days (${val.halfDays.filter(v => v.ignored).length} days ignored)`}</div>
+                                    <div><FontAwesomeIcon icon={faArrowRightFromBracket} />&nbsp;    {`Early Exit for ${val.earlyExitDays.length} days`}</div>
+                                    <div><FontAwesomeIcon icon={faPersonWalkingArrowRight} />&nbsp;    {`Missed attendance for ${val.missedEntry.length} days (${val.missedEntry.filter(v => v.ignored).length} days ignored)`}</div>
+                                    <div><FontAwesomeIcon icon={faFaceSmile} />&nbsp;    {`Overtime for ${val.overTimeDays.length} days`}</div>
+                                </li>
 
-                                    <li className="list-group-item bg-transparent text-light border-white ps-0" key={val.name + 'item2present'}>
-                                        <Row>
-                                            <Col xs="8">Base salary</Col>
-                                            <Col xs="4" className="text-end">{currencyFormatter.format(staffTimings[val.name].salary)}</Col>
-                                        </Row>
-                                        <Row>
-                                            <Col xs="6">Overtime</Col>
-                                            <Col xs="6" className="text-end">+ {currencyFormatter.format(val.ot)}</Col>
-                                        </Row>
-                                        <Row>
-                                            <Col xs="6">Leaves Deduction</Col>
-                                            <Col xs="6" className="text-end">- {currencyFormatter.format(val.dayOff.filter(v => !v.ignored).length * getHalfDaySalary(staffTimings[val.name].salary) * 2)}</Col>
-                                        </Row>
-                                        <Row>
-                                            <Col xs="8">Late Mark</Col>
-                                            <Col xs="4" className="text-end">- {currencyFormatter.format(val.lateDays.filter(v => !v.ignored).length * lateMarkPenalty)}</Col>
-                                        </Row>
-                                        <Row>
-                                            <Col xs="9">Half Day - Late Arrival</Col>
-                                            <Col xs="3" className="text-end">- {currencyFormatter.format(val.halfDays.filter(v => !v.ignored).length * getHalfDaySalary(staffTimings[val.name].salary))}</Col>
-                                        </Row>
-                                        <Row>
-                                            <Col xs="9">Half Day - Early Exit</Col>
-                                            <Col xs="3" className="text-end">- {currencyFormatter.format(val.earlyExitDays.filter(v => !v.ignored).length * getHalfDaySalary(staffTimings[val.name].salary))}</Col>
-                                        </Row>
-                                        <Row>
-                                            <Col xs="9">Half Day - Missed Entry</Col>
-                                            <Col xs="3" className="text-end">- {currencyFormatter.format(val.missedEntry.filter(v => !v.ignored).length * getHalfDaySalary(staffTimings[val.name].salary))}</Col>
-                                        </Row>
-                                        <Row>
-                                            <Col xs="8"><strong>Total</strong></Col>
-                                            <Col xs="4" className="text-end"><strong>{currencyFormatter.format(val.pay)}</strong></Col>
-                                        </Row>
-                                    </li>
+                                <li className="list-group-item bg-transparent text-light border-white ps-0" key={val.name + 'item2present'}>
+                                    <Row>
+                                        <Col xs="8">Base salary</Col>
+                                        <Col xs="4" className="text-end">{currencyFormatter.format(staffTimings[val.name].salary)}</Col>
+                                    </Row>
+                                    <Row>
+                                        <Col xs="6">Overtime</Col>
+                                        <Col xs="6" className="text-end">+ {currencyFormatter.format(val.ot)}</Col>
+                                    </Row>
+                                    <Row>
+                                        <Col xs="6">Leaves Deduction</Col>
+                                        <Col xs="6" className="text-end">- {currencyFormatter.format(val.dayOff.filter(v => !v.ignored).length * getHalfDaySalary(staffTimings[val.name].salary) * 2)}</Col>
+                                    </Row>
+                                    <Row>
+                                        <Col xs="8">Late Mark</Col>
+                                        <Col xs="4" className="text-end">- {currencyFormatter.format(val.lateDays.filter(v => !v.ignored).length * lateMarkPenalty)}</Col>
+                                    </Row>
+                                    <Row>
+                                        <Col xs="9">Half Day - Late Arrival</Col>
+                                        <Col xs="3" className="text-end">- {currencyFormatter.format(val.halfDays.filter(v => !v.ignored).length * getHalfDaySalary(staffTimings[val.name].salary))}</Col>
+                                    </Row>
+                                    <Row>
+                                        <Col xs="9">Half Day - Early Exit</Col>
+                                        <Col xs="3" className="text-end">- {currencyFormatter.format(val.earlyExitDays.filter(v => !v.ignored).length * getHalfDaySalary(staffTimings[val.name].salary))}</Col>
+                                    </Row>
+                                    <Row>
+                                        <Col xs="9">Half Day - Missed Entry</Col>
+                                        <Col xs="3" className="text-end">- {currencyFormatter.format(val.missedEntry.filter(v => !v.ignored).length * getHalfDaySalary(staffTimings[val.name].salary))}</Col>
+                                    </Row>
+                                    <Row>
+                                        <Col xs="8"><strong>Total</strong></Col>
+                                        <Col xs="4" className="text-end"><strong>{currencyFormatter.format(val.pay)}</strong></Col>
+                                    </Row>
+                                </li>
 
-                                    {
-                                        val.dayOff.map((item) => {
-                                            return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={val.name + 'item1' + item.day}>
-                                                <FontAwesomeIcon icon={faCalendarXmark} className="text-danger" /><span className={item.ignored ? 'text-decoration-line-through' : ''}>  {`Took day off on ${item.day}`}<sup>{nth(item.day)}</sup></span></li>
-                                            )
-                                        })
-                                    }
-                                    {
-                                        val.missedEntry.map((item) => {
-                                            return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={val.name + 'item2' + item.day}>
-                                                <FontAwesomeIcon icon={faPersonWalkingArrowRight} className="text-danger" /><span className={item.ignored ? 'text-decoration-line-through' : ''}>  {`Missed puch-in or punch-out on ${item.day}`}<sup>{nth(item.day)}</sup></span><p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{item.time}</p></li>
-                                            )
-                                        })
-                                    }
-                                    {
-                                        val.lateDays.map((item) => {
-                                            return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={val.name + 'item2' + item.day}>
-                                                <FontAwesomeIcon icon={faArrowRightToBracket} className="text-danger" /><span className={item.ignored ? 'text-decoration-line-through' : ''}>  {`Was late on ${item.day}`}<sup>{nth(item.day)}</sup> {`by ${formatMinutes(item.by)}`}</span><p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>Entry at {item.time}</p></li>
-                                            )
-                                        })
-                                    }
-                                    {
-                                        val.halfDays.map((item) => {
-                                            return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={val.name + 'item3' + item.day}>
-                                                <FontAwesomeIcon icon={faArrowRightToBracket} className="text-danger" /><span className={item.ignored ? 'text-decoration-line-through' : ''}>  {`Was very late (half-day) on ${item.day}`}<sup>{nth(item.day)}</sup> {`by ${formatMinutes(item.by)}`}</span><p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>Entry at {item.time}</p></li>
-                                            )
-                                        })
-                                    }
-                                    {
-                                        val.earlyExitDays.map((item) => {
-                                            return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={val.name + 'item4' + item.day}>
-                                                <FontAwesomeIcon icon={faArrowRightFromBracket} className="text-danger" /><span className={item.ignored ? 'text-decoration-line-through' : ''}>  {`Left early on ${item.day}`}<sup>{nth(item.day)}</sup> {`by ${formatMinutes(item.by)}`}</span><p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>Exit at {item.time}</p></li>
-                                            )
-                                        })
-                                    }
-                                    {
-                                        val.overTimeDays.map((item) => {
-                                            return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={val.name + 'item2' + item.day}>
-                                                <FontAwesomeIcon icon={faFaceSmile} className="text-warning" />  {`Did overtime on ${item.day}`}<sup>{nth(item.day)}</sup> {`for ${formatMinutes(item.by)}`}<p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>Exit at {item.time}</p></li>
-                                            )
-                                        })
-                                    }
-                                </ul>
+                                {
+                                    val.dayOff.map((item) => {
+                                        return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={val.name + 'item1' + item.day}>
+                                            <FontAwesomeIcon icon={faCalendarXmark} className="text-danger" /><span className={item.ignored ? 'text-decoration-line-through' : ''}>  {`Took day off on ${item.day}`}<sup>{nth(item.day)}</sup></span></li>
+                                        )
+                                    })
+                                }
+                                {
+                                    val.missedEntry.map((item) => {
+                                        return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={val.name + 'item2' + item.day}>
+                                            <FontAwesomeIcon icon={faPersonWalkingArrowRight} className="text-danger" /><span className={item.ignored ? 'text-decoration-line-through' : ''}>  {`Missed puch-in or punch-out on ${item.day}`}<sup>{nth(item.day)}</sup></span><p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{item.time}</p></li>
+                                        )
+                                    })
+                                }
+                                {
+                                    val.lateDays.map((item) => {
+                                        return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={val.name + 'item2' + item.day}>
+                                            <FontAwesomeIcon icon={faArrowRightToBracket} className="text-danger" /><span className={item.ignored ? 'text-decoration-line-through' : ''}>  {`Was late on ${item.day}`}<sup>{nth(item.day)}</sup> {`by ${formatMinutes(item.by)}`}</span><p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>Entry at {item.time}</p></li>
+                                        )
+                                    })
+                                }
+                                {
+                                    val.halfDays.map((item) => {
+                                        return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={val.name + 'item3' + item.day}>
+                                            <FontAwesomeIcon icon={faArrowRightToBracket} className="text-danger" /><span className={item.ignored ? 'text-decoration-line-through' : ''}>  {`Was very late (half-day) on ${item.day}`}<sup>{nth(item.day)}</sup> {`by ${formatMinutes(item.by)}`}</span><p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>Entry at {item.time}</p></li>
+                                        )
+                                    })
+                                }
+                                {
+                                    val.earlyExitDays.map((item) => {
+                                        return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={val.name + 'item4' + item.day}>
+                                            <FontAwesomeIcon icon={faArrowRightFromBracket} className="text-danger" /><span className={item.ignored ? 'text-decoration-line-through' : ''}>  {`Left early on ${item.day}`}<sup>{nth(item.day)}</sup> {`by ${formatMinutes(item.by)}`}</span><p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>Exit at {item.time}</p></li>
+                                        )
+                                    })
+                                }
+                                {
+                                    val.overTimeDays.map((item) => {
+                                        return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={val.name + 'item2' + item.day}>
+                                            <FontAwesomeIcon icon={faFaceSmile} className="text-warning" />  {`Did overtime on ${item.day}`}<sup>{nth(item.day)}</sup> {`for ${formatMinutes(item.by)}`}<p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>Exit at {item.time}</p></li>
+                                        )
+                                    })
+                                }
+                            </ul>
 
-                            </Accordion.Body>
-                        </Accordion>)
-                    })}
-                </>}
-            </Card.Body>
-        </Card>
+                        </Accordion.Body>
+                    </Accordion>)
+                })}
+            </>}
+        </DiwaCard>
     )
 }

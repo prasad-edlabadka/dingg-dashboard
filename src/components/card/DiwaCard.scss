@@ -1,0 +1,48 @@
+$box-shadow: 0.5rem .5rem 1rem rgba(#000, .45);
+.card {
+    box-shadow: inset 0 0 2000px #dbdbdb80;
+    backdrop-filter: blur(1rem);
+    box-shadow: 1.3rem 1.3rem 1.3rem rgba($color: #000000, $alpha: 0.5) !important;
+    border-top-color: rgba(225, 225, 225, 0.5);
+    border-left-color: rgba(225, 225, 225, 0.5);
+    border-bottom-color: rgba(225, 225, 225, 0.1);
+    border-right-color: rgba(225, 225, 225, 0.1);
+    border-radius: 1.5rem;
+    // height: 100%;
+  }
+  
+  .card.bg-danger {
+    background-color: unset !important;
+    background: linear-gradient(to right bottom, rgba(var(--bs-danger-rgb), 0.6), rgba(var(--bs-danger-rgb), 0.4));
+  }
+  
+  .card.bg-success {
+    background-color: unset !important;
+    background: linear-gradient(to right bottom, rgba(var(--bs-success-rgb), 0.6), rgba(var(--bs-success-rgb), 0.4));
+  }
+  
+  .card.bg-primary {
+    background-color: unset !important;
+    background: linear-gradient(to right bottom, rgba(var(--bs-primary-rgb), 0.6), rgba(var(--bs-primary-rgb), 0.4));
+  }
+  
+  .card.bg-warning {
+    background-color: unset !important;
+    background: linear-gradient(to right bottom, rgba(var(--bs-warning-rgb), 0.6), rgba(var(--bs-warning-rgb), 0.4));
+  }
+  
+  .card.bg-dark {
+    background-color: unset !important;
+    background: linear-gradient(to right bottom, rgba(var(--bs-dark-rgb), 0.6), rgba(var(--bs-dark-rgb), 0.4));
+  }
+  
+  .card.bg-indigo {
+    background-color: unset !important;
+    background: linear-gradient(to right bottom, rgba(13, 110, 253, 0.6), rgba(13, 110, 253, 0.4));
+
+  }
+  
+  .card.bg-purple {
+    background-color: unset !important;
+    background: linear-gradient(to right bottom, rgba(#6610f2, 0.6), rgba(#6610f2, 0.4)) !important;
+  }

@@ -1,9 +1,10 @@
 import { useContext, useEffect, useState } from "react";
-import { Button, Card, Col, Row, Spinner } from "react-bootstrap";
+import { Button, Col, Row } from "react-bootstrap";
 import * as Icon from 'react-bootstrap-icons';
 import { addDays, currencyFormatter, formatDate, formatDisplayDate, formatWeekDay, getFirstDayOfWeek } from "./Utility";
 import { TokenContext } from "../../App";
 import DiwaButtonGroup from "../../components/button/DiwaButtonGroup";
+import DiwaCard from "../../components/card/DiwaCard";
 
 export default function Sale2() {
     const { callAPI } = useContext(TokenContext);
@@ -191,135 +192,120 @@ export default function Sale2() {
     const buttonState = useState(0);
     return (
         <>
-            <Card className="shadow" bg={displayVariation.total > 0 ? "success" : "danger"} text="light">
-                {
-                    loading ? <Card.Body><Spinner animation="grow" /></Card.Body> :
-                        <Card.Body>
-                            <DiwaButtonGroup buttons={buttons} state={buttonState} />
-                            <div className="mt-2">
-                                <Row className="border-bottom border-white pb-2 pt-2">
-                                    <Col xs="12" className="">Sale for {displaySubDuration}<Button className="align-self-center" style={{ marginLeft: 8, backgroundColor: "transparent", border: "none" }} variant={displayVariation.total > 0 ? "success" : "danger"} onClick={() => refresh()}><Icon.ArrowClockwise /></Button></Col>
-                                </Row>
-                                <Row className="border-bottom border-white border-opacity-25 pb-1 pt-1">
-                                    <Col xs="4" className="align-self-center"><h4>Sale</h4></Col>
-                                    <Col xs="8">
-                                        <h1 className="align-self-center mb-0 fw-bolder">{currencyFormatter.format(displaySale.total)}</h1>
-                                        <div className="small text-white-50" style={{ marginTop: -2 }}>previous {currencyFormatter.format(displayPreviousSale.total)} ({displayVariation.total > 0 ?
-                                            <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.total)}%)</div>
-                                        <span className="small align-self-center ps-2 float-end text-white-50"></span>
-                                    </Col>
+            <DiwaCard varient={displayVariation.total > 0 ? "success" : "danger"} loadingTracker={loading}>
+                <DiwaButtonGroup buttons={buttons} state={buttonState} />
+                <div className="mt-2">
+                    <Row className="border-bottom border-white pb-2 pt-2">
+                        <Col xs="12" className="">Sale for {displaySubDuration}<Button className="align-self-center" style={{ marginLeft: 8, backgroundColor: "transparent", border: "none" }} variant={displayVariation.total > 0 ? "success" : "danger"} onClick={() => refresh()}><Icon.ArrowClockwise /></Button></Col>
+                    </Row>
+                    <Row className="border-bottom border-white border-opacity-25 pb-1 pt-1">
+                        <Col xs="4" className="align-self-center"><h4>Sale</h4></Col>
+                        <Col xs="8">
+                            <h1 className="align-self-center mb-0 fw-bolder">{currencyFormatter.format(displaySale.total)}</h1>
+                            <div className="small text-white-50" style={{ marginTop: -2 }}>previous {currencyFormatter.format(displayPreviousSale.total)} ({displayVariation.total > 0 ?
+                                <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.total)}%)</div>
+                            <span className="small align-self-center ps-2 float-end text-white-50"></span>
+                        </Col>
 
-                                </Row>
-                                <Row className="border-bottom border-white border-opacity-25 pb-1 pt-1">
-                                    <Col xs="4" className="align-self-top text-white text-opacity-75 small">Without Discount</Col>
-                                    <Col xs="8">
-                                        <h5 className="align-self-center mb-0 text-white text-opacity-75">{currencyFormatter.format(displaySale.price)}</h5>
-                                        <div className="small text-white-50" style={{ marginTop: -2 }}>previous {currencyFormatter.format(displayPreviousSale.price)} ({displayVariation.price > 0 ?
-                                            <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.price)}%)</div>
-                                        <span className="small align-self-center ps-2 float-end text-white-50"></span>
-                                    </Col>
-                                </Row>
-                                <Row className="border-bottom border-white border-opacity-25 pb-1 pt-1">
-                                    <Col xs="4" className="align-self-top text-white text-opacity-75 small">Total Discount</Col>
-                                    <Col xs="8">
-                                        <h5 className="align-self-center mb-0 text-white text-opacity-75">{currencyFormatter.format(displaySale.discount)}</h5>
-                                        <div className="small text-white-50" style={{ marginTop: -2 }}>previous {currencyFormatter.format(displayPreviousSale.discount)} ({displayVariation.discount > 0 ?
-                                            <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.discount)}%)</div>
-                                        <span className="small align-self-center ps-2 float-end text-white-50"></span>
-                                    </Col>
+                    </Row>
+                    <Row className="border-bottom border-white border-opacity-25 pb-1 pt-1">
+                        <Col xs="4" className="align-self-top text-white text-opacity-75 small">Without Discount</Col>
+                        <Col xs="8">
+                            <h5 className="align-self-center mb-0 text-white text-opacity-75">{currencyFormatter.format(displaySale.price)}</h5>
+                            <div className="small text-white-50" style={{ marginTop: -2 }}>previous {currencyFormatter.format(displayPreviousSale.price)} ({displayVariation.price > 0 ?
+                                <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.price)}%)</div>
+                            <span className="small align-self-center ps-2 float-end text-white-50"></span>
+                        </Col>
+                    </Row>
+                    <Row className="border-bottom border-white border-opacity-25 pb-1 pt-1">
+                        <Col xs="4" className="align-self-top text-white text-opacity-75 small">Total Discount</Col>
+                        <Col xs="8">
+                            <h5 className="align-self-center mb-0 text-white text-opacity-75">{currencyFormatter.format(displaySale.discount)}</h5>
+                            <div className="small text-white-50" style={{ marginTop: -2 }}>previous {currencyFormatter.format(displayPreviousSale.discount)} ({displayVariation.discount > 0 ?
+                                <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.discount)}%)</div>
+                            <span className="small align-self-center ps-2 float-end text-white-50"></span>
+                        </Col>
 
-                                </Row>
+                    </Row>
 
-                                <Row className="border-bottom border-white border-opacity-25 pb-1 pt-1">
-                                    <Col xs="4" className="align-self-top text-white text-opacity-75 small">Tax</Col>
-                                    <Col xs="8">
-                                        <h5 className="align-self-center mb-0 text-white text-opacity-75">{currencyFormatter.format(displaySale.tax)}</h5>
-                                        <div className="small text-white-50" style={{ marginTop: -2 }}>previous {currencyFormatter.format(displayPreviousSale.tax)} ({displayVariation.tax > 0 ?
-                                            <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.tax)}%)</div>
-                                        <span className="small align-self-center ps-2 float-end text-white-50"></span>
-                                    </Col>
-                                </Row>
-                                <Row className="border-bottom border-white border-opacity-25 pb-1 pt-1">
-                                    <Col xs="4" className="align-self-top text-white text-opacity-75 small">After Tax</Col>
-                                    <Col xs="8">
-                                        <h5 className="align-self-center mb-0 text-white text-opacity-75">{currencyFormatter.format(displaySale.woTax)}</h5>
-                                        <div className="small text-white-50" style={{ marginTop: -2 }}>previous {currencyFormatter.format(displayPreviousSale.woTax)} ({displayVariation.woTax > 0 ?
-                                            <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.woTax)}%)</div>
-                                        <span className="small align-self-center ps-2 float-end text-white-50"></span>
-                                    </Col>
-                                </Row>
-                                <p></p>
-                            </div>
-                        </Card.Body>
-                }
+                    <Row className="border-bottom border-white border-opacity-25 pb-1 pt-1">
+                        <Col xs="4" className="align-self-top text-white text-opacity-75 small">Tax</Col>
+                        <Col xs="8">
+                            <h5 className="align-self-center mb-0 text-white text-opacity-75">{currencyFormatter.format(displaySale.tax)}</h5>
+                            <div className="small text-white-50" style={{ marginTop: -2 }}>previous {currencyFormatter.format(displayPreviousSale.tax)} ({displayVariation.tax > 0 ?
+                                <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.tax)}%)</div>
+                            <span className="small align-self-center ps-2 float-end text-white-50"></span>
+                        </Col>
+                    </Row>
+                    <Row className="border-bottom border-white border-opacity-25 pb-1 pt-1">
+                        <Col xs="4" className="align-self-top text-white text-opacity-75 small">After Tax</Col>
+                        <Col xs="8">
+                            <h5 className="align-self-center mb-0 text-white text-opacity-75">{currencyFormatter.format(displaySale.woTax)}</h5>
+                            <div className="small text-white-50" style={{ marginTop: -2 }}>previous {currencyFormatter.format(displayPreviousSale.woTax)} ({displayVariation.woTax > 0 ?
+                                <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.woTax)}%)</div>
+                            <span className="small align-self-center ps-2 float-end text-white-50"></span>
+                        </Col>
+                    </Row>
+                    <p></p>
+                </div>
+            </DiwaCard>
+            <DiwaCard varient={reportData.total_stat[0].time_one_collection - reportData.total_stat[0].time_one_expense > 0 ? "success" : "danger"} loadingTracker={statsLoading}>
+                <Row>
+                    <Col xs="4" className="pe-0">
+                        <h6 className="mb-0">Earning</h6>
+                        <h4 className="align-self-center mb-0">{currencyFormatter.format(reportData.total_stat[0].time_one_collection)}</h4>
+                        <div className="small text-white-50" style={{ marginTop: -2 }}>last {currencyFormatter.format(reportData.total_stat[0].time_two_collection)}</div>
+                    </Col>
+                    <Col xs="4" className="pe-0">
+                        <h6 className="mb-0">Expenses</h6>
+                        <h4 className="align-self-center mb-0">{currencyFormatter.format(reportData.total_stat[0].time_one_expense)}</h4>
+                        <div className="small text-white-50" style={{ marginTop: -2 }}>last {currencyFormatter.format(reportData.total_stat[0].time_two_expense)}</div>
+                    </Col>
 
-            </Card>
-            <Card className="shadow mb-3 mt-3" bg={reportData.total_stat[0].time_one_collection - reportData.total_stat[0].time_one_expense > 0 ? "success" : "danger"} text="light">
-                {statsLoading ? <Card.Body><Spinner animation="grow" /></Card.Body> :
-                    <Card.Body>
-                        <Row>
-                            <Col xs="4" className="pe-0">
-                                <h6 className="mb-0">Earning</h6>
-                                <h4 className="align-self-center mb-0">{currencyFormatter.format(reportData.total_stat[0].time_one_collection)}</h4>
-                                <div className="small text-white-50" style={{ marginTop: -2 }}>last {currencyFormatter.format(reportData.total_stat[0].time_two_collection)}</div>
-                            </Col>
-                            <Col xs="4" className="pe-0">
-                                <h6 className="mb-0">Expenses</h6>
-                                <h4 className="align-self-center mb-0">{currencyFormatter.format(reportData.total_stat[0].time_one_expense)}</h4>
-                                <div className="small text-white-50" style={{ marginTop: -2 }}>last {currencyFormatter.format(reportData.total_stat[0].time_two_expense)}</div>
-                            </Col>
+                    <Col xs="4" className="pe-0">
+                        <h6 className="mb-0">P&L</h6>
+                        <h4 className="align-self-center mb-0">{currencyFormatter.format(reportData.total_stat[0].time_one_collection - reportData.total_stat[0].time_one_expense)}</h4>
+                        <div className="small text-white-50" style={{ marginTop: -2 }}>last {currencyFormatter.format(reportData.total_stat[0].time_two_collection - reportData.total_stat[0].time_two_expense)}</div>
+                    </Col>
+                </Row>
+            </DiwaCard>
+            <DiwaCard varient="primary" loadingTracker={statsLoading}>
+                <Row>
+                    <Col xs="4">
+                        <h6 className="mb-0">Customers</h6>
+                        <h3 className="align-self-center mb-0 fw-bolder">{reportData.total_stat_bill[0].time_one_count}</h3>
+                        <div className="small text-white-50" style={{ marginTop: -2 }}>previous {reportData.total_stat_bill[0].time_two_count}</div>
+                    </Col>
 
-                            <Col xs="4" className="pe-0">
-                                <h6 className="mb-0">P&L</h6>
-                                <h4 className="align-self-center mb-0">{currencyFormatter.format(reportData.total_stat[0].time_one_collection - reportData.total_stat[0].time_one_expense)}</h4>
-                                <div className="small text-white-50" style={{ marginTop: -2 }}>last {currencyFormatter.format(reportData.total_stat[0].time_two_collection - reportData.total_stat[0].time_two_expense)}</div>
-                            </Col>
-                        </Row>
-                    </Card.Body>}
-            </Card>
-            <Card className="shadow mb-3 mt-3" bg="primary" text="light">
-                {statsLoading ? <Card.Body><Spinner animation="grow" /></Card.Body> :
-                    <Card.Body>
-                        <Row>
-                            <Col xs="4">
-                                <h6 className="mb-0">Customers</h6>
-                                <h3 className="align-self-center mb-0 fw-bolder">{reportData.total_stat_bill[0].time_one_count}</h3>
-                                <div className="small text-white-50" style={{ marginTop: -2 }}>previous {reportData.total_stat_bill[0].time_two_count}</div>
-                            </Col>
+                    <Col xs="4">
+                        <h6 className="mb-0">Members</h6>
+                        <h3 className="align-self-center mb-0 fw-bolder">{reportData.membership_detail[0].count_membership}</h3>
+                        <div className="small text-white-50" style={{ marginTop: -2 }}>active {reportData.membership_detail[0].count_active_membership}</div>
+                    </Col>
+                    <Col xs="4">
+                        <h6 className="mb-0">Ticket Size</h6>
+                        <h3 className="align-self-center mb-0 fw-bolder">{currencyFormatter.format(reportData.total_stat_bill[0].time_one_avg)}</h3>
+                        <div className="small text-white-50" style={{ marginTop: -2 }}>previous {currencyFormatter.format(reportData.total_stat_bill[0].time_two_avg)}</div>
+                    </Col>
+                </Row>
+            </DiwaCard>
+            <DiwaCard varient="primary" loadingTracker={statsLoading}>
+                <Row>
+                    <Col xs="6">
+                        <h3 className="align-self-center mb-0 fw-bolder">{currencyFormatter.format(reportData.new_cust_time_one.new_customer_rev)}</h3>
+                        <h6 className="mb-0 small text-white-50">Revenue from</h6>
+                        <h3 className="align-self-center mb-0 fw-bolder">{reportData.new_cust_time_one.new_customer}</h3>
+                        <h6 className="mb-0 small text-white-50">New Customers</h6>
+                    </Col>
 
-                            <Col xs="4">
-                                <h6 className="mb-0">Members</h6>
-                                <h3 className="align-self-center mb-0 fw-bolder">{reportData.membership_detail[0].count_membership}</h3>
-                                <div className="small text-white-50" style={{ marginTop: -2 }}>active {reportData.membership_detail[0].count_active_membership}</div>
-                            </Col>
-                            <Col xs="4">
-                                <h6 className="mb-0">Ticket Size</h6>
-                                <h3 className="align-self-center mb-0 fw-bolder">{currencyFormatter.format(reportData.total_stat_bill[0].time_one_avg)}</h3>
-                                <div className="small text-white-50" style={{ marginTop: -2 }}>previous {currencyFormatter.format(reportData.total_stat_bill[0].time_two_avg)}</div>
-                            </Col>
-                        </Row>
-                    </Card.Body>}
-            </Card>
-            <Card className="shadow mb-3 mt-3" bg="primary" text="light">
-                {statsLoading ? <Card.Body><Spinner animation="grow" /></Card.Body> :
-                    <Card.Body>
-                        <Row>
-                            <Col xs="6">
-                                <h3 className="align-self-center mb-0 fw-bolder">{currencyFormatter.format(reportData.new_cust_time_one.new_customer_rev)}</h3>
-                                <h6 className="mb-0 small text-white-50">Revenue from</h6>
-                                <h3 className="align-self-center mb-0 fw-bolder">{reportData.new_cust_time_one.new_customer}</h3>
-                                <h6 className="mb-0 small text-white-50">New Customers</h6>
-                            </Col>
-
-                            <Col xs="6">
-                                <h3 className="align-self-center mb-0 fw-bolder">{currencyFormatter.format(reportData.new_cust_time_one.existing_customer_rev)}</h3>
-                                <h6 className="mb-0 small text-white-50">Revenue from</h6>
-                                <h3 className="align-self-center mb-0 fw-bolder">{reportData.new_cust_time_one.existing_customer}</h3>
-                                <h6 className="mb-0 small text-white-50">Exising Customers</h6>
-                            </Col>
-                        </Row>
-                    </Card.Body>}
-            </Card>
+                    <Col xs="6">
+                        <h3 className="align-self-center mb-0 fw-bolder">{currencyFormatter.format(reportData.new_cust_time_one.existing_customer_rev)}</h3>
+                        <h6 className="mb-0 small text-white-50">Revenue from</h6>
+                        <h3 className="align-self-center mb-0 fw-bolder">{reportData.new_cust_time_one.existing_customer}</h3>
+                        <h6 className="mb-0 small text-white-50">Exising Customers</h6>
+                    </Col>
+                </Row>
+            </DiwaCard>
         </>
     )
 }
