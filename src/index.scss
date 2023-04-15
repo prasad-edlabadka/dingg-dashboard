@@ -17,10 +17,11 @@ body {
   width: 100%;
   background-size: contain;
   background-repeat:space;
-  background-image: url(bg.png);
+  background: rgba(61,31,32,1);
+  // background: linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(80,40,42,1) 22%, rgba(75,38,40,1) 69%, rgba(0,0,0,1) 100%);
   background-attachment: fixed;
   background-position: center center;
-  background-color: rgb(15, 13, 14);;
+  //background-color: rgb(15, 13, 14);;
 }
 
 code {
@@ -136,6 +137,12 @@ $input-color: white;
   background-color: unset !important;
   background: linear-gradient(to right bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4));
   padding: 0.5rem;
+  border-radius: 1.2rem !important;
+  padding-left: 1rem;
+}
+
+.today .btn {
+  margin-top: 10px;
 }
 
 .neonText {

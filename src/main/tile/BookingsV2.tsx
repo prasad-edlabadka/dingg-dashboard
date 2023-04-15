@@ -328,8 +328,8 @@ export default function BookingsV2() {
         <div>
             <Row>
                 <Col lg="12" xs="12">
-                    <div className="position-relative today">
-                        <h3 className="text-light">Today's Customers</h3>
+                    <div className="position-relative today rounded">
+                        <h3 className="text-light ">Today's Customers</h3>
                         <DiwaRefreshButton refresh={() => refresh()} />
                     </div>
                 </Col>
@@ -343,7 +343,7 @@ export default function BookingsV2() {
                         </Col> :
                         billingData.map((booking, index) => {
                             return (
-                                <Col xl={4} xs={12} className="gy-4" key={"booking" + index}>
+                                <Col xl={4} xs={12} className="gy-2" key={"booking" + index}>
                                     <DiwaCard varient={booking.status ? 'success' : 'danger'} loadingTracker={loading}>
                                         <div>
                                             <h3>{booking.user.is_member ? <Icon.StarFill style={{ marginTop: -4, paddingRight: 4 }} color="gold" /> : ''}{booking.user.display_name || `${booking.user.fname || ""} ${booking.user.lname || ""}`.trim()} ({currencyFormatter.format(booking.payments.total)})</h3>

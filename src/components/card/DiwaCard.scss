@@ -2,7 +2,7 @@ $box-shadow: 0.5rem .5rem 1rem rgba(#000, .45);
 .card {
     box-shadow: inset 0 0 2000px #dbdbdb80;
     backdrop-filter: blur(1rem);
-    box-shadow: 1.3rem 1.3rem 1.3rem rgba($color: #000000, $alpha: 0.5) !important;
+    box-shadow: 0.5rem 0.5rem 1.3rem rgba($color: #000, $alpha: 0.5) !important;
     border-top-color: rgba(225, 225, 225, 0.5);
     border-left-color: rgba(225, 225, 225, 0.5);
     border-bottom-color: rgba(225, 225, 225, 0.1);
