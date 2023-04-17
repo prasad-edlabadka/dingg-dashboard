@@ -5,8 +5,9 @@ import { TokenContext } from "../../App";
 function DiwaNavBar({ navs }: { navs: { name: string, icon: any, link: string, iconProps?: object, onClick?: any }[] }) {
   const { token, navOption, setNavOption } = useContext(TokenContext);
   return (
+    <>
+    {token !== null ?
     <Navbar bg="dark" variant="dark" expand="lg" collapseOnSelect fixed="bottom" data-testid="navbar-parent">
-      {token !== null ?
         <Container>
           {navs.map((nav) => {
             return (
@@ -25,8 +26,9 @@ function DiwaNavBar({ navs }: { navs: { name: string, icon: any, link: string, i
               </Nav.Link>
             )
           })}
-        </Container> : ''}
-    </Navbar>);
+        </Container>
+    </Navbar> : ''}
+    </>);
 }
 
 export default DiwaNavBar;

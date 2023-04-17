@@ -47,13 +47,12 @@ function DinggLogin() {
                 </Col>
             </Row>
             <Row className="mt-4">
-                <Image src={logo} fluid  className="mt-4"/>
+                <Image src={logo} fluid  className="mt-4 d-block mx-auto" style={{maxWidth: '60%'}}/>
             </Row>
             <Row className="mt-4">
                 <p className="small text-white text-center">&copy; 2023, All Rights Reserverd.</p>
             </Row>
         </div>
-
     )
 }
 export default DinggLogin;

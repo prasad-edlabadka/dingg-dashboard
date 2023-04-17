@@ -1,10 +1,12 @@
 import { useContext, useEffect, useState } from "react";
-import { Button, Col, Row } from "react-bootstrap";
-import * as Icon from 'react-bootstrap-icons';
 import { addDays, currencyFormatter, formatDate, formatDisplayDate, formatWeekDay, getFirstDayOfWeek } from "./Utility";
 import { TokenContext } from "../../App";
 import DiwaButtonGroup from "../../components/button/DiwaButtonGroup";
 import DiwaCard from "../../components/card/DiwaCard";
+import TitleWithRefresh from "./sale/TitleWithRefresh";
+import SaleRow from "./sale/SaleRow";
+import DataPoint from "./sale/DataPoint";
+import MultiRowDataPoint from "./sale/MultiRowDataPoint";
 
 export default function Sale2() {
     const { callAPI } = useContext(TokenContext);
@@ -14,7 +16,6 @@ export default function Sale2() {
     const [displaySale, setDisplaySale] = useState(dataStructure);
     const [displayPreviousSale, setDisplayPreviousSale] = useState(dataStructure);
     const [displayVariation, setDisplayVariation] = useState(dataStructure);
-    //const [displayDuration, setDisplayDuration] = useState('day');
     const [displaySubDuration, setDisplaySubDuration] = useState(new Date().toLocaleDateString());
     const [todayData, setTodayData] = useState(dataStructure);
     const [yesterdayData, setYesterdayData] = useState(dataStructure);
@@ -66,8 +67,6 @@ export default function Sale2() {
                 getReportForDateRange(startOfPrevFinMonth, endOfPrevFinMonth, setPreviousFinMonthData);
             });
         });
-
-
     }
 
     const getStatsReport = (start1: Date, end1: Date, start2: Date, end2: Date) => {
@@ -117,7 +116,6 @@ export default function Sale2() {
 
 
     const setDuration = (duration: string) => {
-        //setDisplayDuration(durationValue[duration]);
         switch (duration) {
             case "day":
                 calculateToday(todayData, yesterdayData);
@@ -189,122 +187,44 @@ export default function Sale2() {
         { title: "Finance Month", onClick: () => setDuration('month') },
         { title: "Calendar Month", onClick: () => setDuration('cal_month') }
     ];
+
+    const pnl = [
+        { title: "Earning", value: currencyFormatter.format(reportData.total_stat[0].time_one_collection), previous: currencyFormatter.format(reportData.total_stat[0].time_two_collection), subTitle: 'last'},
+        { title: "Expense", value: currencyFormatter.format(reportData.total_stat[0].time_one_expense), previous: currencyFormatter.format(reportData.total_stat[0].time_two_expense), subTitle: 'last'},
+        { title: "P&L", value: currencyFormatter.format(reportData.total_stat[0].time_one_collection - reportData.total_stat[0].time_one_expense), previous: currencyFormatter.format(reportData.total_stat[0].time_two_collection - reportData.total_stat[0].time_two_expense), subTitle: 'last'},
+    ];
+
+    const customers = [
+        { title: "Customers", value: reportData.total_stat_bill[0].time_one_count, previous: reportData.total_stat_bill[0].time_two_count, subTitle: 'previous'},
+        { title: "Members", value: reportData.membership_detail[0].count_membership, previous: reportData.membership_detail[0].count_active_membership, subTitle: 'active'},
+        { title: "Ticket Size", value: currencyFormatter.format(reportData.total_stat_bill[0].time_one_avg), previous: currencyFormatter.format(reportData.total_stat_bill[0].time_two_avg), subTitle: 'previous'},
+    ];
+
+    const revenue = [
+        { title1: "Revenue from", value1: currencyFormatter.format(reportData.new_cust_time_one.new_customer_rev), title2:"New Customers", value2:reportData.new_cust_time_one.new_customer},
+        { title1: "Revenue from", value1: currencyFormatter.format(reportData.new_cust_time_one.existing_customer_rev), title2:"Exising Customers", value2:reportData.new_cust_time_one.existing_customer},
+    ]
     const buttonState = useState(0);
     return (
         <>
             <DiwaCard varient={displayVariation.total > 0 ? "success" : "danger"} loadingTracker={loading}>
                 <DiwaButtonGroup buttons={buttons} state={buttonState} />
-                <div className="mt-2">
-                    <Row className="border-bottom border-white pb-2 pt-2">
-                        <Col xs="12" className="">Sale for {displaySubDuration}<Button className="align-self-center" style={{ marginLeft: 8, backgroundColor: "transparent", border: "none" }} variant={displayVariation.total > 0 ? "success" : "danger"} onClick={() => refresh()}><Icon.ArrowClockwise /></Button></Col>
-                    </Row>
-                    <Row className="border-bottom border-white border-opacity-25 pb-1 pt-1">
-                        <Col xs="4" className="align-self-center"><h4>Sale</h4></Col>
-                        <Col xs="8">
-                            <h1 className="align-self-center mb-0 fw-bolder">{currencyFormatter.format(displaySale.total)}</h1>
-                            <div className="small text-white-50" style={{ marginTop: -2 }}>previous {currencyFormatter.format(displayPreviousSale.total)} ({displayVariation.total > 0 ?
-                                <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.total)}%)</div>
-                            <span className="small align-self-center ps-2 float-end text-white-50"></span>
-                        </Col>
-
-                    </Row>
-                    <Row className="border-bottom border-white border-opacity-25 pb-1 pt-1">
-                        <Col xs="4" className="align-self-top text-white text-opacity-75 small">Without Discount</Col>
-                        <Col xs="8">
-                            <h5 className="align-self-center mb-0 text-white text-opacity-75">{currencyFormatter.format(displaySale.price)}</h5>
-                            <div className="small text-white-50" style={{ marginTop: -2 }}>previous {currencyFormatter.format(displayPreviousSale.price)} ({displayVariation.price > 0 ?
-                                <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.price)}%)</div>
-                            <span className="small align-self-center ps-2 float-end text-white-50"></span>
-                        </Col>
-                    </Row>
-                    <Row className="border-bottom border-white border-opacity-25 pb-1 pt-1">
-                        <Col xs="4" className="align-self-top text-white text-opacity-75 small">Total Discount</Col>
-                        <Col xs="8">
-                            <h5 className="align-self-center mb-0 text-white text-opacity-75">{currencyFormatter.format(displaySale.discount)}</h5>
-                            <div className="small text-white-50" style={{ marginTop: -2 }}>previous {currencyFormatter.format(displayPreviousSale.discount)} ({displayVariation.discount > 0 ?
-                                <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.discount)}%)</div>
-                            <span className="small align-self-center ps-2 float-end text-white-50"></span>
-                        </Col>
-
-                    </Row>
-
-                    <Row className="border-bottom border-white border-opacity-25 pb-1 pt-1">
-                        <Col xs="4" className="align-self-top text-white text-opacity-75 small">Tax</Col>
-                        <Col xs="8">
-                            <h5 className="align-self-center mb-0 text-white text-opacity-75">{currencyFormatter.format(displaySale.tax)}</h5>
-                            <div className="small text-white-50" style={{ marginTop: -2 }}>previous {currencyFormatter.format(displayPreviousSale.tax)} ({displayVariation.tax > 0 ?
-                                <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.tax)}%)</div>
-                            <span className="small align-self-center ps-2 float-end text-white-50"></span>
-                        </Col>
-                    </Row>
-                    <Row className="border-bottom border-white border-opacity-25 pb-1 pt-1">
-                        <Col xs="4" className="align-self-top text-white text-opacity-75 small">After Tax</Col>
-                        <Col xs="8">
-                            <h5 className="align-self-center mb-0 text-white text-opacity-75">{currencyFormatter.format(displaySale.woTax)}</h5>
-                            <div className="small text-white-50" style={{ marginTop: -2 }}>previous {currencyFormatter.format(displayPreviousSale.woTax)} ({displayVariation.woTax > 0 ?
-                                <Icon.CaretUpFill className="ms-0 me-1" /> : <Icon.CaretDownFill className="ms-0 me-1" />}{Math.abs(displayVariation.woTax)}%)</div>
-                            <span className="small align-self-center ps-2 float-end text-white-50"></span>
-                        </Col>
-                    </Row>
-                    <p></p>
-                </div>
+                <TitleWithRefresh title={`Sale for ${displaySubDuration}`} varient={displayVariation.total > 0 ? "success" : "danger"} onRefresh={refresh} />
+                <SaleRow title="Sale" current={displaySale.total} previous={displayPreviousSale.total} variation={displayVariation.total} primary={true} />
+                <SaleRow title="Without Discount" current={displaySale.price} previous={displayPreviousSale.price} variation={displayVariation.price} primary={false} />
+                <SaleRow title="Total Discount" current={displaySale.discount} previous={displayPreviousSale.discount} variation={displayVariation.discount} primary={false} />
+                <SaleRow title="Tax" current={displaySale.tax} previous={displayPreviousSale.tax} variation={displayVariation.tax} primary={false} />
+                <SaleRow title="After Tax" current={displaySale.woTax} previous={displayPreviousSale.woTax} variation={displayVariation.woTax} primary={false} />
+                <p></p>
             </DiwaCard>
             <DiwaCard varient={reportData.total_stat[0].time_one_collection - reportData.total_stat[0].time_one_expense > 0 ? "success" : "danger"} loadingTracker={statsLoading}>
-                <Row>
-                    <Col xs="4" className="pe-0">
-                        <h6 className="mb-0">Earning</h6>
-                        <h4 className="align-self-center mb-0">{currencyFormatter.format(reportData.total_stat[0].time_one_collection)}</h4>
-                        <div className="small text-white-50" style={{ marginTop: -2 }}>last {currencyFormatter.format(reportData.total_stat[0].time_two_collection)}</div>
-                    </Col>
-                    <Col xs="4" className="pe-0">
-                        <h6 className="mb-0">Expenses</h6>
-                        <h4 className="align-self-center mb-0">{currencyFormatter.format(reportData.total_stat[0].time_one_expense)}</h4>
-                        <div className="small text-white-50" style={{ marginTop: -2 }}>last {currencyFormatter.format(reportData.total_stat[0].time_two_expense)}</div>
-                    </Col>
-
-                    <Col xs="4" className="pe-0">
-                        <h6 className="mb-0">P&L</h6>
-                        <h4 className="align-self-center mb-0">{currencyFormatter.format(reportData.total_stat[0].time_one_collection - reportData.total_stat[0].time_one_expense)}</h4>
-                        <div className="small text-white-50" style={{ marginTop: -2 }}>last {currencyFormatter.format(reportData.total_stat[0].time_two_collection - reportData.total_stat[0].time_two_expense)}</div>
-                    </Col>
-                </Row>
+                <DataPoint data={pnl} />
             </DiwaCard>
             <DiwaCard varient="primary" loadingTracker={statsLoading}>
-                <Row>
-                    <Col xs="4">
-                        <h6 className="mb-0">Customers</h6>
-                        <h3 className="align-self-center mb-0 fw-bolder">{reportData.total_stat_bill[0].time_one_count}</h3>
-                        <div className="small text-white-50" style={{ marginTop: -2 }}>previous {reportData.total_stat_bill[0].time_two_count}</div>
-                    </Col>
-
-                    <Col xs="4">
-                        <h6 className="mb-0">Members</h6>
-                        <h3 className="align-self-center mb-0 fw-bolder">{reportData.membership_detail[0].count_membership}</h3>
-                        <div className="small text-white-50" style={{ marginTop: -2 }}>active {reportData.membership_detail[0].count_active_membership}</div>
-                    </Col>
-                    <Col xs="4">
-                        <h6 className="mb-0">Ticket Size</h6>
-                        <h3 className="align-self-center mb-0 fw-bolder">{currencyFormatter.format(reportData.total_stat_bill[0].time_one_avg)}</h3>
-                        <div className="small text-white-50" style={{ marginTop: -2 }}>previous {currencyFormatter.format(reportData.total_stat_bill[0].time_two_avg)}</div>
-                    </Col>
-                </Row>
+                <DataPoint data={customers} />
             </DiwaCard>
             <DiwaCard varient="primary" loadingTracker={statsLoading}>
-                <Row>
-                    <Col xs="6">
-                        <h3 className="align-self-center mb-0 fw-bolder">{currencyFormatter.format(reportData.new_cust_time_one.new_customer_rev)}</h3>
-                        <h6 className="mb-0 small text-white-50">Revenue from</h6>
-                        <h3 className="align-self-center mb-0 fw-bolder">{reportData.new_cust_time_one.new_customer}</h3>
-                        <h6 className="mb-0 small text-white-50">New Customers</h6>
-                    </Col>
-
-                    <Col xs="6">
-                        <h3 className="align-self-center mb-0 fw-bolder">{currencyFormatter.format(reportData.new_cust_time_one.existing_customer_rev)}</h3>
-                        <h6 className="mb-0 small text-white-50">Revenue from</h6>
-                        <h3 className="align-self-center mb-0 fw-bolder">{reportData.new_cust_time_one.existing_customer}</h3>
-                        <h6 className="mb-0 small text-white-50">Exising Customers</h6>
-                    </Col>
-                </Row>
+                <MultiRowDataPoint data={revenue} />
             </DiwaCard>
         </>
     )
