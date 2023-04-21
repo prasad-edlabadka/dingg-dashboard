@@ -25,6 +25,8 @@ export default function Sale2() {
     const [previousMonthData, setPreviousMonthData] = useState(dataStructure);
     const [currentFinMonthData, setCurrentFinMonthData] = useState(dataStructure);
     const [previousFinMonthData, setPreviousFinMonthData] = useState(dataStructure);
+    const [cashExpenses, setCashExpenses] = useState(0);
+    const [prevCashExpenses, setPrevCashExpenses] = useState(0);
     const [reportData, setReportData] = useState(
         {
             total_stat_bill: [{ time_one_count: 0, time_two_count: 0, time_one_avg: 0, time_two_avg: 0 }],
@@ -75,6 +77,15 @@ export default function Sale2() {
         callAPI(apiURL, (data: any) => {
             setStatsLoading(false);
             setReportData(data.data.length === 0 ? [] : data.data)
+        });
+        const cashAPIURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${formatDate(start1)}&report_type=by_expense_type&end_date=${formatDate(end1)}&locations=null&app_type=web`;
+        callAPI(cashAPIURL, (data: any) => {
+            setCashExpenses(data.data.find((d: any) => d["expense type"] === "Cash transfer to hub")?.total || 0)
+        });
+
+        const prevCashAPIURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${formatDate(start2)}&report_type=by_expense_type&end_date=${formatDate(end2)}&locations=null&app_type=web`;
+        callAPI(prevCashAPIURL, (data: any) => {
+            setPrevCashExpenses(data.data.find((d: any) => d["expense type"] === "Cash transfer to hub")?.total || 0)
         });
     }
 
@@ -190,8 +201,8 @@ export default function Sale2() {
 
     const pnl = [
         { title: "Earning", value: currencyFormatter.format(reportData.total_stat[0].time_one_collection), previous: currencyFormatter.format(reportData.total_stat[0].time_two_collection), subTitle: 'last'},
-        { title: "Expense", value: currencyFormatter.format(reportData.total_stat[0].time_one_expense), previous: currencyFormatter.format(reportData.total_stat[0].time_two_expense), subTitle: 'last'},
-        { title: "P&L", value: currencyFormatter.format(reportData.total_stat[0].time_one_collection - reportData.total_stat[0].time_one_expense), previous: currencyFormatter.format(reportData.total_stat[0].time_two_collection - reportData.total_stat[0].time_two_expense), subTitle: 'last'},
+        { title: "Expense", value: currencyFormatter.format(reportData.total_stat[0].time_one_expense - cashExpenses), previous: currencyFormatter.format(reportData.total_stat[0].time_two_expense - prevCashExpenses), subTitle: 'last'},
+        { title: "P&L", value: currencyFormatter.format(reportData.total_stat[0].time_one_collection - reportData.total_stat[0].time_one_expense + cashExpenses), previous: currencyFormatter.format(reportData.total_stat[0].time_two_collection - reportData.total_stat[0].time_two_expense + prevCashExpenses), subTitle: 'last'},
     ];
 
     const customers = [

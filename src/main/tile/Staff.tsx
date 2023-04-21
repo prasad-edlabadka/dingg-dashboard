@@ -37,17 +37,8 @@ export default function Staff() {
                 return b["service price"] - a["service price"];
             });
             setReportData(data);
-            //calculateToday(data);
             setLoading(false);
         });
-        // const calculateToday = (data: { data: string | any[]; }) => {
-        //     const len = data.data.length;
-        //     let sum = 0;
-        //     for (let i = 0; i < len; i++) {
-        //         sum += data.data[i]["service price"];
-        //     }
-        //     setTotal(sum);
-        // }
     }, [startDate, endDate, callAPI]);
 
     const refresh = () => {
@@ -55,18 +46,16 @@ export default function Staff() {
         setActiveButtonIndex(0);
     }
 
+    const date = new Date();
     const setDuration = (type: string) => {
         if (type === 'current') {
-            const date = new Date();
             setStartDate(new Date(date.getFullYear(), date.getMonth(), 1));
             setEndDate(date);
         } else {
-            const date = new Date();
             const lastMonthDate = new Date(date.getFullYear(), date.getMonth(), 1);
             setStartDate(new Date(date.getFullYear(), date.getMonth() - 1, 1));
             setEndDate(new Date(lastMonthDate.getTime() - 1));
         }
-        // setTimeout(()=> refresh(), 1);
     }
 
     const buttons = [
@@ -110,15 +99,5 @@ export default function Staff() {
                 })
             }
         </DiwaCard>
-        // <Card className="shadow indigoBg" text="light">
-        //     {
-        //         total === -1 ? <Card.Body><Spinner animation="grow" /></Card.Body> :
-        //             <Card.Body>
-
-
-        //             </Card.Body>
-        //     }
-
-        // </Card>
     )
 }

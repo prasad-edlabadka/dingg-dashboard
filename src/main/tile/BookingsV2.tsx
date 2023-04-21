@@ -7,7 +7,7 @@ import { faSpa } from "@fortawesome/free-solid-svg-icons";
 import * as _ from "lodash";
 import { TokenContext } from "../../App";
 import DiwaCard from "../../components/card/DiwaCard";
-import DiwaRefreshButton from "../../components/button/DiwaRefreshButton";
+import HeadingWithRefresh from "./booking/HeadingWithRefresh";
 
 export default function BookingsV2() {
     const [loading, setLoading] = useState(true);
@@ -326,14 +326,8 @@ export default function BookingsV2() {
 
     return (
         <div>
-            <Row>
-                <Col lg="12" xs="12">
-                    <div className="position-relative today rounded">
-                        <h3 className="text-light ">Today's Customers</h3>
-                        <DiwaRefreshButton refresh={() => refresh()} />
-                    </div>
-                </Col>
-            </Row>
+            <HeadingWithRefresh title="Today's Customers" onRefresh={() => refresh()} />
+            
             <Row>
                 {
                     billingData.length === 0 ? <Col xl={4} xs={12} className="gy-4">
