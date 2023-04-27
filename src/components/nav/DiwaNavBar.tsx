@@ -14,7 +14,7 @@ function DiwaNavBar({ navs }: { navs: { name: string, icon: any, link: string, i
               <Nav.Link
                 className={`fs-5 text-center ${navOption === nav.name ? 'text-danger' : 'text-white'}`}
                 key={nav.name}
-                href={`#{nav.name}`}
+                href={`#${nav.name}`}
                 data-testid="nav-item"
                 onClick={() => { if (!nav.onClick) {
                   setNavOption(nav.name);
