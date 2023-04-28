@@ -28,9 +28,12 @@ export default function Expenses() {
     const amount = useRef<HTMLInputElement>(null);
     const description = useRef<HTMLTextAreaElement>(null);
     const [errorMessage, setErrorMessage] = useState('');
+    const [clicked, setClicked] = useState(false);
 
     const createExpense = (e: any) => {
         e.preventDefault();
+        if(clicked) return;
+        setClicked(true);
         if (expenseType.current?.value === '' || expenseDate.current?.value === '' || givenTo.current?.value === '' || amount.current?.value === '' || description.current?.value === '') {
             setErrorMessage("Please fill all the fields");
             return;
@@ -53,6 +56,7 @@ export default function Expenses() {
             } else {
                 setErrorMessage(response.message);
             }
+            setClicked(false);
         });
     }
     // eslint-disable-next-line no-sequences
@@ -126,7 +130,7 @@ export default function Expenses() {
                                     <Form.Group>
                                         <Form.Label className="mb-1">Expense Type</Form.Label>
                                         <Form.Select ref={expenseType}>
-                                            {expenseTypes.map((v: { id: string; name: string; }) => <option value={v.id}>{v.name}</option>)}
+                                            {expenseTypes.map((v: { id: string; name: string; }) => <option value={v.id} key={v.id}>{v.name}</option>)}
                                         </Form.Select>
                                     </Form.Group>
                                 </Col>
@@ -172,7 +176,7 @@ export default function Expenses() {
                             </Row>
                             <Row className="align-items-center">
                                 <Col xs={12}>
-                                    <Button variant="success" className="text-light" type="submit">Save</Button>
+                                    <Button variant="success" className="text-light" type="submit" disabled={clicked}>{clicked?'Wait...':'Save'}</Button>
                                 </Col>
                             </Row>
                             {errorMessage !== '' && <Row className="align-items-center mb-2">
