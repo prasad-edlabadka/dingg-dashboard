@@ -221,6 +221,7 @@ export default function BookingsV2() {
         const loadAppointments = () => {
             const apiURL = `https://api.dingg.app/api/v1/calender/booking?date=${formatDate(new Date())}`;
             callAPI(apiURL, (data: any) => {
+                if(!data) return;
                 const groupedData = JSON.parse(JSON.stringify(_.groupBy(data.data, (b: { extendedProps: { user: { fname: any; lname: any; }; }; }) => {
                     return `${b.extendedProps.user.fname} ${b.extendedProps.user.lname}`.trim();
                 }))) as Array<any>;
@@ -277,6 +278,7 @@ export default function BookingsV2() {
         //const apiURL = `https://api.dingg.app/api/v1/vendor/bills?web=true&page=1&limit=1000&start=2023-01-22&end=2023-01-22&term=&is_product_only=`
         callAPI(apiURL, (data: any) => {
             let counter = 0;
+            if(!data) return;
             if (data.data.length === 0) {
                 setLoading(false);
                 setBillingData([]);

@@ -75,16 +75,19 @@ export default function Sale2() {
         setStatsLoading(true);
         const apiURL = `https://api.dingg.app/api/v1/vendor/report/consolidated?time_one_start=${formatDate(start1)}&time_one_end=${formatDate(end1)}&time_two_start=${formatDate(start2)}&time_two_end=${formatDate(end2)}`
         callAPI(apiURL, (data: any) => {
+            if(!data) return;
             setStatsLoading(false);
             setReportData(data.data.length === 0 ? [] : data.data)
         });
         const cashAPIURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${formatDate(start1)}&report_type=by_expense_type&end_date=${formatDate(end1)}&locations=null&app_type=web`;
         callAPI(cashAPIURL, (data: any) => {
+            if(!data) return;
             setCashExpenses(data.data.find((d: any) => d["expense type"] === "Cash transfer to hub")?.total || 0)
         });
 
         const prevCashAPIURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${formatDate(start2)}&report_type=by_expense_type&end_date=${formatDate(end2)}&locations=null&app_type=web`;
         callAPI(prevCashAPIURL, (data: any) => {
+            if(!data) return;
             setPrevCashExpenses(data.data.find((d: any) => d["expense type"] === "Cash transfer to hub")?.total || 0)
         });
     }
@@ -94,6 +97,7 @@ export default function Sale2() {
         const endDate = formatDate(end);
         const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${startDate}&end_date=${endDate}&report_type=by_type&app_type=web`;
         callAPI(apiURL, (data: any) => {
+            if(!data) return;
             let price = 0;
             let discount = 0;
             let tax = 0;
