@@ -223,7 +223,7 @@ export default function BookingsV2() {
             callAPI(apiURL, (data: any) => {
                 if(!data) return;
                 const groupedData = JSON.parse(JSON.stringify(_.groupBy(data.data, (b: { extendedProps: { user: { fname: any; lname: any; }; }; }) => {
-                    return `${b.extendedProps.user.fname} ${b.extendedProps.user.lname}`.trim();
+                    return `${b.extendedProps.user.fname || ""} ${b.extendedProps.user.lname || ""}`.trim();
                 }))) as Array<any>;
 
                 setBookingData([]);
