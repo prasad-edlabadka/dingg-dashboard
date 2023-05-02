@@ -25,7 +25,7 @@ function Main() {
             </Container>
         )
     }
-    const SelectedScreen = screens[navOption || 'home'];
+    const SelectedScreen = screens[navOption || 'home'] || Tiles;
     return (<Container>
         {<SelectedScreen />}
     </Container>)
