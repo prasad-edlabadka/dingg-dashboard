@@ -8,7 +8,7 @@ function DinggLogin() {
     const apiURL = "https://api.dingg.app/api/v1/vendor/login";
     const phoneRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
-    const { updateToken } = useContext(TokenContext);
+    const { updateToken, setEmployeeName, setLocation } = useContext(TokenContext);
     const handleClick = () => {
         const userid = "91" + phoneRef.current?.value;
         const password = passwordRef.current?.value;
@@ -23,6 +23,8 @@ function DinggLogin() {
             .then(res => res.json())
             .then(recipes => {
                 updateToken(recipes.token);
+                setEmployeeName(recipes.data.employee.name);
+                setLocation(`${recipes.data.vendor_locations[0].business_name} - ${recipes.data.vendor_locations[0].locality}`);
             });
     };
     return (

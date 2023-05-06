@@ -92,7 +92,7 @@ function renderNav(navs: {
     link: string; iconProps?: object | undefined; onClick?: any;
 }[], token: string | null, navOption: string = '') {
     return render(
-        <TokenContext.Provider value={{ token: token, updateToken: () => { }, navOption: navOption, setNavOption: () => { }, callAPI: () => { }, callPOSTAPI: () => { } }}>
+        <TokenContext.Provider value={{ token: token, employeeName: '', location: '', setLocation: () => {}, setEmployeeName: ()=>{}, updateToken: () => { }, navOption: navOption, setNavOption: () => { }, callAPI: () => { }, callPOSTAPI: () => { } }}>
             <DiwaNavBar navs={navs} />
         </TokenContext.Provider>);
 }

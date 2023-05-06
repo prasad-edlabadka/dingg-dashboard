@@ -1,10 +1,11 @@
 import { useEffect, useState, useContext } from "react";
-import { Col, OverlayTrigger, ProgressBar, Row, Tooltip } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 import { currencyFormatter, formatDate, getLastMonth } from "./Utility";
 import { TokenContext } from "../../App";
 import DiwaButtonGroup from "../../components/button/DiwaButtonGroup";
 import DiwaCard from "../../components/card/DiwaCard";
 import DiwaRefreshButton from "../../components/button/DiwaRefreshButton";
+import TargetProgress from "./staff/TargetProgress";
 
 export default function Staff() {
     const { callAPI } = useContext(TokenContext)
@@ -76,26 +77,14 @@ export default function Staff() {
                     const targetPercentage = Math.round(val["service price"] * 100 / target);
                     const targetNoDiscountPercentage = Math.round(val["service amount"] * 100 / target);
                     return (
-                        <Row key={'staff' + index} className="mt-3 pt-2 rounded black-bg">
-                            <Col lg={4} xs={5}><h3>{val.stylist}</h3></Col>
-                            <Col xs={7} className="text-end align-bottom text-white-50">Target {currencyFormatter.format(target)}</Col>
-                            <Col lg={4} xs={5} className="text-white-50">Without discount</Col>
-                            <Col xs={7} className="text-end align-bottom">{currencyFormatter.format(val["service price"])}</Col>
-                            <Col lg={4} className="mt-1">
-                                <OverlayTrigger overlay={
-                                    <Tooltip id="tooltip-disabled">{targetPercentage}% Achieved</Tooltip>}>
-                                    <ProgressBar now={Math.round(val["service price"] * 100 / (staffTargets[val.stylist.trim() as keyof typeof staffTargets] || 100000))} style={{ height: 6, marginBottom: 12 }} variant="danger" />
-                                </OverlayTrigger>
-                            </Col>
-                            <Col lg={4} xs={5} className="text-white-50">With discount</Col>
-                            <Col xs={7} className="text-end align-bottom">{currencyFormatter.format(val["service amount"])}</Col>
-                            <Col lg={4} className="mt-1">
-                                <OverlayTrigger overlay={
-                                    <Tooltip id="tooltip-disabled">{targetNoDiscountPercentage}% Achieved</Tooltip>}>
-                                    <ProgressBar now={Math.round(val["service amount"] * 100 / (staffTargets[val.stylist.trim() as keyof typeof staffTargets] || 100000))} style={{ height: 6, marginBottom: 12 }} variant="danger" />
-                                </OverlayTrigger>
-                            </Col>
-                        </Row>)
+                        <div key={'staff' + index} className="mt-3 pt-2 pb-2 rounded black-bg">
+                        <Row className="ps-2 pe-2 align-bottom">
+                            <Col xs={7} className="align-bottom pe-0"><h4>{val.stylist}</h4></Col>
+                            <Col xs={5} className="text-end align-bottom text-white-50 ps-0">Target {currencyFormatter.format(target)}</Col>
+                        </Row>
+                        <TargetProgress label="Without discount" value={val["service price"]} target={staffTargets[val.stylist.trim() as keyof typeof staffTargets]} percentAchieved={targetPercentage} />
+                        <TargetProgress label="With discount" value={val["service amount"]} target={staffTargets[val.stylist.trim() as keyof typeof staffTargets]} percentAchieved={targetNoDiscountPercentage} />
+                        </div>)
                 })
             }
         </DiwaCard>

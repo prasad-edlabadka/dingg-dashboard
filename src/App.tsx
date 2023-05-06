@@ -9,6 +9,10 @@ import callAPI, { callPOSTAPI } from './main/tile/Utility';
 
 interface ITokenContext {
   token: string | null;
+  employeeName: string | null;
+  setEmployeeName: (employeeName: string | null) => void;
+  location: string | null;
+  setLocation: (location: string | null) => void;
   updateToken: (token: string | null) => void;
   navOption: string;
   setNavOption: any;
@@ -16,12 +20,14 @@ interface ITokenContext {
   callPOSTAPI: (url: string, data: any, cb: any) => void;
 }
 
-const TokenContext = React.createContext<ITokenContext>({ token: null, updateToken: () => {}, navOption: '', setNavOption: () => {}, callAPI: () => {}, callPOSTAPI: () => {}});
+const TokenContext = React.createContext<ITokenContext>({ token: null, employeeName: null, location: null, setEmployeeName: () => {}, setLocation: () => {}, updateToken: () => {}, navOption: '', setNavOption: () => {}, callAPI: () => {}, callPOSTAPI: () => {}});
 
 function App() {
 
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [navOption, setNavOption] = useState("home");
+  const [employeeName, setEmployeeName] = useState('');
+  const [locationName, setLocationName] = useState('');
   const handlers = useSwipeable({
     onSwipedLeft: () => {
       const i = index === (navs.length - 1) ? 0 : index + 1;
@@ -45,6 +51,14 @@ function App() {
       localStorage.setItem("token", token);
     }
   }
+  const setEmpName = (employeeName: string | null) => {
+    setEmployeeName(employeeName || '');
+  }
+
+  const setLocation = (location: string | null) => {
+    setLocationName(location || '');
+  }
+  
   const callGetAPI = (url: string, cb: any) => {
     callAPI(url, token, setToken, cb);
   }
@@ -53,7 +67,7 @@ function App() {
     callPOSTAPI(url, data, token, setToken, cb);
   }
   return (
-    <TokenContext.Provider value={{ token, updateToken, navOption, setNavOption, callAPI: callGetAPI, callPOSTAPI: callPOSTAPI2 }}>
+    <TokenContext.Provider value={{ token, employeeName, location: locationName, setEmployeeName: setEmpName, setLocation, updateToken, navOption, setNavOption, callAPI: callGetAPI, callPOSTAPI: callPOSTAPI2 }}>
       <div  {...handlers}>
         <DinggNav />
         <Main />

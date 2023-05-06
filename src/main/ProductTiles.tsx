@@ -8,7 +8,7 @@ export default function ProductTiles() {
     return (
         <div>
             <Row>
-                {tileList.map((Comp, key) => (<Col xl={4} xs={12} className="gy-4" key={'tilCol' + key}><Comp key={'tile' + key} /></Col>))}
+                {tileList.map((Comp, key) => (<Col xl={4} xs={12} className="gy-2" key={'tilCol' + key}><Comp key={'tile' + key} /></Col>))}
             </Row>
             <Row>
                 <Col>&nbsp;</Col>

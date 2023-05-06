@@ -6,14 +6,15 @@ import FinanceTiles from "./FinanceTiles";
 import StaffTiles from "./StaffTiles";
 import { useContext } from "react";
 import { TokenContext } from "../App";
+import DiwaCard from "../components/card/DiwaCard";
 
 function Main() {
-    const {token, navOption} = useContext(TokenContext);
+    const { token, navOption, employeeName, location } = useContext(TokenContext);
     const screens = {
         "home": Tiles,
         "products": ProductTiles,
         "finance": FinanceTiles,
-        "staff":StaffTiles
+        "staff": StaffTiles
     }
     if (!token) {
         return (
@@ -27,6 +28,9 @@ function Main() {
     }
     const SelectedScreen = screens[navOption || 'home'] || Tiles;
     return (<Container>
+        <DiwaCard varient="purple" loadingTracker={false}>
+            <h4 className="mb-0">Welcome {employeeName}<p className="small mb-0">To {location}</p></h4>
+        </DiwaCard>
         {<SelectedScreen />}
     </Container>)
 }
