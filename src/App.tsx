@@ -26,8 +26,8 @@ function App() {
 
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [navOption, setNavOption] = useState("home");
-  const [employeeName, setEmployeeName] = useState('');
-  const [locationName, setLocationName] = useState('');
+  const [employeeName, setEmployeeName] = useState(localStorage.getItem("employeeName"));
+  const [locationName, setLocationName] = useState(localStorage.getItem("locationName"));
   const handlers = useSwipeable({
     onSwipedLeft: () => {
       const i = index === (navs.length - 1) ? 0 : index + 1;
@@ -53,10 +53,18 @@ function App() {
   }
   const setEmpName = (employeeName: string | null) => {
     setEmployeeName(employeeName || '');
+    localStorage.removeItem("employeeName");
+    if(employeeName !== null) {
+      localStorage.setItem("employeeName", employeeName);
+    }
   }
 
   const setLocation = (location: string | null) => {
     setLocationName(location || '');
+    localStorage.removeItem("locationName");
+    if(location !== null) {
+      localStorage.setItem("locationName", location);
+    }
   }
   
   const callGetAPI = (url: string, cb: any) => {

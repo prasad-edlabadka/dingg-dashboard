@@ -283,7 +283,7 @@ export default function BookingsV2() {
             } else {
                 for (var billIndex in data.data) {
                     const bill = data.data[billIndex];
-                    const billURL = `https://api.dingg.app/api/v1//bill?bill_id=${bill.bill_payments[0].bill_id}`;
+                    const billURL = `https://api.dingg.app/api/v1//bill?bill_id=${bill.id}`;
                     // eslint-disable-next-line no-loop-func
                     callAPI(billURL, (billData: any) => {
                         bill.services = billData.data.billSItems || [];
@@ -336,6 +336,7 @@ export default function BookingsV2() {
                         </DiwaCard>
                         </Col> :
                         billingData.map((booking, index) => {
+                            console.log(booking);
                             return (
                                 <Col xl={4} xs={12} className="gy-2" key={"booking" + index}>
                                     <DiwaCard varient={booking.status ? 'success' : 'danger'} loadingTracker={loading}>
