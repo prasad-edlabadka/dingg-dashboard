@@ -1,9 +1,9 @@
-import { SetStateAction, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Col, Row } from "react-bootstrap";
 import { currencyFormatter, formatDate, formatTime } from "./Utility";
 import * as Icon from 'react-bootstrap-icons';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpa } from "@fortawesome/free-solid-svg-icons";
+import { faSpa, faTicket } from "@fortawesome/free-solid-svg-icons";
 import * as _ from "lodash";
 import { TokenContext } from "../../App";
 import DiwaCard from "../../components/card/DiwaCard";
@@ -191,6 +191,37 @@ export default function BookingsV2() {
                     "name": ""
                 }
             },
+            "vouchers":[
+                {
+                    "employee_id": 0,
+                    "price": 0,
+                    "qty": 0,
+                    "discount": 0,
+                    "tax": 0,
+                    "total": 0,
+                    "net": 0,
+                    "paid": 0,
+                    "redeem": 0,
+                    "discount_id": null,
+                    "discount_type": null,
+                    "emp_share_on_redeem": 0,
+                    "p_modes": null,
+                    "tax_percent": null,
+                    "tax_1_percent": null,
+                    "tax_2_percent": null,
+                    "voucher": {
+                        "id": 89218,
+                        "voucher_type": {
+                            "id": 0,
+                            "name": ""
+                        }
+                    },
+                    "employee": {
+                        "id": 0,
+                        "name": ""
+                    }
+                }
+            ],
             "payments": {
                 "price": 0,
                 "discount": 0,
@@ -260,7 +291,7 @@ export default function BookingsV2() {
                 }));
             });
         }
-        const identifyMembers = (data: { data: SetStateAction<{ id: number; selected_date: string; bill_number: string; total: number; paid: number; payment_status: string; status: boolean; cancel_reason: string; net: number; tax: number; roundoff: number; user: { id: number; fname: string; lname: string; display_name: string; is_member: boolean; }; products: { employee_id: number; price: number; qty: number; discount: number; tax: number; total: number; net: number; paid: number; redeem: number; discount_id: string; discount_type: string; emp_share_on_redeem: number; p_modes: { amount: number; payment_mode: number; }[]; product_lot_id: string; tax_percent: number; tax_1_percent: number; tax_2_percent: number; product: { id: string; name: string; sac_code: number; }; employee: { id: number; name: string; }; product_lot: null; }[]; services: { id: number; price: number; qty: number; discount: number; tax: number; total: number; net: number; paid: number; redeem: number; discount_id: string; discount_type: string; emp_share_on_redeem: number; p_modes: { amount: number; payment_mode: number; }[]; tax_percent: number; tax_1_percent: number; tax_2_percent: number; employee: { id: number; name: string; }; vendor_service: { id: number; service: string; service_time: string; sub_category: { sac_code: string; }; }; }[]; memberships: { id: number; price: number; qty: number; discount: number; tax: number; total: number; net: number; paid: number; redeem: number; discount_id: string; discount_type: string; emp_share_on_redeem: number; p_modes: { amount: number; payment_mode: number; }[]; tax_percent: number; tax_1_percent: number; tax_2_percent: number; employee: { id: number; name: string; }; membership: { id: number; membership_type: { id: number; type: string; }; }; bill_service_splits: never[]; }; packages: { id: number; employee_id: number; price: number; qty: number; discount: number; tax: number; total: number; net: number; paid: number; redeem: number; discount_id: null; discount_type: null; emp_share_on_redeem: number; p_modes: { amount: number; payment_mode: number; }[]; tax_percent: number; tax_1_percent: number; tax_2_percent: number; package: { id: number; package_type: { id: number; package_name: string; }; }; employee: { id: number; name: string; }; }; payments: { price: number; discount: number; tax: number; total: number; }; bill_payments: { id: number; bill_id: number; payment_date: string; payment_mode: number; amount: number; redemption: boolean; note: string; vendor_location_id: string; createdAt: string; updatedAt: string; }[]; }[]>; }) => {
+        const identifyMembers = (data: any) => {
             const memberURL = `https://api.dingg.app/api/v1//vendor/customer_list?page=1&limit=500&amount_start=0&membership_type=0&amount_start=0&is_multi_location=false`;
             callAPI(memberURL, (memberData: any) => {
                 for (var billIndex in data.data) {
@@ -290,6 +321,7 @@ export default function BookingsV2() {
                         bill.products = billData.data.billPItems || [];
                         bill.memberships = billData.data.billmitem;
                         bill.packages = billData.data.billpkitem;
+                        bill.vouchers = billData.data.billvitems;
                         bill.payments = {};
                         bill.payments.price = billData.data.price;
                         bill.payments.discount = billData.data.discount;
@@ -382,6 +414,16 @@ export default function BookingsV2() {
                                                         iconProps={{style:{ marginTop: -4 }, color:"gold"}}/>
                                                     : ''
                                                 }
+                                                {booking.vouchers.map((voucher, index) => 
+                                                    <BillItem 
+                                                        key={booking.id + 'v' + index} 
+                                                        name={voucher.voucher.voucher_type.name} 
+                                                        employee={voucher.employee.name} 
+                                                        amount={voucher.price} 
+                                                        Icon={FontAwesomeIcon} 
+                                                        iconProps={{icon: faTicket, className: "text-warning"}}/>
+                                                )}
+                                                
                                             </ul>
                                             <hr className="mt-1 mb-1" />
                                             <div className="w-100">

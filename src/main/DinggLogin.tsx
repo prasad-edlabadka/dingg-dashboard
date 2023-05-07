@@ -1,4 +1,4 @@
-import { useContext, useRef } from "react";
+import { useContext, useRef, useState } from "react";
 import { Button, Col, Form, Image, Row } from "react-bootstrap";
 import { TokenContext } from "../App";
 import DiwaCard from "../components/card/DiwaCard";
@@ -9,7 +9,10 @@ function DinggLogin() {
     const phoneRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
     const { updateToken, setEmployeeName, setLocation } = useContext(TokenContext);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
     const handleClick = () => {
+        setLoading(true);
         const userid = "91" + phoneRef.current?.value;
         const password = passwordRef.current?.value;
         const requestMetadata = {
@@ -25,7 +28,9 @@ function DinggLogin() {
                 updateToken(recipes.token);
                 setEmployeeName(recipes.data.employee.name);
                 setLocation(`${recipes.data.vendor_locations[0].business_name} - ${recipes.data.vendor_locations[0].locality}`);
-            });
+                setLoading(false);
+            })
+            .catch(err => {console.log(err);setError(err.message); setLoading(false);});
     };
     return (
         <div>
@@ -43,7 +48,8 @@ function DinggLogin() {
                                 <Form.Label>Password</Form.Label>
                                 <Form.Control type="password" placeholder="Password" ref={passwordRef} />
                             </Form.Group>
-                            <Button variant="primary" type="button" className="bg-danger border-0" onClick={handleClick}>Login</Button>
+                            <Button variant="primary" type="button" className="bg-danger border-0" onClick={handleClick} disabled={loading}>{loading?"Please wait...":"Login"}</Button>
+                            {error === ""?"":<p className="text-danger">{error}</p>}
                         </Form>
                     </DiwaCard>
                 </Col>
