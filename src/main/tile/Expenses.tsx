@@ -64,7 +64,6 @@ export default function Expenses() {
 
     useEffect(() => {
         setLoading(true);
-        console.log(formatDate(startDate), formatDate(endDate));
         const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${formatDate(startDate)}&report_type=by_expense&end_date=${formatDate(endDate)}&locations=null&app_type=web`;
         callAPI(apiURL, (data: any) => {
             setExpenseData(groupBy(data.data, v => v["expense type"]));

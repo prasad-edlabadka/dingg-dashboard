@@ -15,31 +15,34 @@ export default function Staff() {
     const [endDate, setEndDate] = useState(new Date());
     const [startDate, setStartDate] = useState(new Date(endDate.getFullYear(), endDate.getMonth(), 1));
     const [loading, setLoading] = useState(false);
-
-    const staffTargets = {
-        "Anand": 88000,
-        "Pooja": 60000,
-        "Deepa": 46000,
-        "Jassi": 112000,
-        "Manager": 52000,
-        "Prasad": 72000,
-        "Rutuja": 40000,
-        "Janvi (B)": 50000,
-        "Talib": 120000,
-    }
+    const [staffTargets, setStaffTargets] = useState({});
 
     const defaultTarget = 100000;
+    const targetURL = "https://api.dingg.app/api/v1/vendor/target/all";
 
     useEffect(() => {
         setLoading(true);
         const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${formatDate(startDate)}&report_type=staff_service_summary&end_date=${formatDate(endDate)}&app_type=web`
-        callAPI(apiURL, (data: any) => {
-            data.data = data.data.sort((a: any, b: any) => {
-                return b["service price"] - a["service price"];
+        callAPI(targetURL, (targetData: any) => {
+            setStaffTargets(getTargets(targetData));
+            callAPI(apiURL, (data: any) => {
+                data.data = data.data.sort((a: any, b: any) => {
+                    return b["service price"] - a["service price"];
+                });
+                setReportData(data);
+                setLoading(false);
             });
-            setReportData(data);
-            setLoading(false);
         });
+
+        const getTargets = (targetData: any) => {
+            const targets = targetData.data;
+            const targetMap: any = {};
+            targets.forEach((target: any) => {
+                targetMap[target.employee?.name || "Manager"] = target.total_sales;
+            });
+            return targetMap;
+        }
+        
     }, [startDate, endDate, callAPI]);
 
     const refresh = () => {

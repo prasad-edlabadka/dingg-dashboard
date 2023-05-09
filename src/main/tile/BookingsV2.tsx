@@ -368,7 +368,6 @@ export default function BookingsV2() {
                         </DiwaCard>
                         </Col> :
                         billingData.map((booking, index) => {
-                            console.log(booking);
                             return (
                                 <Col xl={4} xs={12} className="gy-2" key={"booking" + index}>
                                     <DiwaCard varient={booking.status ? 'success' : 'danger'} loadingTracker={loading}>
