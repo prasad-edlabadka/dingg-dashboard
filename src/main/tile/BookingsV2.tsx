@@ -389,11 +389,12 @@ export default function BookingsV2() {
                                 <Col xl={4} xs={12} className="gy-2" key={"booking" + index}>
                                     <DiwaCard varient={booking.status ? 'success' : 'danger'} loadingTracker={loading}>
                                         <div>
-                                            <h3>{booking.user.is_member ? <Icon.StarFill style={{ marginTop: -4, paddingRight: 4 }} color="gold" /> : ''}{booking.user.display_name || `${booking.user.fname || ""} ${booking.user.lname || ""}`.trim()} ({currencyFormatter.format(booking.payments.total)})</h3>
+                                            <h3>{booking.user.is_member ? <Icon.StarFill style={{ marginTop: -4, paddingRight: 4 }} color="gold" /> : ''}{`${booking.user.fname || ""} ${booking.user.lname || ""}`.trim()} ({currencyFormatter.format(booking.payments.total)})</h3>
                                             <ul className="list-group list-group-flush">
                                                 {booking.services.map((service, index) =>
                                                     <BillItem
                                                         key={booking.id + 's' + index}
+                                                        uniqueKey={booking.id + 's' + index}
                                                         name={service.vendor_service.service}
                                                         employee={service.employee.name}
                                                         amount={service.price}
@@ -404,6 +405,7 @@ export default function BookingsV2() {
                                                 {booking.products.map((prod, index) =>
                                                     <BillItem
                                                         key={booking.id + 'p' + index}
+                                                        uniqueKey={booking.id + 'p' + index}
                                                         name={prod.product.name}
                                                         employee={prod.employee.name}
                                                         amount={prod.price}
@@ -415,6 +417,7 @@ export default function BookingsV2() {
                                                 {booking.packages !== null ?
                                                     <BillItem
                                                         key={booking.id + 'pk' + index}
+                                                        uniqueKey={booking.id + 'pk' + index}
                                                         name={booking.packages.package.package_type.package_name}
                                                         employee={booking.packages.employee.name}
                                                         amount={booking.packages.price}
@@ -426,6 +429,7 @@ export default function BookingsV2() {
                                                 {booking.memberships !== null ?
                                                     <BillItem
                                                         key={booking.id + 'm' + index}
+                                                        uniqueKey={booking.id + 'm' + index}
                                                         name={booking.memberships.membership.membership_type.type}
                                                         employee={booking.memberships.employee.name}
                                                         amount={booking.memberships.price}
@@ -437,6 +441,7 @@ export default function BookingsV2() {
                                                 {booking.vouchers.map((voucher, index) =>
                                                     <BillItem
                                                         key={booking.id + 'v' + index}
+                                                        uniqueKey={booking.id + 'v' + index}
                                                         name={voucher.voucher.voucher_type.name}
                                                         employee={voucher.employee.name}
                                                         amount={voucher.price}
@@ -448,6 +453,7 @@ export default function BookingsV2() {
                                                 {booking.tips.map((tip, index) =>
                                                     <BillItem
                                                         key={booking.id + 'tip' + index}
+                                                        uniqueKey={booking.id + 'tip' + index}
                                                         name={`Tip for ${tip.employee.name}`}
                                                         employee={''}
                                                         amount={tip.suggested_amount}

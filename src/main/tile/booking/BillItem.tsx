@@ -1,9 +1,9 @@
 import { Col, Row } from "react-bootstrap";
 import { currencyFormatter } from "../Utility";
 
-export default function BillItem({key, name, employee, amount, discount, Icon, iconProps}: { key: string, name: string, employee: string, amount: number, discount: number, Icon: any, iconProps?: object }) {
+export default function BillItem({uniqueKey, name, employee, amount, discount, Icon, iconProps}: { uniqueKey: string, name: string, employee: string, amount: number, discount: number, Icon: any, iconProps?: object }) {
     return (
-        <li className="list-group-item bg-transparent text-light border-white ps-0" key={key}>
+        <li className="list-group-item bg-transparent text-light border-white ps-0" key={uniqueKey}>
             <Row>
                 <Col xs={1}><Icon {...iconProps} /></Col>
                 <Col xs={11} className="ps-2">
