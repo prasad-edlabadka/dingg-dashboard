@@ -485,15 +485,6 @@ export default function BookingsV2() {
                                     <div>
                                         <h3>{booking.customerName} ({currencyFormatter.format(booking.billAmount)})</h3>
                                         <ul className="list-group list-group-flush">
-                                            {/* {booking.services.map((service) => 
-                                                <BillItem 
-                                                    key={booking.customerName + service.name} 
-                                                    name={service.name} 
-                                                    employee={service.employee} 
-                                                    amount={-1} 
-                                                    Icon={Icon.BoxSeam} 
-                                                    iconProps={{style:{ marginTop: -4 }, color:"gold"}}/>
-                                            )} */}
                                             {booking.services.map(service => {
                                                 return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={booking.customerName + service.name}>
                                                     {service.name}<p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{service.employee}</p>

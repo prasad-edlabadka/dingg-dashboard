@@ -7,6 +7,7 @@ import TitleWithRefresh from "./sale/TitleWithRefresh";
 import SaleRow from "./sale/SaleRow";
 import DataPoint from "./sale/DataPoint";
 import MultiRowDataPoint from "./sale/MultiRowDataPoint";
+import { Col, Row } from "react-bootstrap";
 
 export default function Sale2() {
     const { callAPI } = useContext(TokenContext);
@@ -75,19 +76,19 @@ export default function Sale2() {
         setStatsLoading(true);
         const apiURL = `https://api.dingg.app/api/v1/vendor/report/consolidated?time_one_start=${formatDate(start1)}&time_one_end=${formatDate(end1)}&time_two_start=${formatDate(start2)}&time_two_end=${formatDate(end2)}`
         callAPI(apiURL, (data: any) => {
-            if(!data) return;
+            if (!data) return;
             setStatsLoading(false);
             setReportData(data.data.length === 0 ? [] : data.data)
         });
         const cashAPIURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${formatDate(start1)}&report_type=by_expense_type&end_date=${formatDate(end1)}&locations=null&app_type=web`;
         callAPI(cashAPIURL, (data: any) => {
-            if(!data) return;
+            if (!data) return;
             setCashExpenses(data.data.find((d: any) => d["expense type"] === "Cash transfer to hub")?.total || 0)
         });
 
         const prevCashAPIURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${formatDate(start2)}&report_type=by_expense_type&end_date=${formatDate(end2)}&locations=null&app_type=web`;
         callAPI(prevCashAPIURL, (data: any) => {
-            if(!data) return;
+            if (!data) return;
             setPrevCashExpenses(data.data.find((d: any) => d["expense type"] === "Cash transfer to hub")?.total || 0)
         });
     }
@@ -97,7 +98,7 @@ export default function Sale2() {
         const endDate = formatDate(end);
         const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${startDate}&end_date=${endDate}&report_type=by_type&app_type=web`;
         callAPI(apiURL, (data: any) => {
-            if(!data) return;
+            if (!data) return;
             let price = 0;
             let discount = 0;
             let tax = 0;
@@ -204,43 +205,51 @@ export default function Sale2() {
     ];
 
     const pnl = [
-        { title: "Earning", value: currencyFormatter.format(reportData.total_stat[0].time_one_collection), previous: currencyFormatter.format(reportData.total_stat[0].time_two_collection), subTitle: 'last'},
-        { title: "Expense", value: currencyFormatter.format(reportData.total_stat[0].time_one_expense - cashExpenses), previous: currencyFormatter.format(reportData.total_stat[0].time_two_expense - prevCashExpenses), subTitle: 'last'},
-        { title: "P&L", value: currencyFormatter.format(reportData.total_stat[0].time_one_collection - reportData.total_stat[0].time_one_expense + cashExpenses), previous: currencyFormatter.format(reportData.total_stat[0].time_two_collection - reportData.total_stat[0].time_two_expense + prevCashExpenses), subTitle: 'last'},
+        { title: "Earning", value: currencyFormatter.format(reportData.total_stat[0].time_one_collection), previous: currencyFormatter.format(reportData.total_stat[0].time_two_collection), subTitle: 'last' },
+        { title: "Expense", value: currencyFormatter.format(reportData.total_stat[0].time_one_expense - cashExpenses), previous: currencyFormatter.format(reportData.total_stat[0].time_two_expense - prevCashExpenses), subTitle: 'last' },
+        { title: "P&L", value: currencyFormatter.format(reportData.total_stat[0].time_one_collection - reportData.total_stat[0].time_one_expense + cashExpenses), previous: currencyFormatter.format(reportData.total_stat[0].time_two_collection - reportData.total_stat[0].time_two_expense + prevCashExpenses), subTitle: 'last' },
     ];
 
     const customers = [
-        { title: "Customers", value: reportData.total_stat_bill[0].time_one_count, previous: reportData.total_stat_bill[0].time_two_count, subTitle: 'previous'},
-        { title: "Members", value: reportData.membership_detail[0].count_membership, previous: reportData.membership_detail[0].count_active_membership, subTitle: 'active'},
-        { title: "Ticket Size", value: currencyFormatter.format(reportData.total_stat_bill[0].time_one_avg), previous: currencyFormatter.format(reportData.total_stat_bill[0].time_two_avg), subTitle: 'previous'},
+        { title: "Customers", value: reportData.total_stat_bill[0].time_one_count, previous: reportData.total_stat_bill[0].time_two_count, subTitle: 'previous' },
+        { title: "Members", value: reportData.membership_detail[0].count_membership, previous: reportData.membership_detail[0].count_active_membership, subTitle: 'active' },
+        { title: "Ticket Size", value: currencyFormatter.format(reportData.total_stat_bill[0].time_one_avg), previous: currencyFormatter.format(reportData.total_stat_bill[0].time_two_avg), subTitle: 'previous' },
     ];
 
     const revenue = [
-        { title1: "Revenue from", value1: currencyFormatter.format(reportData.new_cust_time_one.new_customer_rev), title2:"New Customers", value2:reportData.new_cust_time_one.new_customer},
-        { title1: "Revenue from", value1: currencyFormatter.format(reportData.new_cust_time_one.existing_customer_rev), title2:"Exising Customers", value2:reportData.new_cust_time_one.existing_customer},
+        { title1: "Revenue from", value1: currencyFormatter.format(reportData.new_cust_time_one.new_customer_rev), title2: "New Customers", value2: reportData.new_cust_time_one.new_customer },
+        { title1: "Revenue from", value1: currencyFormatter.format(reportData.new_cust_time_one.existing_customer_rev), title2: "Exising Customers", value2: reportData.new_cust_time_one.existing_customer },
     ]
     const buttonState = useState(0);
     return (
         <>
-            <DiwaCard varient={displayVariation.total > 0 ? "success" : "danger"} loadingTracker={loading}>
-                <DiwaButtonGroup buttons={buttons} state={buttonState} />
-                <TitleWithRefresh title={`Sale for ${displaySubDuration}`} varient={displayVariation.total > 0 ? "success" : "danger"} onRefresh={refresh} />
-                <SaleRow title="Sale" current={displaySale.total} previous={displayPreviousSale.total} variation={displayVariation.total} primary={true} />
-                <SaleRow title="Without Discount" current={displaySale.price} previous={displayPreviousSale.price} variation={displayVariation.price} primary={false} />
-                <SaleRow title="Total Discount" current={displaySale.discount} previous={displayPreviousSale.discount} variation={displayVariation.discount} primary={false} />
-                <SaleRow title="Tax" current={displaySale.tax} previous={displayPreviousSale.tax} variation={displayVariation.tax} primary={false} />
-                <SaleRow title="After Tax" current={displaySale.woTax} previous={displayPreviousSale.woTax} variation={displayVariation.woTax} primary={false} />
-                <p></p>
-            </DiwaCard>
-            <DiwaCard varient={reportData.total_stat[0].time_one_collection - reportData.total_stat[0].time_one_expense > 0 ? "success" : "danger"} loadingTracker={statsLoading}>
-                <DataPoint data={pnl} />
-            </DiwaCard>
-            <DiwaCard varient="primary" loadingTracker={statsLoading}>
-                <DataPoint data={customers} />
-            </DiwaCard>
-            <DiwaCard varient="primary" loadingTracker={statsLoading}>
-                <MultiRowDataPoint data={revenue} />
-            </DiwaCard>
+            <Row>
+                <Col xs={12} lg={4}>
+                    <DiwaCard varient={displayVariation.total > 0 ? "success" : "danger"} loadingTracker={loading}>
+                        <DiwaButtonGroup buttons={buttons} state={buttonState} />
+                        <TitleWithRefresh title={`Sale for ${displaySubDuration}`} varient={displayVariation.total > 0 ? "success" : "danger"} onRefresh={refresh} />
+                        <SaleRow title="Sale" current={displaySale.total} previous={displayPreviousSale.total} variation={displayVariation.total} primary={true} />
+                        <SaleRow title="Without Discount" current={displaySale.price} previous={displayPreviousSale.price} variation={displayVariation.price} primary={false} />
+                        <SaleRow title="Total Discount" current={displaySale.discount} previous={displayPreviousSale.discount} variation={displayVariation.discount} primary={false} />
+                        <SaleRow title="Tax" current={displaySale.tax} previous={displayPreviousSale.tax} variation={displayVariation.tax} primary={false} />
+                        <SaleRow title="After Tax" current={displaySale.woTax} previous={displayPreviousSale.woTax} variation={displayVariation.woTax} primary={false} />
+                        <p></p>
+                    </DiwaCard>
+                </Col>
+
+                <Col xs={12} lg={4}>
+                    <DiwaCard varient={reportData.total_stat[0].time_one_collection - reportData.total_stat[0].time_one_expense > 0 ? "success" : "danger"} loadingTracker={statsLoading}>
+                        <DataPoint data={pnl} />
+                    </DiwaCard>
+                    <DiwaCard varient="primary" loadingTracker={statsLoading}>
+                        <DataPoint data={customers} />
+                    </DiwaCard>
+                    <DiwaCard varient="primary" loadingTracker={statsLoading}>
+                        <MultiRowDataPoint data={revenue} />
+                    </DiwaCard>
+                </Col>
+            </Row>
+
         </>
     )
 }

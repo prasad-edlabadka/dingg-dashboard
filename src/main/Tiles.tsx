@@ -8,10 +8,10 @@ export default function Tiles() {
     return (
         <div>
             <Row>
-                {tileList.map((Comp, key) => (<Col xl={4} xs={12} className="gy-2" key={'tilCol' + key}><Comp key={'tile' + key} /></Col>))}
+                {tileList.map((Comp, key) => (<Col xs={12} className="gy-2" key={'tilCol' + key}><Comp key={'tile' + key} /></Col>))}
             </Row>
             <Row>
-                <Col xl={12} xs={12} className="gy-4"><BookingsV2 key={'tile999'} /></Col>
+                <Col xs={12} className="gy-4"><BookingsV2 key={'tile999'} /></Col>
             </Row>
             <Row>
                 <Col>&nbsp;</Col>
