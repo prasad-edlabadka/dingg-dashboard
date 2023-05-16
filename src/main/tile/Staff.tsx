@@ -42,7 +42,7 @@ export default function Staff() {
             });
             return targetMap;
         }
-        
+
     }, [startDate, endDate, callAPI]);
 
     const refresh = () => {
@@ -81,12 +81,12 @@ export default function Staff() {
                     const targetNoDiscountPercentage = Math.round(val["service amount"] * 100 / target);
                     return (
                         <div key={'staff' + index} className="mt-3 pt-2 pb-2 rounded black-bg">
-                        <Row className="ps-2 pe-2 align-bottom">
-                            <Col xs={7} className="align-bottom pe-0"><h4>{val.stylist}</h4></Col>
-                            <Col xs={5} className="text-end align-bottom text-white-50 ps-0">Target {currencyFormatter.format(target)}</Col>
-                        </Row>
-                        <TargetProgress label="Without discount" value={val["service price"]} target={staffTargets[val.stylist.trim() as keyof typeof staffTargets]} percentAchieved={targetPercentage} />
-                        <TargetProgress label="With discount" value={val["service amount"]} target={staffTargets[val.stylist.trim() as keyof typeof staffTargets]} percentAchieved={targetNoDiscountPercentage} />
+                            <Row className="ps-2 pe-2 align-bottom">
+                                <Col xs={7} className="align-bottom pe-0"><h4>{val.stylist}</h4></Col>
+                                <Col xs={5} className="text-end align-bottom text-white-50 ps-0">Target {currencyFormatter.format(target)}</Col>
+                            </Row>
+                            <TargetProgress label="Without discount" value={val["service price"]} target={staffTargets[val.stylist.trim() as keyof typeof staffTargets]} percentAchieved={targetPercentage} />
+                            <TargetProgress label="With discount" value={val["service amount"]} target={staffTargets[val.stylist.trim() as keyof typeof staffTargets]} percentAchieved={targetNoDiscountPercentage} />
                         </div>)
                 })
             }

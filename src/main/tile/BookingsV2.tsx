@@ -3,7 +3,7 @@ import { Col, Row } from "react-bootstrap";
 import { currencyFormatter, formatDate, formatTime } from "./Utility";
 import * as Icon from 'react-bootstrap-icons';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpa, faTicket } from "@fortawesome/free-solid-svg-icons";
+import { faSpa, faTicket, faMoneyBill1 } from "@fortawesome/free-solid-svg-icons";
 import * as _ from "lodash";
 import { TokenContext } from "../../App";
 import DiwaCard from "../../components/card/DiwaCard";
@@ -191,7 +191,7 @@ export default function BookingsV2() {
                     "name": ""
                 }
             },
-            "vouchers":[
+            "vouchers": [
                 {
                     "employee_id": 0,
                     "price": 0,
@@ -219,6 +219,22 @@ export default function BookingsV2() {
                     "employee": {
                         "id": 0,
                         "name": ""
+                    }
+                }
+            ],
+            "tips": [
+                {
+                    "id": 0,
+                    "bill_id": 0,
+                    "employee_id": 0,
+                    "suggested_amount": 0,
+                    "received_amount": 0,
+                    "is_settled": false,
+                    "createdAt": "2023-05-15T07:52:43.523Z",
+                    "updatedAt": "2023-05-15T07:52:43.523Z",
+                    "employee": {
+                        "id": 13350,
+                        "name": "Jassi"
                     }
                 }
             ],
@@ -253,42 +269,42 @@ export default function BookingsV2() {
         const loadAppointments = () => {
             const apiURL = `https://api.dingg.app/api/v1/calender/booking?date=${formatDate(new Date())}`;
             callAPI(apiURL, (data: any) => {
-                if(!data) return;
+                if (!data) return;
                 const groupedData = JSON.parse(JSON.stringify(_.groupBy(data.data, (b: { extendedProps: { user: { fname: any; lname: any; }; }; }) => {
                     return `${b.extendedProps.user.fname || ""} ${b.extendedProps.user.lname || ""}`.trim();
                 }))) as Array<any>;
 
                 setBookingData([]);
                 setBookingData(Object.keys(groupedData).filter(v => !groupedData[v][0].extendedProps.book.bill)
-                   .map(v => {
-                    const data = groupedData[v];
-                    const startDate = data.map((m: { start: any; }) => m.start).sort(function (a: string, b: string) {
-                        return Date.parse(a) > Date.parse(b);
-                    })[0];
-                    const endDate = data.map((m: { end: any; }) => m.end).sort(function (a: string, b: string) {
-                        return Date.parse(a) < Date.parse(b);
-                    })[0];
-                    const services: { name: any; employee: any; }[] = [];
-                    let billAmount = 0;
-                    data.forEach((d: { extendedProps: { book: { services: string; employee_name: any; }; }; }) => {
-                        d.extendedProps.book.services.split(",").map((a: any) => {
-                            billAmount += extractAmount(a);
-                            services.push({
-                                name: a,
-                                employee: d.extendedProps.book.employee_name
+                    .map(v => {
+                        const data = groupedData[v];
+                        const startDate = data.map((m: { start: any; }) => m.start).sort(function (a: string, b: string) {
+                            return Date.parse(a) > Date.parse(b);
+                        })[0];
+                        const endDate = data.map((m: { end: any; }) => m.end).sort(function (a: string, b: string) {
+                            return Date.parse(a) < Date.parse(b);
+                        })[0];
+                        const services: { name: any; employee: any; }[] = [];
+                        let billAmount = 0;
+                        data.forEach((d: { extendedProps: { book: { services: string; employee_name: any; }; }; }) => {
+                            d.extendedProps.book.services.split(",").map((a: any) => {
+                                billAmount += extractAmount(a);
+                                services.push({
+                                    name: a,
+                                    employee: d.extendedProps.book.employee_name
+                                });
+                                return null;
                             });
-                            return null;
                         });
-                    });
-                    return {
-                        customerName: v,
-                        start: startDate,
-                        end: endDate,
-                        status: data[0].extendedProps.book.status,
-                        services: services,
-                        billAmount: billAmount
-                    }
-                }));
+                        return {
+                            customerName: v,
+                            start: startDate,
+                            end: endDate,
+                            status: data[0].extendedProps.book.status,
+                            services: services,
+                            billAmount: billAmount
+                        }
+                    }));
             });
         }
         const identifyMembers = (data: any) => {
@@ -307,7 +323,7 @@ export default function BookingsV2() {
         //const apiURL = `https://api.dingg.app/api/v1/vendor/bills?web=true&page=1&limit=1000&start=2023-01-22&end=2023-01-22&term=&is_product_only=`
         callAPI(apiURL, (data: any) => {
             let counter = 0;
-            if(!data) return;
+            if (!data) return;
             if (data.data.length === 0) {
                 setLoading(false);
                 setBillingData([]);
@@ -322,6 +338,7 @@ export default function BookingsV2() {
                         bill.memberships = billData.data.billmitem;
                         bill.packages = billData.data.billpkitem;
                         bill.vouchers = billData.data.billvitems;
+                        bill.tips = billData.data.bill_tips || [];
                         bill.payments = {};
                         bill.payments.price = billData.data.price;
                         bill.payments.discount = billData.data.discount;
@@ -359,14 +376,14 @@ export default function BookingsV2() {
     return (
         <div>
             <HeadingWithRefresh title="Today's Customers" onRefresh={() => refresh()} />
-            
+
             <Row>
                 {
                     billingData.length === 0 ? <Col xl={4} xs={12} className="gy-2">
                         <DiwaCard varient="primary" loadingTracker={loading}>
                             <h2>No customers yet</h2>
                         </DiwaCard>
-                        </Col> :
+                    </Col> :
                         billingData.map((booking, index) => {
                             return (
                                 <Col xl={4} xs={12} className="gy-2" key={"booking" + index}>
@@ -374,55 +391,71 @@ export default function BookingsV2() {
                                         <div>
                                             <h3>{booking.user.is_member ? <Icon.StarFill style={{ marginTop: -4, paddingRight: 4 }} color="gold" /> : ''}{booking.user.display_name || `${booking.user.fname || ""} ${booking.user.lname || ""}`.trim()} ({currencyFormatter.format(booking.payments.total)})</h3>
                                             <ul className="list-group list-group-flush">
-                                                {booking.services.map((service, index) => 
-                                                    <BillItem 
-                                                        key={booking.id + 's' + index} 
-                                                        name={service.vendor_service.service} 
-                                                        employee={service.employee.name} 
-                                                        amount={service.price} 
-                                                        Icon={FontAwesomeIcon} 
-                                                        iconProps={{icon: faSpa, className: "text-warning"}}/>
+                                                {booking.services.map((service, index) =>
+                                                    <BillItem
+                                                        key={booking.id + 's' + index}
+                                                        name={service.vendor_service.service}
+                                                        employee={service.employee.name}
+                                                        amount={service.price}
+                                                        discount={service.discount}
+                                                        Icon={FontAwesomeIcon}
+                                                        iconProps={{ icon: faSpa, className: "text-warning" }} />
                                                 )}
-                                                {booking.products.map((prod, index) => 
-                                                    <BillItem 
-                                                        key={booking.id + 'p' + index} 
-                                                        name={prod.product.name} 
-                                                        employee={prod.employee.name} 
-                                                        amount={prod.price} 
-                                                        Icon={Icon.BoxSeam} 
-                                                        iconProps={{style:{ marginTop: -4 }, color:"gold"}}/>
+                                                {booking.products.map((prod, index) =>
+                                                    <BillItem
+                                                        key={booking.id + 'p' + index}
+                                                        name={prod.product.name}
+                                                        employee={prod.employee.name}
+                                                        amount={prod.price}
+                                                        discount={prod.discount}
+                                                        Icon={Icon.BoxSeam}
+                                                        iconProps={{ style: { marginTop: -4 }, color: "gold" }} />
                                                 )}
-                                                
+
                                                 {booking.packages !== null ?
-                                                    <BillItem 
-                                                        key={booking.id + 'pk' + index} 
-                                                        name={booking.packages.package.package_type.package_name} 
-                                                        employee={booking.packages.employee.name} 
-                                                        amount={booking.packages.price} 
-                                                        Icon={Icon.UiChecksGrid} 
-                                                        iconProps={{style:{ marginTop: -4 }, color:"gold"}}/>
-                                                     : ''
-                                                }
-                                                {booking.memberships !== null ?
-                                                    <BillItem 
-                                                        key={booking.id + 'm' + index} 
-                                                        name={booking.memberships.membership.membership_type.type} 
-                                                        employee={booking.memberships.employee.name} 
-                                                        amount={booking.memberships.price} 
-                                                        Icon={Icon.StarFill} 
-                                                        iconProps={{style:{ marginTop: -4 }, color:"gold"}}/>
+                                                    <BillItem
+                                                        key={booking.id + 'pk' + index}
+                                                        name={booking.packages.package.package_type.package_name}
+                                                        employee={booking.packages.employee.name}
+                                                        amount={booking.packages.price}
+                                                        discount={booking.packages.discount}
+                                                        Icon={Icon.UiChecksGrid}
+                                                        iconProps={{ style: { marginTop: -4 }, color: "gold" }} />
                                                     : ''
                                                 }
-                                                {booking.vouchers.map((voucher, index) => 
-                                                    <BillItem 
-                                                        key={booking.id + 'v' + index} 
-                                                        name={voucher.voucher.voucher_type.name} 
-                                                        employee={voucher.employee.name} 
-                                                        amount={voucher.price} 
-                                                        Icon={FontAwesomeIcon} 
-                                                        iconProps={{icon: faTicket, className: "text-warning"}}/>
+                                                {booking.memberships !== null ?
+                                                    <BillItem
+                                                        key={booking.id + 'm' + index}
+                                                        name={booking.memberships.membership.membership_type.type}
+                                                        employee={booking.memberships.employee.name}
+                                                        amount={booking.memberships.price}
+                                                        discount={booking.memberships.discount}
+                                                        Icon={Icon.StarFill}
+                                                        iconProps={{ style: { marginTop: -4 }, color: "gold" }} />
+                                                    : ''
+                                                }
+                                                {booking.vouchers.map((voucher, index) =>
+                                                    <BillItem
+                                                        key={booking.id + 'v' + index}
+                                                        name={voucher.voucher.voucher_type.name}
+                                                        employee={voucher.employee.name}
+                                                        amount={voucher.price}
+                                                        discount={voucher.discount}
+                                                        Icon={FontAwesomeIcon}
+                                                        iconProps={{ icon: faTicket, className: "text-warning" }} />
                                                 )}
-                                                
+
+                                                {booking.tips.map((tip, index) =>
+                                                    <BillItem
+                                                        key={booking.id + 'tip' + index}
+                                                        name={`Tip for ${tip.employee.name}`}
+                                                        employee={''}
+                                                        amount={tip.suggested_amount}
+                                                        discount={0}
+                                                        Icon={FontAwesomeIcon}
+                                                        iconProps={{ icon: faMoneyBill1, className: "text-warning" }} />
+                                                )}
+
                                             </ul>
                                             <hr className="mt-1 mb-1" />
                                             <div className="w-100">
