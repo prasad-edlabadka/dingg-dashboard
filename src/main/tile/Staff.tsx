@@ -16,6 +16,7 @@ export default function Staff() {
     const [startDate, setStartDate] = useState(new Date(endDate.getFullYear(), endDate.getMonth(), 1));
     const [loading, setLoading] = useState(false);
     const [staffTargets, setStaffTargets] = useState({});
+    const [calculatedTarget, setCalculatedTarget] = useState({});
 
     const defaultTarget = 100000;
     const targetURL = "https://api.dingg.app/api/v1/vendor/target/all";
@@ -34,6 +35,19 @@ export default function Staff() {
             });
         });
 
+        const employeeURL = "https://api.dingg.app/api/v1/employees/get";
+        callAPI(employeeURL, (data: any) => {
+            const empList = data.data.map((v: { id: any; }) => v.id).join(",");
+            const reportApiURL = `https://api.dingg.app/api/v1/vendor/target/all?employee_ids=${empList}&time_type=monthly&start_date=${formatDate(startDate)}&end_date=${formatDate(endDate)}`
+            callAPI(reportApiURL, (reportData: any) => {
+                const calculatedTarget: any = {};
+                reportData.data.forEach((v: { employee: {name: string}; total_sales_achieved: number; }) => {
+                    calculatedTarget[v.employee.name] = v.total_sales_achieved;
+                });
+                setCalculatedTarget(calculatedTarget);
+            });
+        });
+        
         const getTargets = (targetData: any) => {
             const targets = targetData.data;
             const targetMap: any = {};
@@ -67,6 +81,10 @@ export default function Staff() {
         { title: getLastMonth().toLocaleDateString('en-GB', { month: 'long' }), onClick: () => setDuration('previous') }
     ];
 
+    const calculatePercentage = (achieved: number, target: number) => {
+        return Math.round(achieved * 100 / target);
+    }
+
     return (
         <DiwaCard varient="indigo" loadingTracker={loading}>
             <div className="position-relative">
@@ -87,6 +105,7 @@ export default function Staff() {
                             </Row>
                             <TargetProgress label="Without discount" value={val["service price"]} target={staffTargets[val.stylist.trim() as keyof typeof staffTargets]} percentAchieved={targetPercentage} />
                             <TargetProgress label="With discount" value={val["service amount"]} target={staffTargets[val.stylist.trim() as keyof typeof staffTargets]} percentAchieved={targetNoDiscountPercentage} />
+                            <TargetProgress label="Dingg Calculated" value={calculatedTarget[val.stylist]} target={staffTargets[val.stylist.trim() as keyof typeof staffTargets]} percentAchieved={calculatePercentage(calculatedTarget[val.stylist], staffTargets[val.stylist.trim() as keyof typeof staffTargets])} />
                         </div>)
                 })
             }
