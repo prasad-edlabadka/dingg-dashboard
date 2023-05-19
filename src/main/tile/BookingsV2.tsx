@@ -7,12 +7,14 @@ import { faSpa, faTicket, faMoneyBill1 } from "@fortawesome/free-solid-svg-icons
 import * as _ from "lodash";
 import { TokenContext } from "../../App";
 import DiwaCard from "../../components/card/DiwaCard";
-import HeadingWithRefresh from "./booking/HeadingWithRefresh";
 import BillItem from "./booking/BillItem";
+import HeadingWithRefresh from "./booking/HeadingWithRefresh";
 
 export default function BookingsV2() {
     const [loading, setLoading] = useState(true);
     const [reload, setReload] = useState(false);
+    const todayFlag = useState(true);
+    const [today, ] = todayFlag;
     const { callAPI } = useContext(TokenContext)
     const [bookingData, setBookingData] = useState([
         {
@@ -266,8 +268,9 @@ export default function BookingsV2() {
     const statusDesc = ["Unknown", "Start Serving", "Booking Cancelled", "Completed - Bill not generated", "Unknown", "Upcoming", "Confirmed", "Tentative", "Customer Arrived"];
 
     useEffect(() => {
+        const bookingDate = today ? new Date() : new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
         const loadAppointments = () => {
-            const apiURL = `https://api.dingg.app/api/v1/calender/booking?date=${formatDate(new Date())}`;
+            const apiURL = `https://api.dingg.app/api/v1/calender/booking?date=${formatDate(bookingDate)}`;
             callAPI(apiURL, (data: any) => {
                 if (!data) return;
                 const groupedData = JSON.parse(JSON.stringify(_.groupBy(data.data, (b: { extendedProps: { user: { fname: any; lname: any; }; }; }) => {
@@ -319,7 +322,7 @@ export default function BookingsV2() {
             });
         }
         setLoading(true);
-        const apiURL = `https://api.dingg.app/api/v1/vendor/bills?web=true&page=1&limit=1000&start=${formatDate(new Date())}&end=${formatDate(new Date())}&term=&is_product_only=`;
+        const apiURL = `https://api.dingg.app/api/v1/vendor/bills?web=true&page=1&limit=1000&start=${formatDate(bookingDate)}&end=${formatDate(bookingDate)}&term=&is_product_only=`;
         //const apiURL = `https://api.dingg.app/api/v1/vendor/bills?web=true&page=1&limit=1000&start=2023-01-22&end=2023-01-22&term=&is_product_only=`
         callAPI(apiURL, (data: any) => {
             let counter = 0;
@@ -356,7 +359,7 @@ export default function BookingsV2() {
         });
 
         loadAppointments();
-    }, [callAPI, reload]);
+    }, [callAPI, reload, today]);
 
     const extractAmount = (txt: string): number => {
         const indexOfSymbol = txt.indexOf("₹");
@@ -371,11 +374,12 @@ export default function BookingsV2() {
         setReload(!reload);
     }
 
+
     type Varient = "danger" | "success" | "primary" | "warning" | "dark" | "indigo" | "purple";
 
     return (
         <div>
-            <HeadingWithRefresh title="Today's Customers" onRefresh={() => refresh()} />
+            <HeadingWithRefresh todayFlag={todayFlag} title1="Today's" title2="Yesterday's" title3=" Customers" onRefresh={() => refresh()} />
 
             <Row>
                 {
