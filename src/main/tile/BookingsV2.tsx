@@ -401,7 +401,7 @@ export default function BookingsV2() {
                                                         uniqueKey={booking.id + 's' + index}
                                                         name={service.vendor_service.service}
                                                         employee={service.employee.name}
-                                                        amount={service.price}
+                                                        amount={service.price * service.qty}
                                                         discount={service.discount}
                                                         Icon={FontAwesomeIcon}
                                                         iconProps={{ icon: faSpa, className: "text-warning" }} />
