@@ -225,9 +225,9 @@ export default function Sale2() {
         <>
             <Row>
                 <Col xs={12} lg={4}>
-                    <DiwaCard varient={displayVariation.total > 0 ? "success" : "danger"} loadingTracker={loading}>
+                    <DiwaCard varient={displaySale.total > displayPreviousSale.total ? "success" : "danger"} loadingTracker={loading}>
                         <DiwaButtonGroup buttons={buttons} state={buttonState} />
-                        <TitleWithRefresh title={`Sale for ${displaySubDuration}`} varient={displayVariation.total > 0 ? "success" : "danger"} onRefresh={refresh} />
+                        <TitleWithRefresh title={`Sale for ${displaySubDuration}`} varient={displaySale.total > displayPreviousSale.total ? "success" : "danger"} onRefresh={refresh} />
                         <SaleRow title="Sale" current={displaySale.total} previous={displayPreviousSale.total} variation={displayVariation.total} primary={true} />
                         <SaleRow title="Without Discount" current={displaySale.price} previous={displayPreviousSale.price} variation={displayVariation.price} primary={false} />
                         <SaleRow title="Total Discount" current={displaySale.discount} previous={displayPreviousSale.discount} variation={displayVariation.discount} primary={false} />
