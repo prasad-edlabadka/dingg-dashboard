@@ -29,6 +29,8 @@ export default function Expenses() {
     const description = useRef<HTMLTextAreaElement>(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [clicked, setClicked] = useState(false);
+    const [accounts, setAccounts] = useState<any[]>([]);
+    const [paymentModes, setPaymentModes] = useState<any[]>([]);
 
     const createExpense = (e: any) => {
         e.preventDefault();
@@ -41,11 +43,11 @@ export default function Expenses() {
         const data = {
             "date": expenseDate.current?.value,
             "type": expenseType.current?.value,
-            "mode": activeButtonIndex === 0 ? "3" : "1",
+            "mode": `${paymentModes[activeButtonIndex]}`,
             "given_to": givenTo.current?.value,
             "amount": Number.parseFloat(`${amount.current?.value}`),
             "desc": description.current?.value,
-            "vendor_account_id": activeButtonIndex === 0 ? "712" : "2348",
+            "vendor_account_id": `${accounts[activeButtonIndex]}`,
         }
 
         callPOSTAPI("https://api.dingg.app/api/v1/vendor/expense", data, (response: any) => {
@@ -76,6 +78,21 @@ export default function Expenses() {
         const expenseTypesURL = `https://api.dingg.app/api/v1/vendor/expense/type`;
         callAPI(expenseTypesURL, (data: any) => {
             setExpenseTypes(data.data.map((v: { value: string; name: string; }) => { return { id: v.value, name: v.name } }));
+        });
+
+        
+        callAPI('https://api.dingg.app/api/v1//payment_mode', (data: any) => {
+            const pm = [];
+            pm.push(data.data.find((v:any) => v.name === 'ONLINE').value);
+            pm.push(data.data.find((v:any) => v.name === 'CASH').value);
+            setPaymentModes(pm);
+        });
+
+        callAPI('https://api.dingg.app/api/v1//vendor/account/list', (data: any) => {
+            const acc = [];
+            acc.push(data.data.find((v:any) => v.name === 'ICICI Bank Account').id);
+            acc.push(data.data.find((v:any) => v.name === 'Petty cash').id);
+            setAccounts(acc);
         });
     }, [startDate, endDate, callAPI]);
 
