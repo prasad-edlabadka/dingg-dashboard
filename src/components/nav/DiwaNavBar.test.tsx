@@ -47,8 +47,8 @@ describe('DiwaNavBar component tests with different props', () => {
     //test case 4: check if DiwaNavBar component renders with correct navs when token is null
     test('DiwaNavBar component renders with no navs when token is null', () => {
         renderNav(navs, null);
-        const diwaNavBar = screen.getByTestId('navbar-parent');
-        expect(diwaNavBar).toBeEmptyDOMElement();
+        const diwaNavBar = screen.queryByTestId('navbar-parent');
+        expect(diwaNavBar).toBeNull();
     });
 
     //test case 5: check if DiwaNavBar component renders with correct navs when navOption is null

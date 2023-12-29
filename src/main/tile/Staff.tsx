@@ -15,7 +15,12 @@ export default function Staff() {
     const [endDate, setEndDate] = useState(new Date());
     const [startDate, setStartDate] = useState(new Date(endDate.getFullYear(), endDate.getMonth(), 1));
     const [loading, setLoading] = useState(false);
-    const [staffTargets, setStaffTargets] = useState({});
+    const [staffTargets, setStaffTargets] = useState([{
+    "total_sales": "0",
+    "employee": {
+        "id": 0,
+        "name": ""
+    }}]);
     const [calculatedTarget, setCalculatedTarget] = useState({});
 
     const defaultTarget = 100000;
@@ -44,17 +49,13 @@ export default function Staff() {
                 reportData.data.forEach((v: { employee: {name: string}; total_sales_achieved: number; }) => {
                     calculatedTarget[v.employee.name] = v.total_sales_achieved;
                 });
+                console.log(calculatedTarget);
                 setCalculatedTarget(calculatedTarget);
             });
         });
         
         const getTargets = (targetData: any) => {
-            const targets = targetData.data;
-            const targetMap: any = {};
-            targets.forEach((target: any) => {
-                targetMap[target.employee?.name || "Manager"] = target.total_sales;
-            });
-            return targetMap;
+            return targetData.data;
         }
 
     }, [startDate, endDate, callAPI]);
@@ -62,6 +63,10 @@ export default function Staff() {
     const refresh = () => {
         setDuration('current');
         setActiveButtonIndex(0);
+    }
+
+    const getTarget = (name: string) => {
+        return Number.parseFloat(staffTargets.find(v => v?.employee?.name.toLowerCase() === name.toLowerCase())?.total_sales || `${defaultTarget}` );
     }
 
     const date = new Date();
@@ -94,7 +99,8 @@ export default function Staff() {
             <DiwaButtonGroup buttons={buttons} state={buttonState} />
             {
                 reportData.data.map((val, index) => {
-                    const target = (staffTargets[val.stylist.trim() as keyof typeof staffTargets] || defaultTarget)
+                    
+                    const target = getTarget(val.stylist.trim());
                     const targetPercentage = Math.round(val["service price"] * 100 / target);
                     const targetNoDiscountPercentage = Math.round(val["service amount"] * 100 / target);
                     return (
@@ -103,9 +109,9 @@ export default function Staff() {
                                 <Col xs={7} className="align-bottom pe-0"><h4>{val.stylist}</h4></Col>
                                 <Col xs={5} className="text-end align-bottom text-white-50 ps-0">Target {currencyFormatter.format(target)}</Col>
                             </Row>
-                            <TargetProgress label="Without discount" value={val["service price"]} target={staffTargets[val.stylist.trim() as keyof typeof staffTargets]} percentAchieved={targetPercentage} />
-                            <TargetProgress label="With discount" value={val["service amount"]} target={staffTargets[val.stylist.trim() as keyof typeof staffTargets]} percentAchieved={targetNoDiscountPercentage} />
-                            <TargetProgress label="Dingg Calculated" value={calculatedTarget[val.stylist]} target={staffTargets[val.stylist.trim() as keyof typeof staffTargets]} percentAchieved={calculatePercentage(calculatedTarget[val.stylist], staffTargets[val.stylist.trim() as keyof typeof staffTargets])} />
+                            <TargetProgress label="Without discount" value={val["service price"]} target={target} percentAchieved={targetPercentage} />
+                            <TargetProgress label="With discount" value={val["service amount"]} target={target} percentAchieved={targetNoDiscountPercentage} />
+                            <TargetProgress label="Dingg Calculated" value={calculatedTarget[val.stylist]} target={target} percentAchieved={calculatePercentage(calculatedTarget[val.stylist], target)} />
                         </div>)
                 })
             }
