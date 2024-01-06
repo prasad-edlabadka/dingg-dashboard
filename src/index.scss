@@ -1,67 +1,4 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background: rgba(61,31,32,1) !important;
-  
-}
-
-#root {
-  background: rgba(61,31,32,1);
-}
-
-.bg {
-  z-index: -1;
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  background-size: contain;
-  background-repeat:space;
-  background: rgba(61,31,32,1);
-  // background: linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(80,40,42,1) 22%, rgba(75,38,40,1) 69%, rgba(0,0,0,1) 100%);
-  background-attachment: fixed;
-  background-position: center center;
-  //background-color: rgb(15, 13, 14);;
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
-
-@font-face {
-  font-family: 'Evergreen';
-  src: url(./fonts/Evergreen.otf);
-}
-
-@font-face {
-  font-family: 'Flama';
-  font-style: normal;
-  font-weight: normal;
-  src: local('Flama'), url('./fonts/Flama Regular.woff') format('woff');
-}
-
-
-@font-face {
-  font-family: 'Flama Italic';
-  font-style: normal;
-  font-weight: normal;
-  src: local('Flama Italic'), url('./fonts/Flama Italic.woff') format('woff');
-}
-
-
-@font-face {
-  font-family: 'Flama Bold Italic';
-  font-style: normal;
-  font-weight: normal;
-  src: local('Flama Bold Italic'), url('./fonts/Flama Bold Italic.woff') format('woff');
-}
-
+$diwa-color: rgb(219,120,121);
 $body-bg: rgb(15, 13, 14);
 $red: #C02826;
 $font-family-base: 'Flama';
@@ -78,6 +15,106 @@ $accordion-padding-x: 0rem;
 $input-color: white;
 
 @import '~bootstrap/scss/bootstrap.scss';
+
+@font-face {
+  font-family: 'Evergreen';
+  src: url(./fonts/Evergreen.otf);
+}
+
+@font-face {
+  font-family: 'Flama';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Flama'), url('./fonts/Flama Regular.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Flama Italic';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Flama Italic'), url('./fonts/Flama Italic.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Flama Bold Italic';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Flama Bold Italic'), url('./fonts/Flama Bold Italic.woff') format('woff');
+}
+
+:root {
+  @media (prefers-color-scheme: light) {
+    --diwa-bg-color: #eee;
+    --diwa-fg-color: #333;
+    --diwa-today-bg-color: var(--bs-dark-rgb);
+    --diwa-today-link-color: rgb(var(--bs-body-bg-rgb));
+    --diwa-accordion-open: url("data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill='%23000'%3e%3cpath fill-rule=%27evenodd%27 d=%27M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z%27/%3e%3c/svg%3e");
+    --diwa-accordion-close: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+    --diwa-accordion-border-color: rgba(0,0,0,0.125);
+    --diwa-file-button-color: var(--bs-primary);
+    --bill-item-icon: #cc9a06;
+    --text-color: var(--bs-dark);
+    --text-color-50: rgba(var(--bs-dark-rgb), 0.5);
+    --text-color-danger-50: rgba(var(--bs-danger-rgb), 1);
+    --diwa-border-color: var(--bs-list-group-border-color);
+    --input-bg-color: var(--bs-light);
+    --staff-bg-color: var(--bs-primary-rgb);
+    --diwa-danger-button: var(--bs-danger);
+    --diwa-success-button: var(--bs-success);
+  }
+  @media (prefers-color-scheme: dark) {
+    --diwa-bg-color: rgba(61,31,32,1) !important;
+    --diwa-fg-color: #FFF;
+    --diwa-today-bg-color: var(--bs-body-bg-rgb);
+    --diwa-today-link-color: rgba(var(--bs-primary-rgb), 0.9);
+    --diwa-accordion-color: fff;
+    --diwa-accordion-open: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+    --diwa-accordion-close: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+    --diwa-accordion-border-color: rgba(255,255,255,0.25);
+    --diwa-file-button-color: #333;
+    --bill-item-icon: rgb(255, 193, 7);
+    --text-color: var(--bs-light);
+    --text-color-50: rgba(var(--bs-light-rgb), 0.5);
+    --text-color-danger-50: rgba(var(--bs-light-rgb), 0.5);
+    --diwa-border-color: rgba(var(--bs-white-rgb), var(0.25));
+    --input-bg-color: var(--bs-dark);
+    --staff-bg-color: var(--bs-dark-rgb);
+    --diwa-danger-button: var(--bs-light);
+    --diwa-success-button: var(--bs-light);
+  }
+}
+
+body {
+  margin: 0;
+  font-family: 'Flama', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--diwa-bg-color) !important;
+  color: var(--diwa-fg-color) !important;
+}
+
+.bg {
+  z-index: -1;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-size: contain;
+  background-repeat:space;
+  background: var(--diwa-bg-color) !important;
+  background-attachment: fixed;
+  background-position: center center;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+
 
 .card-header {
   font-family: 'Flama' !important;
@@ -96,42 +133,6 @@ $input-color: white;
   border-bottom-color: rgba(225, 225, 225, 0.1);
   border-right-color: rgba(225, 225, 225, 0.1);
   border-radius: 1rem;
-  // height: 100%;
-}
-
-.card.bg-danger {
-  background-color: unset !important;
-  background: linear-gradient(to right bottom, rgba(var(--bs-danger-rgb), 0.6), rgba(var(--bs-danger-rgb), 0.4));
-}
-
-.card.bg-success {
-  background-color: unset !important;
-  background: linear-gradient(to right bottom, rgba(var(--bs-success-rgb), 0.6), rgba(var(--bs-success-rgb), 0.4));
-}
-
-.card.bg-primary {
-  background-color: unset !important;
-  background: linear-gradient(to right bottom, rgba(var(--bs-primary-rgb), 0.6), rgba(var(--bs-primary-rgb), 0.4));
-}
-
-.card.bg-warning {
-  background-color: unset !important;
-  background: linear-gradient(to right bottom, rgba(var(--bs-warning-rgb), 0.6), rgba(var(--bs-warning-rgb), 0.4));
-}
-
-.card.bg-dark {
-  background-color: unset !important;
-  background: linear-gradient(to right bottom, rgba(var(--bs-dark-rgb), 0.6), rgba(var(--bs-dark-rgb), 0.4));
-}
-
-.indigoBg {
-  background-color: unset !important;
-  background: linear-gradient(to right bottom, rgba(#6610f2, 0.6), rgba(#6610f2, 0.4)) !important;
-}
-
-.purpleBg {
-  background-color: unset !important;
-  background: linear-gradient(to right bottom, rgba(13, 110, 253, 0.6), rgba(13, 110, 253, 0.4));
 }
 
 .small {
@@ -140,10 +141,15 @@ $input-color: white;
 
 .today {
   background-color: unset !important;
-  background: linear-gradient(to right bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4));
+  background: linear-gradient(to right bottom, rgba(var(--diwa-today-bg-color), 0.6), rgba(var(--diwa-today-bg-color), 0.6));
   padding: 0.5rem;
-  border-radius: 1.2rem !important;
+  padding-top: 0.8rem;
+  border-radius: 1rem !important;
   padding-left: 1rem;
+}
+
+.today a {
+color: var(--diwa-today-link-color)
 }
 
 .today .btn {
@@ -160,15 +166,20 @@ $input-color: white;
 }
 
 .accordion-button.collapsed::after {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+  background-image: var(--diwa-accordion-close);
 }
 
 .accordion-button:not(.collapsed)::after {
-  background-image: url("data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill='%23fff'%3e%3cpath fill-rule=%27evenodd%27 d=%27M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z%27/%3e%3c/svg%3e");
+  background-image: var(--diwa-accordion-open);  
+}
+
+.accordion-button:not(.collapsed) {
+  border-bottom: 1px solid var(--diwa-accordion-border-color);
+  box-shadow: none;
 }
 
 input[type=file]::file-selector-button {
-  background-color: #333;
+  background-color: var(--diwa-file-button-color);  
 }
 
 .offcanvas-backdrop.show {
@@ -183,6 +194,42 @@ input[type=file]::file-selector-button {
 }
 
 .black-bg {
-  background: linear-gradient(to right bottom, rgba(var(--bs-dark-rgb), 0.5), rgba(var(--bs-dark-rgb), 0.3)) !important;
-  border: 1px solid #777 !important;
+  background: linear-gradient(to right bottom, rgba(var(--staff-bg-color), 0.5), rgba(var(--staff-bg-color), 0.3)) !important;
+  border: 1px solid rgba(var(--staff-bg-color),1) !important;
+}
+
+.bill-item-icon {
+  color: var(--bill-item-icon);
+}
+
+.text-color  {
+  color: var(--text-color) !important;
+}
+
+.text-color-50  {
+  color: var(--text-color-50) !important;
+}
+
+.text-color-danger-50  {
+  color: var(--text-color-danger-50) !important;
+}
+
+.border-color {
+  border-color: var(--diwa-border-color) !important;
+}
+
+input {
+  background-color: var(--input-bg-color) !important;
+  color: var(--text-color) !important;
+}
+
+.bg-color-diwa {
+  background-color: $diwa-color !important;
+  color: var(--bs-dark);
+}
+
+.translucent-navbar {
+  background-color: rgba(var(--input-bg-color),0.5) !important;
+  backdrop-filter: blur(1rem);
+  border-top: 1px solid var(--text-color-50) !important;
 }

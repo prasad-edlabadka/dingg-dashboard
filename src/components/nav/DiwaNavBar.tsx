@@ -3,16 +3,16 @@ import { Container, Nav, Navbar } from "react-bootstrap";
 import { TokenContext } from "../../App";
 
 function DiwaNavBar({ navs }: { navs: { name: string, icon: any, link: string, iconProps?: object, onClick?: any }[] }) {
-  const { token, navOption, setNavOption } = useContext(TokenContext);
+  const { token, navOption, setNavOption, darkMode } = useContext(TokenContext);
   return (
     <>
     {token !== null ?
-    <Navbar bg="dark" variant="dark" expand="lg" collapseOnSelect fixed="bottom" data-testid="navbar-parent">
+    <Navbar bg={darkMode?"secondary":"dark"} variant={darkMode?"ligh":"dark"} expand="lg" collapseOnSelect fixed="bottom" data-testid="navbar-parent" className="translucent-navbar">
         <Container>
           {navs.map((nav) => {
             return (
               <Nav.Link
-                className={`fs-5 text-center ${navOption === nav.name ? 'text-danger' : 'text-white'}`}
+                className={`fs-5 text-center ${navOption === nav.name ? 'text-danger' : 'text-color'}`}
                 key={nav.name}
                 href={`#${nav.name}`}
                 data-testid="nav-item"

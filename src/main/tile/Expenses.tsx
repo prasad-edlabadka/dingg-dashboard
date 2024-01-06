@@ -1,6 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { Accordion, Button, ButtonGroup, Col, Form, Offcanvas, Row } from "react-bootstrap";
-import { addDays, currencyFormatter, formatDate, formatDisplayDate, getStartOfFinanceMonthDate, getStartOfMonthDate } from "./Utility";
+import {currencyFormatter, formatDate, formatDisplayDate, getStartOfFinanceMonthDate, getStartOfMonthDate } from "./Utility";
+import { addDays } from "date-fns";
 import * as Icon from 'react-bootstrap-icons';
 import { TokenContext } from "../../App";
 import DiwaButtonGroup from "../../components/button/DiwaButtonGroup";
@@ -131,11 +132,11 @@ export default function Expenses() {
         <DiwaCard varient="danger" loadingTracker={loading}>
             <DiwaButtonGroup buttons={buttons} state={buttonState} />
             <div className="position-relative">
-                <h2>Monthly Expenses <p className="small mb-1">{formatDisplayDate(startDate)} to {formatDisplayDate(endDate)}</p><p className="small mb-0 text-white-50">Total: {currencyFormatter.format(total)}</p></h2>
+                <h2 className="text-color">Monthly Expenses <p className="small text-color-danger-50 mb-1">{formatDisplayDate(startDate)} to {formatDisplayDate(endDate)}</p><p className="small mb-0 text-color-50">Total: {currencyFormatter.format(total)}</p></h2>
                 <div className="position-absolute top-0 end-0" style={{ marginTop: -6 }}>
                     {/* <Button variant="danger" className="text-light" size="sm" onClick={() => handleShow()}>Add New Expense</Button> */}
-                    <Button variant="indigo" className="text-light" size="lg" onClick={() => handleShow()}><Icon.PlusLg /></Button>
-                    <Button variant="indigo" className="text-light" size="lg" onClick={() => refresh()}><Icon.ArrowClockwise /></Button>
+                    <Button variant="indigo" className="text-color" size="lg" onClick={() => handleShow()}><Icon.PlusLg /></Button>
+                    <Button variant="indigo" className="text-color" size="lg" onClick={() => refresh()}><Icon.ArrowClockwise /></Button>
                 </div>
                 <Offcanvas show={show} className="h-auto bg-dark text-white" placement="bottom" backdrop={true} scroll={false} keyboard={false} id="offcanvasBottom" onHide={handleClose}>
                     <Offcanvas.Header closeButton closeVariant="white"><h5>Add New Expense</h5></Offcanvas.Header>
@@ -216,21 +217,21 @@ export default function Expenses() {
                         <Accordion flush key={'expense' + index}>
                             <Accordion.Header className="w-100">
                                 <div className="w-100 pe-2 pb-1">
-                                    <div className="text-start d-inline h5">{keyName}</div>
-                                    <div className="text-end d-inline float-end"><p className="d-inline mb-0">{currencyFormatter.format(getTotal(val))}</p></div>
+                                    <div className="text-start d-inline h5 text-color">{keyName}</div>
+                                    <div className="text-end d-inline float-end text-color"><p className="d-inline mb-0">{currencyFormatter.format(getTotal(val))}</p></div>
                                 </div>
                             </Accordion.Header>
                             <Accordion.Body>
                                 <ul className="list-group list-group-flush">
                                     {
                                         val.map((item: { [x: string]: string; }, index2: number) => {
-                                            return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={keyName + 'item' + index2}>
+                                            return (<li className="list-group-item bg-transparent text-color border-color ps-0" key={keyName + 'item' + index2}>
                                                 <div className="w-100 pe-2 pb-2">
                                                     <div className="text-start d-inline h5">{currencyFormatter.format(Number(item["amount"]))}</div>
                                                     <div className="text-end d-inline float-end">{item["date"]}</div>
                                                 </div>
-                                                <p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{item["description"]}</p>
-                                                <p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>Given to {item["given to"]} by {item["Payment mode"]}</p>
+                                                <p className="small text-color-50 mb-0" style={{ marginTop: -4 }}>{item["description"]}</p>
+                                                <p className="small text-color-50 mb-0" style={{ marginTop: -4 }}>Given to {item["given to"]} by {item["Payment mode"]}</p>
                                             </li>
                                             )
                                         })

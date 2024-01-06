@@ -52,7 +52,7 @@ export default function Stock() {
     return (
         <DiwaCard varient="danger" loadingTracker={loading}>
             <div className="position-relative">
-                <h2>Products Low on Stock<p className="small text-white-50 mb-0">Estimated Total Cost: {currencyFormatter.format(total)}</p></h2>
+                <h2 className="text-color">Products Low on Stock<p className={`small text-color-danger-50 mb-0`}>Estimated Total Cost: {currencyFormatter.format(total)}</p></h2>
                 <DiwaRefreshButton refresh={() => refresh()} />
             </div>
             {
@@ -61,8 +61,8 @@ export default function Stock() {
                         <Accordion flush key={'stockitem' + index}>
                             <Accordion.Header className="w-100">
                                 <div className="w-100 pe-2 pb-2">
-                                    <div className="text-start d-inline h5">{val.name}</div>
-                                    <div className="text-end d-inline float-end">{val.items.length} items <p className="d-inline small text-white-50 mb-0">({currencyFormatter.format(val.itemsTotal)})</p></div>
+                                    <div className="text-start d-inline h5 text-color">{val.name}</div>
+                                    <div className="text-end d-inline float-end text-color">{val.items.length} items <p className="d-inline small mb-0 text-color-50">({currencyFormatter.format(val.itemsTotal)})</p></div>
                                 </div>
 
                             </Accordion.Header>
@@ -70,8 +70,8 @@ export default function Stock() {
                                 <ul className="list-group list-group-flush">
                                     {
                                         val.items.map((item, index2) => {
-                                            return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={val.name + 'item' + index2}>
-                                                {item.name}<p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{item.quantity} available in stock. Minimum {Number(item.low_qty) + 1} should be ordered.</p><p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>Cost: {currencyFormatter.format(item.cost)}</p></li>
+                                            return (<li className="list-group-item bg-transparent text-color border-color ps-0" key={val.name + 'item' + index2}>
+                                                {item.name}<p className="small text-color-danger-50 mb-0" style={{ marginTop: -4 }}>{item.quantity} available in stock. Minimum {Number(item.low_qty) + 1} should be ordered.</p><p className={`small text-color-50 mb-0`} style={{ marginTop: -4 }}>Cost: {currencyFormatter.format(item.cost)}</p></li>
                                             )
                                         })
                                     }

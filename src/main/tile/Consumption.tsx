@@ -9,7 +9,7 @@ import DiwaRefreshButton from "../../components/button/DiwaRefreshButton";
 export default function Consumption() {
     const [reportData, setReportData] = useState({});
     const [loading, setLoading] = useState(true);
-    const { callAPI } = useContext(TokenContext)
+    const { callAPI } = useContext(TokenContext);
 
     useEffect(() => {
         loadData();
@@ -51,16 +51,16 @@ export default function Consumption() {
                         <Accordion flush key={'consumptionitem' + index}>
                             <Accordion.Header className="w-100">
                                 <div className="w-100 pe-2 pb-2">
-                                    <div className="text-start d-inline h5">{keyName}</div>
-                                    <div className="text-end d-inline float-end">{val.length} items</div>
+                                    <div className="text-start d-inline h5 text-color">{keyName}</div>
+                                    <div className="text-end d-inline float-end text-color">{val.length} items</div>
                                 </div>
                             </Accordion.Header>
                             <Accordion.Body>
                                 <ul className="list-group list-group-flush">
                                     {
                                         val.map((item: { [x: string]: string }, index2: string) => {
-                                            return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={keyName + 'item' + index2}>
-                                                {item["product name"]}<p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{item["consumed"]} of {item["total volume"]} consumed. {item["status"] === "CONSUMED" ? `It is fully consumed. Cost: ${currencyFormatter.format(Number(item["purchase price"]))}` : ""}</p></li>
+                                            return (<li className="list-group-item bg-transparent text-color border-color ps-0" key={keyName + 'item' + index2}>
+                                                {item["product name"]}<p className="small text-color-50 mb-0" style={{ marginTop: -4 }}>{item["consumed"]} of {item["total volume"]} consumed. {item["status"] === "CONSUMED" ? `It is fully consumed. Cost: ${currencyFormatter.format(Number(item["purchase price"]))}` : ""}</p></li>
                                             )
                                         })
                                     }

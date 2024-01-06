@@ -1,21 +1,24 @@
 import { Col, Row } from "react-bootstrap";
 import { currencyFormatter } from "../Utility";
+import { TokenContext } from "../../../App";
+import { useContext } from "react";
 
 export default function BillItem({uniqueKey, name, employee, amount, discount, Icon, iconProps}: { uniqueKey: string, name: string, employee: string, amount: number, discount: number, Icon: any, iconProps?: object }) {
+    const {darkMode} = useContext(TokenContext);
     return (
-        <li className="list-group-item bg-transparent text-light border-white ps-0" key={uniqueKey}>
+        <li className={`list-group-item bg-transparent text-${darkMode?"dark":"light"} border-${darkMode?"secondary":"light"} ps-0`} key={uniqueKey}>
             <Row>
                 <Col xs={1}><Icon {...iconProps} /></Col>
                 <Col xs={11} className="ps-2">
                     <span>{name}</span>
-                 <p className="small text-white-50 mb-0" style={{ marginTop: -3}}>
+                 <p className={`small text-${darkMode?"black":"white"}-50 mb-0`} style={{ marginTop: -3}}>
                     {(employee !== "") && employee}
-                    {(employee !== "") && <span className="text-white">&nbsp;&nbsp;|&nbsp;&nbsp;</span>}
+                    {(employee !== "") && <span className={`text-${darkMode?"black":"white"}`}>&nbsp;&nbsp;|&nbsp;&nbsp;</span>}
                     {currencyFormatter.format(amount)}
-                    {(discount !== 0) && <span className="text-white">&nbsp;&nbsp;|&nbsp;&nbsp;</span>}
+                    {(discount !== 0) && <span className={`text-${darkMode?"black":"white"}`}>&nbsp;&nbsp;|&nbsp;&nbsp;</span>}
                     {(discount !== 0) && (100 - Math.round((amount - discount)*100/amount))}
                     {(discount !== 0) && "% Off"}
-                    {(discount !== 0) && <span className="text-white">&nbsp;&nbsp;|&nbsp;&nbsp;</span>}
+                    {(discount !== 0) && <span className={`text-${darkMode?"black":"white"}`}>&nbsp;&nbsp;|&nbsp;&nbsp;</span>}
                     {(discount !== 0) && currencyFormatter.format(amount - discount)}
                 </p>
                 </Col>

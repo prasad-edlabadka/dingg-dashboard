@@ -107,7 +107,7 @@ export default function Staff() {
                         <div key={'staff' + index} className="mt-3 pt-2 pb-2 rounded black-bg">
                             <Row className="ps-2 pe-2 align-bottom">
                                 <Col xs={7} className="align-bottom pe-0"><h4>{val.stylist}</h4></Col>
-                                <Col xs={5} className="text-end align-bottom text-white-50 ps-0">Target {currencyFormatter.format(target)}</Col>
+                                <Col xs={5} className="text-end align-bottom text-color-50 ps-0">Target {currencyFormatter.format(target)}</Col>
                             </Row>
                             <TargetProgress label="Without discount" value={val["service price"]} target={target} percentAchieved={targetPercentage} />
                             <TargetProgress label="With discount" value={val["service amount"]} target={target} percentAchieved={targetNoDiscountPercentage} />

@@ -87,14 +87,7 @@ export function getStartOfFinanceMonth(dt: Date): string {
 }
 
 export function getStartOfFinanceMonthDate(dt: Date): Date {
-  //if current date is before 10th, get previous month's 10th else get current month's 10th
-  const date = new Date(dt);
-  const day = date.getDate();
-  const month = date.getMonth();
-  const year = date.getFullYear();
-  const financeMonth = day < 10 ? month - 1 : month;
-  const financeYear = financeMonth < 0 ? year - 1 : year;
-  return new Date(financeYear, financeMonth, 10);
+  return new Date(dt.getFullYear(), dt.getDate() > 9 ? dt.getMonth() : dt.getMonth() - 1, 10)
 }
 
 export function formatTime(dt: Date): string {
@@ -108,13 +101,6 @@ export function getFirstDayOfWeek(d: Date) {
   const day = date.getDay();
   const diff = date.getDate() - day + (day === 0 ? -6 : 1);
   return new Date(date.setDate(diff));
-}
-
-
-export function addDays(dt: Date, days: number): Date {
-  let retDate = new Date(dt);
-  const result = retDate.setDate(retDate.getDate() + days);
-  return new Date(result);
 }
 
 export function formatDisplayDate(d: Date) {

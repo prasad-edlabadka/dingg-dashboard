@@ -48,7 +48,7 @@ function DinggLogin() {
                                 <Form.Label>Password</Form.Label>
                                 <Form.Control type="password" placeholder="Password" ref={passwordRef} />
                             </Form.Group>
-                            <Button variant="primary" type="button" className="bg-danger border-0" onClick={handleClick} disabled={loading}>{loading?"Please wait...":"Login"}</Button>
+                            <Button variant="primary" type="button" className="bg-danger border-0 bg-color-diwa" onClick={handleClick} disabled={loading}>{loading?"Please wait...":"Login"}</Button>
                             {error === ""?"":<p className="text-danger">{error}</p>}
                         </Form>
                     </DiwaCard>
@@ -58,7 +58,7 @@ function DinggLogin() {
                 <Image src={logo} fluid  className="mt-4 d-block mx-auto" style={{maxWidth: '60%'}}/>
             </Row>
             <Row className="mt-4">
-                <p className="small text-white text-center">&copy; 2023, All Rights Reserverd.</p>
+                <p className="small text-color text-center">&copy; 2023, All Rights Reserverd.</p>
             </Row>
         </div>
     )

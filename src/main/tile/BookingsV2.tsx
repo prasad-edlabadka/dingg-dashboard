@@ -404,7 +404,7 @@ export default function BookingsV2() {
                                                         amount={service.price * service.qty}
                                                         discount={service.discount}
                                                         Icon={FontAwesomeIcon}
-                                                        iconProps={{ icon: faSpa, className: "text-warning" }} />
+                                                        iconProps={{ icon: faSpa, className: "bill-item-icon" }} />
                                                 )}
                                                 {booking.products.map((prod, index) =>
                                                     <BillItem
@@ -415,7 +415,7 @@ export default function BookingsV2() {
                                                         amount={prod.price}
                                                         discount={prod.discount}
                                                         Icon={Icon.BoxSeam}
-                                                        iconProps={{ style: { marginTop: -4 }, color: "gold" }} />
+                                                        iconProps={ { className:"bill-item-icon", style: { marginTop: -4 } }} />
                                                 )}
 
                                                 {booking.packages !== null ?
@@ -427,7 +427,7 @@ export default function BookingsV2() {
                                                         amount={booking.packages.price}
                                                         discount={booking.packages.discount}
                                                         Icon={Icon.UiChecksGrid}
-                                                        iconProps={{ style: { marginTop: -4 }, color: "gold" }} />
+                                                        iconProps={ { className:"bill-item-icon", style: { marginTop: -4 } }} />
                                                     : ''
                                                 }
                                                 {booking.memberships !== null ?
@@ -439,7 +439,7 @@ export default function BookingsV2() {
                                                         amount={booking.memberships.price}
                                                         discount={booking.memberships.discount}
                                                         Icon={Icon.StarFill}
-                                                        iconProps={{ style: { marginTop: -4 }, color: "gold" }} />
+                                                        iconProps={ { className:"bill-item-icon", style: { marginTop: -4 } }} />
                                                     : ''
                                                 }
                                                 {booking.vouchers.map((voucher, index) =>
@@ -451,7 +451,7 @@ export default function BookingsV2() {
                                                         amount={voucher.price}
                                                         discount={voucher.discount}
                                                         Icon={FontAwesomeIcon}
-                                                        iconProps={{ icon: faTicket, className: "text-warning" }} />
+                                                        iconProps={{ icon: faTicket, className: "bill-item-icon" }} />
                                                 )}
 
                                                 {booking.tips.map((tip, index) =>
@@ -463,7 +463,7 @@ export default function BookingsV2() {
                                                         amount={tip.suggested_amount}
                                                         discount={0}
                                                         Icon={FontAwesomeIcon}
-                                                        iconProps={{ icon: faMoneyBill1, className: "text-warning" }} />
+                                                        iconProps={{ icon: faMoneyBill1, className: "bill-item-icon" }} />
                                                 )}
 
                                             </ul>
@@ -496,8 +496,8 @@ export default function BookingsV2() {
                                         <h3>{booking.customerName} ({currencyFormatter.format(booking.billAmount)})</h3>
                                         <ul className="list-group list-group-flush">
                                             {booking.services.map(service => {
-                                                return (<li className="list-group-item bg-transparent text-light border-white ps-0" key={booking.customerName + service.name}>
-                                                    {service.name}<p className="small text-white-50 mb-0" style={{ marginTop: -4 }}>{service.employee}</p>
+                                                return (<li className="list-group-item bg-transparent text-color border-color ps-0" key={booking.customerName + service.name}>
+                                                    {service.name}<p className="small text-color-50 mb-0" style={{ marginTop: -4 }}>{service.employee}</p>
                                                 </li>);
                                             })
                                             }

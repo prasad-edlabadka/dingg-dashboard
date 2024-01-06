@@ -18,9 +18,10 @@ interface ITokenContext {
   setNavOption: any;
   callAPI: (url: string, cb: any) => void;
   callPOSTAPI: (url: string, data: any, cb: any) => void;
+  darkMode: boolean;
 }
 
-const TokenContext = React.createContext<ITokenContext>({ token: null, employeeName: null, location: null, setEmployeeName: () => {}, setLocation: () => {}, updateToken: () => {}, navOption: '', setNavOption: () => {}, callAPI: () => {}, callPOSTAPI: () => {}});
+const TokenContext = React.createContext<ITokenContext>({ token: null, employeeName: null, location: null, setEmployeeName: () => {}, setLocation: () => {}, updateToken: () => {}, navOption: '', setNavOption: () => {}, callAPI: () => {}, callPOSTAPI: () => {}, darkMode: false});
 
 function App() {
 
@@ -74,8 +75,15 @@ function App() {
   const callPOSTAPI2 = (url: string, data: object, cb: any) => {
     callPOSTAPI(url, data, token, setToken, cb);
   }
+
+  const [darkMode, setDarkMode] = useState(!window.matchMedia('(prefers-color-scheme: dark)').matches);
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+        console.log("Dark mode is " + (e.matches ? "on" : "off"));
+        setDarkMode(!e.matches);
+    });
+
   return (
-    <TokenContext.Provider value={{ token, employeeName, location: locationName, setEmployeeName: setEmpName, setLocation, updateToken, navOption, setNavOption, callAPI: callGetAPI, callPOSTAPI: callPOSTAPI2 }}>
+    <TokenContext.Provider value={{ token, employeeName, location: locationName, setEmployeeName: setEmpName, setLocation, updateToken, navOption, setNavOption, callAPI: callGetAPI, callPOSTAPI: callPOSTAPI2, darkMode: darkMode }}>
       <div  {...handlers}>
         <DinggNav />
         <Main />

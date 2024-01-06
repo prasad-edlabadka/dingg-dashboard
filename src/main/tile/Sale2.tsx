@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react";
-import { addDays, currencyFormatter, formatDate, formatDisplayDate, formatWeekDay, getFirstDayOfWeek } from "./Utility";
+import {currencyFormatter, formatDate, getFirstDayOfWeek } from "./Utility";
+import {addDays, isAfter, endOfDay, endOfMonth, subMonths, startOfMonth, addMonths, subDays, format } from 'date-fns';
 import { TokenContext } from "../../App";
 import DiwaButtonGroup from "../../components/button/DiwaButtonGroup";
 import DiwaCard from "../../components/card/DiwaCard";
@@ -8,16 +9,24 @@ import SaleRow from "./sale/SaleRow";
 import DataPoint from "./sale/DataPoint";
 import MultiRowDataPoint from "./sale/MultiRowDataPoint";
 import { Col, Row } from "react-bootstrap";
+import DiwaPaginationButton from "../../components/button/DiwaPaginationButton";
 
 export default function Sale2() {
     const { callAPI } = useContext(TokenContext);
-    const dataStructure = { price: -1, discount: -1, tax: -1, woTax: -1, total: -1, start: "", end: "" };
+    const dataStructure = { price: -1, discount: -1, tax: -1, woTax: -1, total: -1, start: "Loading...", end: "Loading..." };
+    const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
     const [statsLoading, setStatsLoading] = useState(true);
     const [displaySale, setDisplaySale] = useState(dataStructure);
     const [displayPreviousSale, setDisplayPreviousSale] = useState(dataStructure);
     const [displayVariation, setDisplayVariation] = useState(dataStructure);
     const [displaySubDuration, setDisplaySubDuration] = useState(new Date().toLocaleDateString());
+
+    const [today, setToday] = useState(new Date());
+    const [weekStart, setWeekStart] = useState(getFirstDayOfWeek(today));
+    const [monthStart, setMonthStart] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
+    const [finMonthStart, setFinMonthStart] = useState(new Date(today.getFullYear(), today.getDate() > 9 ? today.getMonth() : today.getMonth() - 1, 10));
+
     const [todayData, setTodayData] = useState(dataStructure);
     const [yesterdayData, setYesterdayData] = useState(dataStructure);
     const [currentWeekData, setCurrentWeekData] = useState(dataStructure);
@@ -38,38 +47,79 @@ export default function Sale2() {
         }
     );
 
+    const buttonState = useState(0);
+    const [activeButtonState, setActiveButtonState] = buttonState;
+
     useEffect(() => {
         loadData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [activeButtonState, reload]);
 
     const loadData = () => {
-        const today = new Date();
+        setLoading(true)
+        console.log(`Load data called with button index ${activeButtonState}`);
+        // const today = new Date();
         const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
-        const startOfTheWeek = getFirstDayOfWeek(today);
+
+        const startOfTheWeek = weekStart;
+        const endOfTheWeek = isAfter(addDays(startOfTheWeek, 6), endOfDay(new Date()))? endOfDay(new Date()) : addDays(startOfTheWeek, 6);
         const startOfPrevWeek = addDays(startOfTheWeek, -7);
         const endOfPrevWeek = addDays(startOfPrevWeek, 6);
-        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-        const startOfPrevMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-        const endOfPrevMonth = addDays(new Date(today.getFullYear(), today.getMonth(), 1), -1);
-        const startOfFinMonth = new Date(today.getFullYear(), today.getDate() > 9 ? today.getMonth() : today.getMonth() - 1, 10);
-        const startOfPrevFinMonth = new Date(today.getFullYear(), today.getDate() > 9 ? today.getMonth() - 1 : today.getMonth() - 2, 10);
-        const endOfPrevFinMonth = new Date(today.getFullYear(), today.getDate() > 9 ? today.getMonth() : today.getMonth() - 1, 9);
 
-        getReportForDateRange(today, today, (data) => {
-            setTodayData(data);
-            getReportForDateRange(yesterday, yesterday, (data2) => {
-                setYesterdayData(data2);
-                calculateToday(data, data2);
-                setLoading(false);
-                getReportForDateRange(startOfTheWeek, today, setCurrentWeekData);
-                getReportForDateRange(startOfPrevWeek, endOfPrevWeek, setPreviousWeekData);
-                getReportForDateRange(startOfMonth, today, setCurrentMonthData);
-                getReportForDateRange(startOfPrevMonth, endOfPrevMonth, setPreviousMonthData);
-                getReportForDateRange(startOfFinMonth, today, setCurrentFinMonthData);
-                getReportForDateRange(startOfPrevFinMonth, endOfPrevFinMonth, setPreviousFinMonthData);
+        const startOfTheMonth = monthStart
+        const endOfTheMonth = isAfter(endOfMonth(monthStart), endOfDay(new Date()))? endOfDay(new Date()): endOfMonth(monthStart);
+        const startOfPrevMonth = startOfMonth(subMonths(startOfTheMonth, 1));
+        const endOfPrevMonth = endOfMonth(startOfPrevMonth);
+
+        const startOfFinMonth = finMonthStart;
+        const endOfFinMonth = isAfter(subDays(addMonths(finMonthStart, 1),1), endOfDay(new Date()))? endOfDay(new Date()): subDays(addMonths(finMonthStart, 1),1);
+        const startOfPrevFinMonth = subMonths(finMonthStart, 1);
+        const endOfPrevFinMonth = subDays(addMonths(startOfPrevFinMonth, 1),1)
+
+        console.log(activeButtonState);
+        if (activeButtonState === 0) {
+            getReportForDateRange(today, today, (data) => {
+                setTodayData(data);
+                getReportForDateRange(yesterday, yesterday, (data2) => {
+                    setYesterdayData(data2);
+                    calculateToday(data, data2);
+                    setLoading(false);
+                });
             });
-        });
+        }
+
+        if (activeButtonState === 1) {
+            getReportForDateRange(startOfTheWeek, endOfTheWeek, (data) => {
+                setCurrentWeekData(data);
+                getReportForDateRange(startOfPrevWeek, endOfPrevWeek, (data2) => {
+                    setPreviousWeekData(data2);
+                    calculateWeek(data, data2);
+                    setLoading(false);
+                });
+            });
+        }
+
+        if (activeButtonState === 2) {
+            getReportForDateRange(startOfFinMonth, endOfFinMonth, (data) => {
+                setCurrentFinMonthData(data);
+                getReportForDateRange(startOfPrevFinMonth, endOfPrevFinMonth, (data2) => {
+                    setPreviousFinMonthData(data2);
+                    calculateFinMonth(data, data2);
+                    setLoading(false);
+                });
+            });
+        }
+
+        if (activeButtonState === 3) {
+            getReportForDateRange(startOfTheMonth, endOfTheMonth, (data) => {
+                setCurrentMonthData(data);
+                getReportForDateRange(startOfPrevMonth, endOfPrevMonth, (data2) => {
+                    setPreviousMonthData(data2);
+                    calculateCalendarMonth(data, data2);
+                    setLoading(false);
+                });
+            });
+        }
     }
 
     const getStatsReport = (start1: Date, end1: Date, start2: Date, end2: Date) => {
@@ -125,32 +175,12 @@ export default function Sale2() {
     }
 
     const refresh = () => {
-        setDisplaySale(dataStructure);
-        setLoading(true);
-        loadData();
+        setReload(!reload);
     }
 
-
+    const buttonSequence = ["day", "week", "fin_month", "cal_month"];
     const setDuration = (duration: string) => {
-        switch (duration) {
-            case "day":
-                calculateToday(todayData, yesterdayData);
-                break;
-            case "week":
-                calculateWeek();
-                break;
-            case "month":
-                calculateMonth();
-                break;
-            case "cal_month":
-                calculateCalendarMonth();
-                break;
-            default:
-                setDisplaySale(dataStructure);
-                setDisplayPreviousSale(dataStructure);
-                setDisplayVariation(dataStructure);
-                break;
-        }
+        setActiveButtonState(buttonSequence.indexOf(duration));
     }
 
     const getVariation = (current: { price: number; discount: number; tax: number; woTax: number; total: number; start: string; end: string; }, previous: { price: number; discount: number; tax: number; woTax: number; total: number; start: string; end: string; }) => {
@@ -165,42 +195,98 @@ export default function Sale2() {
         };
     }
 
-    const calculateToday = (todayDataFromAPI: { price: number; discount: number; tax: number; woTax: number; total: number; start: string; end: string; }, yesterdayDataFromAPI: { price: number; discount: number; tax: number; woTax: number; total: number; start: string; end: string; }) => {
-        setDisplaySale(todayDataFromAPI);
-        setDisplayPreviousSale(yesterdayDataFromAPI);
-        setDisplayVariation(getVariation(todayDataFromAPI, yesterdayDataFromAPI));
-        setDisplaySubDuration(formatDisplayDate(new Date()));
+    const calculateToday = (todayDataFromAPI = todayData, yesterdayDataFromAPI = yesterdayData) => {
         getStatsReport(new Date(todayDataFromAPI.start), new Date(todayDataFromAPI.end), new Date(yesterdayDataFromAPI.start), new Date(yesterdayDataFromAPI.end));
+        setDisplay(todayDataFromAPI, yesterdayDataFromAPI);
     }
 
-    const calculateWeek = () => {
-        setDisplaySale(currentWeekData);
-        setDisplayPreviousSale(previousWeekData);
-        setDisplayVariation(getVariation(currentWeekData, previousWeekData));
-        setDisplaySubDuration(formatWeekDay(new Date(currentWeekData.start)) + " to " + formatWeekDay(new Date(currentWeekData.end)));
-        getStatsReport(new Date(currentWeekData.start), new Date(currentWeekData.end), new Date(previousWeekData.start), new Date(previousWeekData.end));
+    const calculateWeek = (cw = currentWeekData, pw = previousWeekData) => {
+        getStatsReport(new Date(cw.start), new Date(cw.end), new Date(pw.start), new Date(pw.end));
+        setDisplay(cw, pw);
     }
 
-    const calculateMonth = () => {
-        setDisplaySale(currentFinMonthData);
-        setDisplayPreviousSale(previousFinMonthData);
-        setDisplayVariation(getVariation(currentFinMonthData, previousFinMonthData));
-        setDisplaySubDuration(formatDisplayDate(new Date(currentFinMonthData.start)) + " to " + formatDisplayDate(new Date(currentFinMonthData.end)));
-        getStatsReport(new Date(currentFinMonthData.start), new Date(currentFinMonthData.end), new Date(previousFinMonthData.start), new Date(previousFinMonthData.end));
+    const calculateFinMonth = (cm = currentFinMonthData, pm = previousFinMonthData) => {
+        getStatsReport(new Date(cm.start), new Date(cm.end), new Date(pm.start), new Date(pm.end));
+        setDisplay(cm, pm);
     }
 
-    const calculateCalendarMonth = () => {
-        setDisplaySale(currentMonthData);
-        setDisplayPreviousSale(previousMonthData);
-        setDisplayVariation(getVariation(currentMonthData, previousMonthData));
-        setDisplaySubDuration(formatDisplayDate(new Date(currentMonthData.start)) + " to " + formatDisplayDate(new Date(currentMonthData.end)));
-        getStatsReport(new Date(currentMonthData.start), new Date(currentMonthData.end), new Date(previousMonthData.start), new Date(previousMonthData.end));
+    const calculateCalendarMonth = (cm = currentMonthData, pm = previousMonthData) => {
+        getStatsReport(new Date(cm.start), new Date(cm.end), new Date(pm.start), new Date(pm.end));
+        setDisplay(cm, pm);
+    }
+
+    const setDisplay = (cd: any, pd: any): void => {
+        setDisplaySale(cd);
+        setDisplayPreviousSale(pd);
+        setDisplayVariation(getVariation(cd, pd));
+        const formatStr = activeButtonState === 0 ? ["dd-MMM (EEEE)"] : activeButtonState === 1 ? ["dd-MMM (EEE)", "dd-MMM (EEE)"] : ["dd-MMM-yyyy", "dd-MMM-yyyy"];
+        setDisplaySubDuration(format(cd.start, formatStr[0]) + (formatStr[1]? " to " + format(cd.end, formatStr[1]): ""));
+    }
+
+    const previous = () => {
+        switch (activeButtonState) {
+            case 0:
+                setToday(addDays(today, -1));
+                break;
+            case 1:
+                setWeekStart(addDays(weekStart, -7));
+                break;
+            case 2:
+                setFinMonthStart(new Date(finMonthStart.getFullYear(), finMonthStart.getMonth() - 1, 10));
+                break;
+            case 3:
+                setMonthStart(new Date(monthStart.getFullYear(), monthStart.getMonth() - 1, 1));
+                break;
+            default:
+                break;
+        }
+        setReload(!reload);
+    }
+
+    const next = () => {
+        switch (activeButtonState) {
+            case 0:
+                setToday(addDays(today, 1));
+                break;
+            case 1:
+                setWeekStart(addDays(weekStart, 7));
+                break;
+            case 2:
+                setFinMonthStart(new Date(finMonthStart.getFullYear(), finMonthStart.getMonth() + 1, 10));
+                break;
+            case 3:
+                setMonthStart(new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 1));
+                break;
+            default:
+                break;
+        }
+        setReload(!reload);
+    }
+
+    const current = () => {
+        switch (activeButtonState) {
+            case 0:
+                setToday(new Date());
+                break;
+            case 1:
+                setWeekStart(getFirstDayOfWeek(new Date()));
+                break;
+            case 2:
+                setFinMonthStart(new Date(today.getFullYear(), today.getDate() > 9 ? today.getMonth() : today.getMonth() - 1, 10));
+                break;
+            case 3:
+                setMonthStart(new Date(today.getFullYear(), today.getMonth(), 1));
+                break;
+            default:
+                break;
+        }
+        setReload(!reload);
     }
 
     const buttons = [
         { title: "Today", onClick: () => setDuration('day') },
         { title: "Week", onClick: () => setDuration('week') },
-        { title: "Finance Month", onClick: () => setDuration('month') },
+        { title: "Finance Month", onClick: () => setDuration('fin_month') },
         { title: "Calendar Month", onClick: () => setDuration('cal_month') }
     ];
 
@@ -220,7 +306,7 @@ export default function Sale2() {
         { title1: "Revenue from", value1: currencyFormatter.format(reportData.new_cust_time_one.new_customer_rev), title2: "New Customers", value2: reportData.new_cust_time_one.new_customer },
         { title1: "Revenue from", value1: currencyFormatter.format(reportData.new_cust_time_one.existing_customer_rev), title2: "Exising Customers", value2: reportData.new_cust_time_one.existing_customer },
     ]
-    const buttonState = useState(0);
+
     return (
         <>
             <Row>
@@ -234,6 +320,7 @@ export default function Sale2() {
                         {/* <SaleRow title="Tax" current={displaySale.tax} previous={displayPreviousSale.tax} variation={displayVariation.tax} primary={false} />
                         <SaleRow title="After Tax" current={displaySale.woTax} previous={displayPreviousSale.woTax} variation={displayVariation.woTax} primary={false} /> */}
                         <p></p>
+                        <DiwaPaginationButton previous={previous} current={current} next={next} />
                     </DiwaCard>
                 </Col>
 

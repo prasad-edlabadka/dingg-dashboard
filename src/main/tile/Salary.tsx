@@ -250,7 +250,7 @@ export default function Salary() {
     return (
         <DiwaCard varient={"primary"} loadingTracker={false}>
             <Form.Group controlId="formFile" className="mb-3">
-                <Form.Label>Choose Attendance File</Form.Label>
+                <Form.Label className="text-color">Choose Attendance File</Form.Label>
                 <Form.Control type="file" onChange={(e) => { loadFile((e.target as HTMLInputElement).files) }} />
             </Form.Group>
             {loading ? '' : <><h3>Salary Calculation for {reportInfo.month} {reportInfo.year}<p className="small text-white-50">Total: {currencyFormatter.format(reportData.reduce((v: any, current) => v + current.pay, 0))}</p></h3>
