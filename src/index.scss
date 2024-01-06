@@ -61,6 +61,7 @@ $input-color: white;
     --staff-bg-color: var(--bs-primary-rgb);
     --diwa-danger-button: var(--bs-danger);
     --diwa-success-button: var(--bs-success);
+    --popup-bg-color: var(--bs-light-rgb);
   }
   @media (prefers-color-scheme: dark) {
     --diwa-bg-color: rgba(61,31,32,1) !important;
@@ -81,6 +82,7 @@ $input-color: white;
     --staff-bg-color: var(--bs-dark-rgb);
     --diwa-danger-button: var(--bs-light);
     --diwa-success-button: var(--bs-light);
+    --popup-bg-color: var(--bs-dark-rgb);
   }
 }
 
@@ -189,7 +191,7 @@ input[type=file]::file-selector-button {
 }
 
 .offcanvas {
-  background: linear-gradient(to right bottom, rgba(var(--bs-dark-rgb), 0.8), rgba(var(--bs-dark-rgb), 0.6)) !important;
+  background-color: rgba(var(--popup-bg-color), 0.7) !important;
   border: 1px solid #777 !important;
 }
 
@@ -216,6 +218,10 @@ input[type=file]::file-selector-button {
 
 .border-color {
   border-color: var(--diwa-border-color) !important;
+}
+
+.background-color {
+  background-color: var(--input-bg-color) !important;
 }
 
 input {
