@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { Col, OverlayTrigger, ProgressBar, Row, Tooltip, Offcanvas } from "react-bootstrap";
 import { currencyFormatter, formatDate, getLastMonth } from "./Utility";
+import { subDays } from 'date-fns';
 import { TokenContext } from "../../App";
 import DiwaButtonGroup from "../../components/button/DiwaButtonGroup";
 import DiwaCard from "../../components/card/DiwaCard";
@@ -13,13 +14,16 @@ export default function PaymentMethods() {
     const [dayReportData, setDayReportData] = useState({ data: [{ total: 0, "payment mode": "", count: 0 }] });
     const [dayTotal, setDayTotal] = useState(-1);
     const buttonState = useState(0);
+    const todayButtonState = useState(0);
     const [, setActiveButtonIndex] = buttonState;
+    const [, setTodaysButtonIndex] = todayButtonState;
     const [endDate, setEndDate] = useState(new Date());
     const [startDate, setStartDate] = useState(new Date(endDate.getFullYear(), endDate.getMonth(), 1));
     const [loading, setLoading] = useState(true);
     const [show, setShow] = useState(false);
     const [paymentTypes, setPaymentTypes] = useState([{ name: "", value: 0 }]);
     const [todaysBills, setTodaysBills] = useState([{ user: { fname: "", lname: "" }, bill_payments: [{ payment_mode: 0, amount: 0 }] }]);
+    const [singleDate, setSingleDate] = useState(new Date());
 
     useEffect(() => {
         setLoading(true);
@@ -30,7 +34,7 @@ export default function PaymentMethods() {
             });
             setReportData(data);
             setTotal(calculateToday(data));
-            const dayApiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${formatDate(new Date())}&report_type=by_payment_mode&end_date=${formatDate(new Date())}&app_type=web`
+            const dayApiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${formatDate(singleDate)}&report_type=by_payment_mode&end_date=${formatDate(singleDate)}&app_type=web`
             callAPI(dayApiURL, (dayData: any) => {
                 dayData.data = dayData.data.sort((a: any, b: any) => {
                     return b.total - a.total;
@@ -46,8 +50,7 @@ export default function PaymentMethods() {
             setPaymentTypes(data.data);
         });
 
-        //https://api.dingg.app/api/v1/vendor/bills?web=true&page=1&limit=1000&start=2024-01-06&end=2024-01-06&term=&is_product_only=
-        const todaysBillsURL = `https://api.dingg.app/api/v1/vendor/bills/?web=true&page=1&limit=1000&start=${formatDate(new Date())}&end=${formatDate(new Date())}&term=&is_product_only=`;
+        const todaysBillsURL = `https://api.dingg.app/api/v1/vendor/bills/?web=true&page=1&limit=1000&start=${formatDate(singleDate)}&end=${formatDate(singleDate)}&term=&is_product_only=`;
         callAPI(todaysBillsURL, (data: any) => {
             setTodaysBills(data.data);
         });
@@ -60,13 +63,15 @@ export default function PaymentMethods() {
             }
             return sum;
         }
-    }, [startDate, endDate, callAPI]);
+    }, [startDate, endDate, singleDate, callAPI]);
 
     const refresh = () => {
         const dt = new Date();
         setEndDate(dt);
         setStartDate(new Date(dt.getFullYear(), dt.getMonth(), 1));
+        setSingleDate(dt);
         setActiveButtonIndex(0);
+        setTodaysButtonIndex(0);
     }
 
     const methods = {
@@ -98,9 +103,18 @@ export default function PaymentMethods() {
         // setTimeout(()=> refresh(), 1);
     }
 
+    const setSingleDateDuration = (type: string) => {
+        type === "today" ? setSingleDate(new Date()) : setSingleDate(subDays(new Date(), 1));
+    }
+
     const buttons = [
         { title: (new Date()).toLocaleDateString('en-GB', { month: 'long' }), onClick: () => setDuration('current') },
         { title: getLastMonth().toLocaleDateString('en-GB', { month: 'long' }), onClick: () => setDuration('previous') }
+    ]
+
+    const todayButtons = [
+        { title: "Today", onClick: () => setSingleDateDuration('today') },
+        { title: "Yesterday", onClick: () => setSingleDateDuration('yesterday') }
     ]
 
     const handleClose = () => setShow(false);
@@ -175,6 +189,8 @@ export default function PaymentMethods() {
                         </Row>)
                 })
             }
+            <div className="mt-2">&nbsp;</div>
+            <DiwaButtonGroup buttons={todayButtons} state={todayButtonState} />
             <div className="position-relative mt-4">
                 <h3>Payments for Today</h3>
             </div>
