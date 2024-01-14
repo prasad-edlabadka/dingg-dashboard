@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Accordion, Button, ButtonGroup, Col, Form, Offcanvas, Row } from "react-bootstrap";
 import {currencyFormatter, formatDate, formatDisplayDate, getStartOfFinanceMonthDate, getStartOfMonthDate } from "./Utility";
 import { addDays } from "date-fns";
@@ -33,6 +33,9 @@ export default function Expenses() {
     const [accounts, setAccounts] = useState<any[]>([]);
     const [paymentModes, setPaymentModes] = useState<any[]>([]);
 
+    const expensesToIgnore = useMemo(() => ['Cash transfer to hub'], []);
+    const API_BASE_URL = 'https://api.dingg.app/api/v1';
+
     const createExpense = (e: any) => {
         e.preventDefault();
         if(clicked) return;
@@ -51,7 +54,7 @@ export default function Expenses() {
             "vendor_account_id": `${accounts[activeButtonIndex]}`,
         }
 
-        callPOSTAPI("https://api.dingg.app/api/v1/vendor/expense", data, (response: any) => {
+        callPOSTAPI(`${API_BASE_URL}/vendor/expense`, data, (response: any) => {
             if (response.success) {
                 setErrorMessage('');
                 refresh();
@@ -67,35 +70,39 @@ export default function Expenses() {
 
     useEffect(() => {
         setLoading(true);
-        const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${formatDate(startDate)}&report_type=by_expense&end_date=${formatDate(endDate)}&locations=null&app_type=web`;
+        const apiURL = `${API_BASE_URL}/vendor/report/sales?start_date=${formatDate(startDate)}&report_type=by_expense&end_date=${formatDate(endDate)}&locations=null&app_type=web`;
         callAPI(apiURL, (data: any) => {
             setExpenseData(groupBy(data.data, v => v["expense type"]));
             let total = 0;
-            total += data.data.reduce((v: any, current: { amount: any; }) => v + current.amount, 0);
+            for (let i in data.data) {
+                if (expensesToIgnore.indexOf(data.data[i]["expense type"]) === -1) {
+                    total += data.data[i].amount;
+                }
+            }
             setTotal(total);
             setLoading(false);
         });
 
-        const expenseTypesURL = `https://api.dingg.app/api/v1/vendor/expense/type`;
+        const expenseTypesURL = `${API_BASE_URL}/expense/type`;
         callAPI(expenseTypesURL, (data: any) => {
             setExpenseTypes(data.data.map((v: { value: string; name: string; }) => { return { id: v.value, name: v.name } }));
         });
 
         
-        callAPI('https://api.dingg.app/api/v1//payment_mode', (data: any) => {
+        callAPI(`${API_BASE_URL}/payment_mode`, (data: any) => {
             const pm = [];
             pm.push(data.data.find((v:any) => v.name === 'ONLINE').value);
             pm.push(data.data.find((v:any) => v.name === 'CASH').value);
             setPaymentModes(pm);
         });
 
-        callAPI('https://api.dingg.app/api/v1//vendor/account/list', (data: any) => {
+        callAPI(`${API_BASE_URL}/vendor/account/list`, (data: any) => {
             const acc = [];
             acc.push(data.data.find((v:any) => v.name === 'ICICI Bank Account').id);
             acc.push(data.data.find((v:any) => v.name === 'Petty cash').id);
             setAccounts(acc);
         });
-    }, [startDate, endDate, callAPI]);
+    }, [startDate, endDate, expensesToIgnore, callAPI]);
 
     const refresh = () => {
         setStartDate(getStartOfFinanceMonthDate(new Date()));
@@ -134,7 +141,6 @@ export default function Expenses() {
             <div className="position-relative">
                 <h2 className="text-color">Monthly Expenses <p className="small text-color-danger-50 mb-1">{formatDisplayDate(startDate)} to {formatDisplayDate(endDate)}</p><p className="small mb-0 text-color-50">Total: {currencyFormatter.format(total)}</p></h2>
                 <div className="position-absolute top-0 end-0" style={{ marginTop: -6 }}>
-                    {/* <Button variant="danger" className="text-light" size="sm" onClick={() => handleShow()}>Add New Expense</Button> */}
                     <Button variant="indigo" className="text-color" size="lg" onClick={() => handleShow()}><Icon.PlusLg /></Button>
                     <Button variant="indigo" className="text-color" size="lg" onClick={() => refresh()}><Icon.ArrowClockwise /></Button>
                 </div>
@@ -214,6 +220,7 @@ export default function Expenses() {
                 Object.keys(expenseData).map((keyName, index) => {
                     const val = expenseData[keyName];
                     return (
+                        expensesToIgnore.indexOf(keyName) !== -1 ? null :
                         <Accordion flush key={'expense' + index}>
                             <Accordion.Header className="w-100">
                                 <div className="w-100 pe-2 pb-1">

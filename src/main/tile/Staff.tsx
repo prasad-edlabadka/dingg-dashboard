@@ -46,8 +46,8 @@ export default function Staff() {
             const reportApiURL = `https://api.dingg.app/api/v1/vendor/target/all?employee_ids=${empList}&time_type=monthly&start_date=${formatDate(startDate)}&end_date=${formatDate(endDate)}`
             callAPI(reportApiURL, (reportData: any) => {
                 const calculatedTarget: any = {};
-                reportData.data.forEach((v: { employee: {name: string}; total_sales_achieved: number; }) => {
-                    calculatedTarget[v.employee.name] = v.total_sales_achieved;
+                reportData.data.forEach((v: { employee: {name: string}; service_sales_achieved: number; }) => {
+                    calculatedTarget[v.employee.name] = v.service_sales_achieved;
                 });
                 console.log(calculatedTarget);
                 setCalculatedTarget(calculatedTarget);
@@ -93,7 +93,7 @@ export default function Staff() {
     return (
         <DiwaCard varient="indigo" loadingTracker={loading}>
             <div className="position-relative">
-                <h2>Staff Sales Target</h2>
+                <h2>Staff Sales Target<p className="small mb-0 text-color-50">For services only</p></h2>
                 <DiwaRefreshButton refresh={() => refresh()} />
             </div>
             <DiwaButtonGroup buttons={buttons} state={buttonState} />

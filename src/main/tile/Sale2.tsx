@@ -13,7 +13,7 @@ import DiwaPaginationButton from "../../components/button/DiwaPaginationButton";
 
 export default function Sale2() {
     const { callAPI } = useContext(TokenContext);
-    const dataStructure = { price: -1, discount: -1, tax: -1, woTax: -1, total: -1, start: "Loading...", end: "Loading..." };
+    const dataStructure = { price: -1, discount: -1, tax: -1, woTax: -1, total: -1, tip: -1, start: "Loading...", end: "Loading..." };
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
     const [statsLoading, setStatsLoading] = useState(true);
@@ -143,7 +143,7 @@ export default function Sale2() {
         });
     }
 
-    const getReportForDateRange = (start: Date, end: Date, cb: (arg0: { price: number; discount: number; tax: number; woTax: number; total: number; start: string; end: string; }) => void) => {
+    const getReportForDateRange = (start: Date, end: Date, cb: (arg0: { price: number; discount: number; tax: number; woTax: number; total: number; tip: number; start: string; end: string; }) => void) => {
         const startDate = formatDate(start);
         const endDate = formatDate(end);
         const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${startDate}&end_date=${endDate}&report_type=by_type&app_type=web`;
@@ -154,6 +154,7 @@ export default function Sale2() {
             let tax = 0;
             let woTax = 0;
             let total = 0;
+            let tip = 0;
             for (let d in data.data) {
                 const info = data.data[d];
                 price += info.price;
@@ -161,6 +162,9 @@ export default function Sale2() {
                 tax += info.tax;
                 woTax += info["total w/o tax"];
                 total += info.total;
+                if(info.type === "Tips") {
+                    tip += info.total;
+                }
             }
             cb({
                 price: price,
@@ -168,6 +172,7 @@ export default function Sale2() {
                 tax: tax,
                 woTax: woTax,
                 total: total,
+                tip: tip,
                 start: start.toString(),
                 end: end.toString()
             });
@@ -183,13 +188,14 @@ export default function Sale2() {
         setActiveButtonState(buttonSequence.indexOf(duration));
     }
 
-    const getVariation = (current: { price: number; discount: number; tax: number; woTax: number; total: number; start: string; end: string; }, previous: { price: number; discount: number; tax: number; woTax: number; total: number; start: string; end: string; }) => {
+    const getVariation = (current: { price: number; discount: number; tax: number; woTax: number; total: number; tip: number; start: string; end: string; }, previous: { price: number; discount: number; tax: number; woTax: number; total: number; tip: number; start: string; end: string; }) => {
         return {
             price: Math.round(((current.price - previous.price) / (previous.price === 0 ? 100 : previous.price)) * 100),
             discount: Math.round(((current.discount - previous.discount) / (previous.discount === 0 ? 100 : previous.discount)) * 100),
             tax: Math.round(((current.tax - previous.tax) / (previous.tax === 0 ? 100 : previous.tax)) * 100),
             woTax: Math.round(((current.woTax - previous.woTax) / (previous.woTax === 0 ? 100 : previous.woTax)) * 100),
             total: Math.round(((current.total - previous.total) / (previous.total === 0 ? 100 : previous.total)) * 100),
+            tip: Math.round(((current.tip - previous.tip) / (previous.tip === 0 ? 100 : previous.tip)) * 100),
             start: current.start,
             end: current.end
         };
@@ -317,6 +323,7 @@ export default function Sale2() {
                         <SaleRow title="Sale" current={displaySale.total} previous={displayPreviousSale.total} variation={displayVariation.total} primary={true} />
                         <SaleRow title="Without Discount" current={displaySale.price} previous={displayPreviousSale.price} variation={displayVariation.price} primary={false} />
                         <SaleRow title="Total Discount" current={displaySale.discount} previous={displayPreviousSale.discount} variation={displayVariation.discount} primary={false} />
+                        <SaleRow title="Tip (Included in total)" current={displaySale.tip} previous={displayPreviousSale.tip} variation={displayVariation.tip} primary={false} />
                         {/* <SaleRow title="Tax" current={displaySale.tax} previous={displayPreviousSale.tax} variation={displayVariation.tax} primary={false} />
                         <SaleRow title="After Tax" current={displaySale.woTax} previous={displayPreviousSale.woTax} variation={displayVariation.woTax} primary={false} /> */}
                         <p></p>
