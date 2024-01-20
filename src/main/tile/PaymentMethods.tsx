@@ -134,7 +134,7 @@ export default function PaymentMethods() {
         const bills = todaysBills.filter((v: { bill_payments: { payment_mode: number; }[]; }) => v.bill_payments.find((v2: { payment_mode: number; }) => v2.payment_mode === id));
         const displayBills = bills.map((v: { user: { fname: string, lname: string }, bill_payments: { payment_mode: number; amount: number; }[]; }) => {
             return {
-                name: v.user.fname + " " + v.user.lname,
+                name: (v.user.fname || "") + " " + (v.user.lname || ""),
                 amount: v.bill_payments.find((v2: { payment_mode: number; }) => v2.payment_mode === id)?.amount || 0
             }
         });

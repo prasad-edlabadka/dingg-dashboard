@@ -22,7 +22,7 @@ interface ITokenContext {
 }
 
 const TokenContext = React.createContext<ITokenContext>({ token: null, employeeName: null, location: null, setEmployeeName: () => {}, setLocation: () => {}, updateToken: () => {}, navOption: '', setNavOption: () => {}, callAPI: () => {}, callPOSTAPI: () => {}, darkMode: false});
-
+const API_BASE_URL = 'https://api.dingg.app/api/v1';
 function App() {
 
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -93,6 +93,7 @@ function App() {
   );
 }
 
-export { TokenContext };
+export { TokenContext, API_BASE_URL };
 
 export default App;
+

@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext } from "react";
 import { Col, Row } from "react-bootstrap";
 import { currencyFormatter, formatDate, getLastMonth } from "./Utility";
-import { TokenContext } from "../../App";
+import { TokenContext, API_BASE_URL } from "../../App";
 import DiwaButtonGroup from "../../components/button/DiwaButtonGroup";
 import DiwaCard from "../../components/card/DiwaCard";
 import DiwaRefreshButton from "../../components/button/DiwaRefreshButton";
@@ -21,15 +21,20 @@ export default function Staff() {
         "id": 0,
         "name": ""
     }}]);
+    const [tips, setTips] = useState([{
+        "staff name": "",
+        "received tip": 0,
+        "unsettled tip": 0,
+        "settled tip": 0
+    }]);
     const [calculatedTarget, setCalculatedTarget] = useState({});
 
     const defaultTarget = 100000;
-    const targetURL = "https://api.dingg.app/api/v1/vendor/target/all";
 
     useEffect(() => {
         setLoading(true);
-        const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${formatDate(startDate)}&report_type=staff_service_summary&end_date=${formatDate(endDate)}&app_type=web`
-        callAPI(targetURL, (targetData: any) => {
+        const apiURL = `${API_BASE_URL}/vendor/report/sales?start_date=${formatDate(startDate)}&report_type=staff_service_summary&end_date=${formatDate(endDate)}&app_type=web`
+        callAPI(`${API_BASE_URL}/vendor/target/all`, (targetData: any) => {
             setStaffTargets(getTargets(targetData));
             callAPI(apiURL, (data: any) => {
                 data.data = data.data.sort((a: any, b: any) => {
@@ -40,10 +45,10 @@ export default function Staff() {
             });
         });
 
-        const employeeURL = "https://api.dingg.app/api/v1/employees/get";
+        const employeeURL = `${API_BASE_URL}/employees/get`;
         callAPI(employeeURL, (data: any) => {
             const empList = data.data.map((v: { id: any; }) => v.id).join(",");
-            const reportApiURL = `https://api.dingg.app/api/v1/vendor/target/all?employee_ids=${empList}&time_type=monthly&start_date=${formatDate(startDate)}&end_date=${formatDate(endDate)}`
+            const reportApiURL = `${API_BASE_URL}/vendor/target/all?employee_ids=${empList}&time_type=monthly&start_date=${formatDate(startDate)}&end_date=${formatDate(endDate)}`
             callAPI(reportApiURL, (reportData: any) => {
                 const calculatedTarget: any = {};
                 reportData.data.forEach((v: { employee: {name: string}; service_sales_achieved: number; }) => {
@@ -52,6 +57,11 @@ export default function Staff() {
                 console.log(calculatedTarget);
                 setCalculatedTarget(calculatedTarget);
             });
+        });
+
+        const tipURL = `${API_BASE_URL}/vendor/report/sales?report_type=by_staff_tip_summary&start_date=${formatDate(startDate)}&end_date=${formatDate(endDate)}&app_type=web`;
+        callAPI(tipURL, (data: any) => {
+            setTips(data.data);
         });
         
         const getTargets = (targetData: any) => {
@@ -103,15 +113,17 @@ export default function Staff() {
                     const target = getTarget(val.stylist.trim());
                     const targetPercentage = Math.round(val["service price"] * 100 / target);
                     const targetNoDiscountPercentage = Math.round(val["service amount"] * 100 / target);
+                    const tip = tips.find((v: { "staff name": string; }) => v["staff name"].toLowerCase() === val.stylist.toLowerCase());
                     return (
                         <div key={'staff' + index} className="mt-3 pt-2 pb-2 rounded black-bg">
                             <Row className="ps-2 pe-2 align-bottom">
                                 <Col xs={7} className="align-bottom pe-0"><h4>{val.stylist}</h4></Col>
                                 <Col xs={5} className="text-end align-bottom text-color-50 ps-0">Target {currencyFormatter.format(target)}</Col>
                             </Row>
-                            <TargetProgress label="Without discount" value={val["service price"]} target={target} percentAchieved={targetPercentage} />
+                            <TargetProgress label="Without discount" value={val["service price"]} target={target} percentAchieved={targetPercentage}/>
                             <TargetProgress label="With discount" value={val["service amount"]} target={target} percentAchieved={targetNoDiscountPercentage} />
                             <TargetProgress label="Dingg Calculated" value={calculatedTarget[val.stylist]} target={target} percentAchieved={calculatePercentage(calculatedTarget[val.stylist], target)} />
+                            <TargetProgress label="Tip Received" value={tip?.["received tip"] || 0} target={tip?.["received tip"] || 0} percentAchieved={calculatePercentage(tip?.["settled tip"] || 0, tip?.["received tip"] || 0)} percentAchievedSuffix="Paid"/>
                         </div>)
                 })
             }
