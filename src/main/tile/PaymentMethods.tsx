@@ -129,8 +129,6 @@ export default function PaymentMethods() {
     const openDetails = (mode: string) => {
         setSelectedPaymentMode(mode);
         const id = getPaymentModeId(mode);
-        console.log(id);
-        console.log(todaysBills);
         const bills = todaysBills.filter((v: { bill_payments: { payment_mode: number; }[]; }) => v.bill_payments.find((v2: { payment_mode: number; }) => v2.payment_mode === id));
         const displayBills = bills.map((v: { user: { fname: string, lname: string }, bill_payments: { payment_mode: number; amount: number; }[]; }) => {
             return {
@@ -139,7 +137,6 @@ export default function PaymentMethods() {
             }
         });
         setBills(displayBills);
-        console.log(displayBills);
         handleShow();
     }
 

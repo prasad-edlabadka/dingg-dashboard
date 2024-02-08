@@ -16,6 +16,7 @@ export default function BookingsV2() {
     const todayFlag = useState(true);
     const [today, ] = todayFlag;
     const { callAPI } = useContext(TokenContext)
+    const [customerDetails, setCustomerDetails] = useState([{ id: 0, user_histories:[{amount_spend: 0, total_visit:0}]}] as Array<any>);
     const [bookingData, setBookingData] = useState([
         {
             customerName: "",
@@ -26,7 +27,10 @@ export default function BookingsV2() {
                 name: "",
                 employee: ""
             }],
-            billAmount: 0
+            billAmount: 0,
+            customer: {
+                totalBusiness: 0
+            }
         }
     ]);
     const [billingData, setBillingData] = useState([
@@ -278,6 +282,7 @@ export default function BookingsV2() {
                 }))) as Array<any>;
 
                 setBookingData([]);
+                customerDetails(data);
                 setBookingData(Object.keys(groupedData).filter(v => !groupedData[v][0].extendedProps.book.bill)
                     .map(v => {
                         const data = groupedData[v];
@@ -305,7 +310,10 @@ export default function BookingsV2() {
                             end: endDate,
                             status: data[0].extendedProps.book.status,
                             services: services,
-                            billAmount: billAmount
+                            billAmount: billAmount,
+                            customer: {
+                                totalBusiness: 0
+                            }
                         }
                     }));
             });
@@ -319,6 +327,21 @@ export default function BookingsV2() {
                 }
                 setLoading(false);
                 setBillingData(data.data);
+            });
+        }
+
+        const customerDetails = (data: any) => {
+            const customerPromises = data.data.map((item: any) => {
+                const customerURL = `https://api.dingg.app/api/v1//vendor/customer/detail?id=${item.extendedProps.user.id}&is_multi_location=false`;
+                return new Promise((resolve) => {
+                    callAPI(customerURL, (customerData: any) => {
+                        resolve(customerData.data);
+                    });
+                });
+            });
+
+            Promise.all(customerPromises).then((customers) => {
+                setCustomerDetails(customers);
             });
         }
         setLoading(true);
@@ -351,6 +374,7 @@ export default function BookingsV2() {
                         if (counter === data.data.length) {
                             setLoading(false);
                             identifyMembers(data);
+                            
                         }
                     });
                 }
@@ -389,11 +413,14 @@ export default function BookingsV2() {
                         </DiwaCard>
                     </Col> :
                         billingData.map((booking, index) => {
+                            const cust = customerDetails.find(v => v.id === booking.user.id).user_histories[0];
                             return (
                                 <Col xl={4} xs={12} className="gy-2" key={"booking" + index}>
                                     <DiwaCard varient={booking.status ? 'success' : 'danger'} loadingTracker={loading}>
                                         <div>
-                                            <h3>{booking.user.is_member ? <Icon.StarFill style={{ marginTop: -4, paddingRight: 4 }} color="gold" /> : ''}{`${booking.user.fname || ""} ${booking.user.lname || ""}`.trim()} ({currencyFormatter.format(booking.payments.total)})</h3>
+                                            <h3>{booking.user.is_member ? <Icon.StarFill style={{ marginTop: -4, paddingRight: 4 }} color="gold" /> : ''}{`${booking.user.fname || ""} ${booking.user.lname || ""}`.trim()} ({currencyFormatter.format(booking.payments.total)})<p className="d-block small mb-0 text-color-50">
+                                            Spent {currencyFormatter.format(cust.amount_spend)} in {cust.total_visit} visits with average of {currencyFormatter.format(cust.amount_spend / cust.total_visit)} per visit</p></h3>
+                                            <div className="small"></div>
                                             <ul className="list-group list-group-flush">
                                                 {booking.services.map((service, index) =>
                                                     <BillItem
