@@ -413,13 +413,13 @@ export default function BookingsV2() {
                         </DiwaCard>
                     </Col> :
                         billingData.map((booking, index) => {
-                            const cust = customerDetails.find(v => v.id === booking.user.id).user_histories[0];
+                            const cust = customerDetails.find(v => v.id === booking.user.id)?.user_histories[0];
                             return (
                                 <Col xl={4} xs={12} className="gy-2" key={"booking" + index}>
                                     <DiwaCard varient={booking.status ? 'success' : 'danger'} loadingTracker={loading}>
                                         <div>
                                             <h3>{booking.user.is_member ? <Icon.StarFill style={{ marginTop: -4, paddingRight: 4 }} color="gold" /> : ''}{`${booking.user.fname || ""} ${booking.user.lname || ""}`.trim()} ({currencyFormatter.format(booking.payments.total)})<p className="d-block small mb-0 text-color-50">
-                                            Spent {currencyFormatter.format(cust.amount_spend)} in {cust.total_visit} visits with average of {currencyFormatter.format(cust.amount_spend / cust.total_visit)} per visit</p></h3>
+                                            Spent {currencyFormatter.format(cust?.amount_spend)} in {cust?.total_visit} visits with average of {currencyFormatter.format(cust?.amount_spend / cust?.total_visit)} per visit</p></h3>
                                             <div className="small"></div>
                                             <ul className="list-group list-group-flush">
                                                 {booking.services.map((service, index) =>
