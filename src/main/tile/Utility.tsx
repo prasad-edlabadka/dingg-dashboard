@@ -16,8 +16,25 @@ export default function callAPI(url: string, token: string | null, setToken: any
 }
 
 export function callPOSTAPI(url: string, data: object, token: string | null, setToken: any, cb: any) {
+  callDataAPI('POST', url, data, token, setToken, cb);
+  // const requestMetadata = {
+  //   method: 'POST',
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //     'Authorization': token || ''
+  //   },
+  //   body: JSON.stringify(data)
+  // };
+  // fetch(url, requestMetadata)
+  //   .then(res => res.status === 401 ? setToken(null) : res.json())
+  //   .then(data => {
+  //     cb(data);
+  //   });
+}
+
+function callDataAPI(method: string, url: string, data: object, token: string | null, setToken: any, cb: any) {
   const requestMetadata = {
-    method: 'POST',
+    method: method,
     headers: {
       'Content-Type': 'application/json',
       'Authorization': token || ''
@@ -29,6 +46,23 @@ export function callPOSTAPI(url: string, data: object, token: string | null, set
     .then(data => {
       cb(data);
     });
+}
+
+export function callPUTAPI(url: string, data: object, token: string | null, setToken: any, cb: any) {
+  callDataAPI('PUT', url, data, token, setToken, cb);
+  // const requestMetadata = {
+  //   method: 'PUT',
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //     'Authorization': token || ''
+  //   },
+  //   body: JSON.stringify(data)
+  // };
+  // fetch(url, requestMetadata)
+  //   .then(res => res.status === 401 ? setToken(null) : res.json())
+  //   .then(data => {
+  //     cb(data);
+  //   });
 }
 
 function setCookie(cname: string, cvalue: string, exdays: number) {

@@ -18,6 +18,7 @@ const mockContext = {
     navOption: 'test-nav',
     setNavOption: jest.fn(),
     callPOSTAPI: jest.fn(),
+    callPUTAPI: jest.fn(),
     darkMode: false
 };
 

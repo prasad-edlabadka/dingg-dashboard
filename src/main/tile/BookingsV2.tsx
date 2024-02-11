@@ -1,9 +1,9 @@
-import { useContext, useEffect, useState } from "react";
-import { Accordion, Col, Row } from "react-bootstrap";
+import { useContext, useEffect, useRef, useState } from "react";
+import { Accordion, Button, Col, Form, Offcanvas, Row } from "react-bootstrap";
 import { currencyFormatter, formatDate, formatMobileNumber, formatTime } from "./Utility";
 import * as Icon from 'react-bootstrap-icons';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpa, faTicket, faMoneyBill1 } from "@fortawesome/free-solid-svg-icons";
+import { faSpa, faTicket, faMoneyBill1, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import * as _ from "lodash";
 import { TokenContext, API_BASE_URL } from "../../App";
 import DiwaCard from "../../components/card/DiwaCard";
@@ -17,9 +17,19 @@ export default function BookingsV2() {
     const [reload, setReload] = useState(false);
     const todayFlag = useState(true);
     const [today,] = todayFlag;
-    const { callAPI } = useContext(TokenContext)
+    const { callAPI, callPUTAPI } = useContext(TokenContext)
     const [customerDetails, setCustomerDetails] = useState([{ id: 0, user_histories: [{ amount_spend: 0, total_visit: 0 }] }] as Array<any>);
     const [members, setMembers] = useState([{ user_id: "", user: { fname: "", lname: "" }, last_visit: "", mobile: "" }]);
+    const [show, setShow] = useState(false);
+
+    const firstName = useRef<HTMLInputElement>(null);
+    const lastName = useRef<HTMLInputElement>(null);
+    const [firstNameValue, setFirstNameValue] = useState('');
+    const [lastNameValue, setLastNameValue] = useState('');
+    const [customerId, setCustomerId] = useState(0);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [clicked, setClicked] = useState(false);
+    const handleClose = () => setShow(false);
 
     const [bookingData, setBookingData] = useState([
         {
@@ -419,6 +429,59 @@ export default function BookingsV2() {
         setReload(!reload);
     }
 
+    const editName = (id: number, fname: string, lname: string) => {
+        setShow(true);
+        setCustomerId(id);
+        setFirstNameValue(fname);
+        setLastNameValue(lname);
+    }
+
+    const submitUpdatedName = (e: any) => {
+        e.preventDefault();
+        if (clicked) return;
+        setClicked(true);
+        const apiURL = `${API_BASE_URL}/vendor/customer_detail`;
+        const getAPIURL = `${API_BASE_URL}/vendor/customer/detail?id=${customerId}&is_multi_location=false`;
+        callAPI(getAPIURL, (customerData: any) => {
+            const data = {
+                id: customerId, 
+                fname: firstName.current?.value || firstNameValue,
+                lname: lastName.current?.value || lastNameValue,
+                mobile: customerData.data.mobile, 
+                country_id: customerData.data.country_id,
+                gender: customerData.data.gender, 
+                dob: customerData.data.dob, 
+                anniversary: customerData.data.anniversary, 
+                sms_promo: customerData.data.sms_promo, 
+                sms_trans: customerData.data.sms_trans, 
+                email_promo: customerData.data.email_promo, 
+                email_trans: customerData.data.email_trans, 
+                gstn: customerData.data.gstn, 
+                address: customerData.data.address, 
+                source_remark: customerData.data.source_remark, 
+                refer_by: customerData.data.refer_by, 
+                source_id: customerData.data.source_id,
+                is_whatsapp_num: customerData.data.is_whatsapp_num, 
+                whatsapp_promo: customerData.data.whatsapp_promo, 
+                whatsapp_trans: customerData.data.whatsapp_trans, 
+                state_id: customerData.data.state_id, 
+                registration_no: customerData.data.registration_no, 
+                email: customerData.data.email
+            }
+            callPUTAPI(apiURL, data, (customerData: any) => {
+                if (customerData.success) {
+                    setErrorMessage('');
+                    setClicked(false);
+                    handleClose();
+                    refresh();
+                } else {
+                    setErrorMessage('Failed to update name');
+                    setClicked(false);
+                }
+            });
+        });
+    }
+
     // eslint-disable-next-line no-sequences
     const groupBy = (x: any[], f: { (v: { last_visit: string; }): any; (arg0: any, arg1: any, arg2: any): string | number; }) => x.reduce((a, b, i) => ((a[f(b, i, x)] ||= []).push(b), a), {});
 
@@ -441,8 +504,10 @@ export default function BookingsV2() {
                                 <Col xl={4} xs={12} className="gy-2" key={"booking" + index}>
                                     <DiwaCard varient={booking.status ? 'success' : 'danger'} loadingTracker={loading}>
                                         <div>
-                                            <h3>{booking.user.is_member ? <Icon.StarFill style={{ marginTop: -4, paddingRight: 4 }} color="gold" /> : ''}{`${booking.user.fname || ""} ${booking.user.lname || ""}`.trim()} ({currencyFormatter.format(booking.payments.total)})<p className="d-block small mb-0 text-color-50">
-                                                Spent {currencyFormatter.format(cust?.amount_spend)} in {cust?.total_visit} visits with average of {currencyFormatter.format(cust?.amount_spend / cust?.total_visit)} per visit</p></h3>
+                                            <h3>{
+                                                booking.user.is_member ? <Icon.StarFill style={{ marginTop: -4, paddingRight: 4 }} color="gold" /> : ''}{`${booking.user.fname || ""} ${booking.user.lname || ""}`.trim()} ({currencyFormatter.format(booking.payments.total)})
+                                                <p className="d-inline float-end small"><FontAwesomeIcon icon={faPenToSquare} onClick={() => editName(booking.user.id, `${booking.user.fname}`, `${booking.user.lname}`)} /></p>
+                                                <p className="d-block small mb-0 text-color-50">Spent {currencyFormatter.format(cust?.amount_spend)} in {cust?.total_visit} visits with average of {currencyFormatter.format(cust?.amount_spend / cust?.total_visit)} per visit</p></h3>
                                             <div className="small"></div>
                                             <ul className="list-group list-group-flush">
                                                 {booking.services.map((service, index) =>
@@ -607,6 +672,40 @@ export default function BookingsV2() {
                     })
                 }
             </DiwaCard>
+            <Offcanvas show={show} className="h-auto bg-dark text-white" placement="bottom" backdrop={true} scroll={false} keyboard={false} id="offcanvasBottom" onHide={handleClose}>
+                <Offcanvas.Header closeButton closeVariant="white"><h5>Edit Name</h5></Offcanvas.Header>
+                <Offcanvas.Body className="pt-0">
+                    <Form className="mt-0" onSubmit={submitUpdatedName}>
+                        <Row className="align-items-center mb-1">
+                            <Col xs={6}>
+                                <Form.Group>
+                                    <Form.Label className="mb-1">First Name</Form.Label>
+                                    <Form.Control size="sm" type="text" placeholder="First Name" ref={firstName} defaultValue={firstNameValue} />
+                                </Form.Group>
+                            </Col>
+                            <Col xs={6}>
+                                <Form.Group>
+                                    <Form.Label className="mb-1">Last Name</Form.Label>
+                                    <Form.Control size="sm" type="text" placeholder="Last Name" ref={lastName} defaultValue={lastNameValue} />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        <Row className="align-items-center">
+                            <Col xs={12}>
+                                <Button variant="success" className="text-light" type="submit" disabled={clicked}>{clicked ? 'Wait...' : 'Save'}</Button>
+                            </Col>
+                        </Row>
+                        {errorMessage !== '' && <Row className="align-items-center mb-2">
+                            <Col xs={12}>
+                                <Form.Group>
+                                    <Form.Label className="mb-1 text-danger">{errorMessage}</Form.Label>
+                                </Form.Group>
+                            </Col>
+                        </Row>}
+
+                    </Form>
+                </Offcanvas.Body>
+            </Offcanvas>
         </div>
 
     )
