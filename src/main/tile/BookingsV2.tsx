@@ -1,22 +1,26 @@
 import { useContext, useEffect, useState } from "react";
-import { Col, Row } from "react-bootstrap";
-import { currencyFormatter, formatDate, formatTime } from "./Utility";
+import { Accordion, Col, Row } from "react-bootstrap";
+import { currencyFormatter, formatDate, formatMobileNumber, formatTime } from "./Utility";
 import * as Icon from 'react-bootstrap-icons';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpa, faTicket, faMoneyBill1 } from "@fortawesome/free-solid-svg-icons";
 import * as _ from "lodash";
-import { TokenContext } from "../../App";
+import { TokenContext, API_BASE_URL } from "../../App";
 import DiwaCard from "../../components/card/DiwaCard";
 import BillItem from "./booking/BillItem";
 import HeadingWithRefresh from "./booking/HeadingWithRefresh";
+import { differenceInMonths, formatDistanceToNow, parse } from 'date-fns';
+import JustHeading from "./booking/JustHeading";
 
 export default function BookingsV2() {
     const [loading, setLoading] = useState(true);
     const [reload, setReload] = useState(false);
     const todayFlag = useState(true);
-    const [today, ] = todayFlag;
+    const [today,] = todayFlag;
     const { callAPI } = useContext(TokenContext)
-    const [customerDetails, setCustomerDetails] = useState([{ id: 0, user_histories:[{amount_spend: 0, total_visit:0}]}] as Array<any>);
+    const [customerDetails, setCustomerDetails] = useState([{ id: 0, user_histories: [{ amount_spend: 0, total_visit: 0 }] }] as Array<any>);
+    const [members, setMembers] = useState([{ user_id: "", user: { fname: "", lname: "" }, last_visit: "", mobile: "" }]);
+
     const [bookingData, setBookingData] = useState([
         {
             customerName: "",
@@ -267,6 +271,7 @@ export default function BookingsV2() {
             ]
         }
     ]);
+    const [groupedMembers, setGroupedMembers] = useState({});
 
     const statusColor = ["dark", "primary", "danger", "success", "dark", "primary", "dark", "warning", "warning"];
     const statusDesc = ["Unknown", "Start Serving", "Booking Cancelled", "Completed - Bill not generated", "Unknown", "Upcoming", "Confirmed", "Tentative", "Customer Arrived"];
@@ -274,7 +279,7 @@ export default function BookingsV2() {
     useEffect(() => {
         const bookingDate = today ? new Date() : new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
         const loadAppointments = () => {
-            const apiURL = `https://api.dingg.app/api/v1/calender/booking?date=${formatDate(bookingDate)}`;
+            const apiURL = `${API_BASE_URL}/calender/booking?date=${formatDate(bookingDate)}`;
             callAPI(apiURL, (data: any) => {
                 if (!data) return;
                 const groupedData = JSON.parse(JSON.stringify(_.groupBy(data.data, (b: { extendedProps: { user: { fname: any; lname: any; }; }; }) => {
@@ -283,6 +288,7 @@ export default function BookingsV2() {
 
                 setBookingData([]);
                 customerDetails(data);
+                loadMembers();
                 setBookingData(Object.keys(groupedData).filter(v => !groupedData[v][0].extendedProps.book.bill)
                     .map(v => {
                         const data = groupedData[v];
@@ -318,21 +324,36 @@ export default function BookingsV2() {
                     }));
             });
         }
-        const identifyMembers = (data: any) => {
-            const memberURL = `https://api.dingg.app/api/v1//vendor/customer_list?page=1&limit=500&amount_start=0&membership_type=0&amount_start=0&is_multi_location=false`;
-            callAPI(memberURL, (memberData: any) => {
-                for (var billIndex in data.data) {
-                    const userId = data.data[billIndex].user.id;
-                    data.data[billIndex].user.is_member = (memberData.data.find((v: { user_id: any; }) => v.user_id === userId)) ? true : false;
-                }
-                setLoading(false);
-                setBillingData(data.data);
+
+        const monthOld = 2;
+        const loadMembers = () => {
+            const memberURL = `${API_BASE_URL}/vendor/customer_list?page=1&limit=500&amount_start=0&membership_type=0&amount_start=0&is_multi_location=false`;
+            callAPI(memberURL, (data: any) => {
+                setMembers(data.data);
+                const inactiveMembers = data.data.filter((v: { last_visit: string; }) => differenceInMonths(new Date(), parse(v.last_visit, 'yyyy-MM-dd', new Date())) > monthOld);
+                setGroupedMembers(groupBy(inactiveMembers, (v: { last_visit: string; }) => (`${formatDistanceToNow(parse(v.last_visit, 'yyyy-MM-dd', new Date()), { addSuffix: true })}`)));
             });
+
+        }
+        const identifyMembers = (data: any) => {
+            const updatedData = data.data.map((bill: any) => {
+                const userId = bill.user.id;
+                const isMember = members.some((member: { user_id: any; }) => member.user_id === userId);
+                return {
+                    ...bill,
+                    user: {
+                        ...bill.user,
+                        is_member: isMember
+                    }
+                };
+            });
+            setLoading(false);
+            setBillingData(updatedData);
         }
 
         const customerDetails = (data: any) => {
             const customerPromises = data.data.map((item: any) => {
-                const customerURL = `https://api.dingg.app/api/v1//vendor/customer/detail?id=${item.extendedProps.user.id}&is_multi_location=false`;
+                const customerURL = `${API_BASE_URL}/vendor/customer/detail?id=${item.extendedProps.user.id}&is_multi_location=false`;
                 return new Promise((resolve) => {
                     callAPI(customerURL, (customerData: any) => {
                         resolve(customerData.data);
@@ -345,8 +366,7 @@ export default function BookingsV2() {
             });
         }
         setLoading(true);
-        const apiURL = `https://api.dingg.app/api/v1/vendor/bills?web=true&page=1&limit=1000&start=${formatDate(bookingDate)}&end=${formatDate(bookingDate)}&term=&is_product_only=`;
-        //const apiURL = `https://api.dingg.app/api/v1/vendor/bills?web=true&page=1&limit=1000&start=2023-01-22&end=2023-01-22&term=&is_product_only=`
+        const apiURL = `${API_BASE_URL}/vendor/bills?web=true&page=1&limit=1000&start=${formatDate(bookingDate)}&end=${formatDate(bookingDate)}&term=&is_product_only=`;
         callAPI(apiURL, (data: any) => {
             let counter = 0;
             if (!data) return;
@@ -356,25 +376,26 @@ export default function BookingsV2() {
             } else {
                 for (var billIndex in data.data) {
                     const bill = data.data[billIndex];
-                    const billURL = `https://api.dingg.app/api/v1//bill?bill_id=${bill.id}`;
+                    const billURL = `${API_BASE_URL}/bill?bill_id=${bill.id}`;
                     // eslint-disable-next-line no-loop-func
                     callAPI(billURL, (billData: any) => {
-                        bill.services = billData.data.billSItems || [];
-                        bill.products = billData.data.billPItems || [];
-                        bill.memberships = billData.data.billmitem;
-                        bill.packages = billData.data.billpkitem;
-                        bill.vouchers = billData.data.billvitems;
-                        bill.tips = billData.data.bill_tips || [];
-                        bill.payments = {};
-                        bill.payments.price = billData.data.price;
-                        bill.payments.discount = billData.data.discount;
-                        bill.payments.tax = billData.data.tax;
-                        bill.payments.total = billData.data.total;
+                        const { billSItems, billPItems, billmitem, billpkitem, billvitems, bill_tips, price, discount, tax, total } = billData.data;
+                        bill.services = billSItems || [];
+                        bill.products = billPItems || [];
+                        bill.memberships = billmitem;
+                        bill.packages = billpkitem;
+                        bill.vouchers = billvitems;
+                        bill.tips = bill_tips || [];
+                        bill.payments = {
+                            price,
+                            discount,
+                            tax,
+                            total
+                        };
                         counter++;
                         if (counter === data.data.length) {
                             setLoading(false);
                             identifyMembers(data);
-                            
                         }
                     });
                 }
@@ -398,6 +419,8 @@ export default function BookingsV2() {
         setReload(!reload);
     }
 
+    // eslint-disable-next-line no-sequences
+    const groupBy = (x: any[], f: { (v: { last_visit: string; }): any; (arg0: any, arg1: any, arg2: any): string | number; }) => x.reduce((a, b, i) => ((a[f(b, i, x)] ||= []).push(b), a), {});
 
     type Varient = "danger" | "success" | "primary" | "warning" | "dark" | "indigo" | "purple";
 
@@ -419,7 +442,7 @@ export default function BookingsV2() {
                                     <DiwaCard varient={booking.status ? 'success' : 'danger'} loadingTracker={loading}>
                                         <div>
                                             <h3>{booking.user.is_member ? <Icon.StarFill style={{ marginTop: -4, paddingRight: 4 }} color="gold" /> : ''}{`${booking.user.fname || ""} ${booking.user.lname || ""}`.trim()} ({currencyFormatter.format(booking.payments.total)})<p className="d-block small mb-0 text-color-50">
-                                            Spent {currencyFormatter.format(cust?.amount_spend)} in {cust?.total_visit} visits with average of {currencyFormatter.format(cust?.amount_spend / cust?.total_visit)} per visit</p></h3>
+                                                Spent {currencyFormatter.format(cust?.amount_spend)} in {cust?.total_visit} visits with average of {currencyFormatter.format(cust?.amount_spend / cust?.total_visit)} per visit</p></h3>
                                             <div className="small"></div>
                                             <ul className="list-group list-group-flush">
                                                 {booking.services.map((service, index) =>
@@ -442,10 +465,10 @@ export default function BookingsV2() {
                                                         amount={prod.price}
                                                         discount={prod.discount}
                                                         Icon={Icon.BoxSeam}
-                                                        iconProps={ { className:"bill-item-icon", style: { marginTop: -4 } }} />
+                                                        iconProps={{ className: "bill-item-icon", style: { marginTop: -4 } }} />
                                                 )}
 
-                                                {booking.packages !== null ?
+                                                {booking.packages && (
                                                     <BillItem
                                                         key={booking.id + 'pk' + index}
                                                         uniqueKey={booking.id + 'pk' + index}
@@ -454,10 +477,10 @@ export default function BookingsV2() {
                                                         amount={booking.packages.price}
                                                         discount={booking.packages.discount}
                                                         Icon={Icon.UiChecksGrid}
-                                                        iconProps={ { className:"bill-item-icon", style: { marginTop: -4 } }} />
-                                                    : ''
-                                                }
-                                                {booking.memberships !== null ?
+                                                        iconProps={{ className: "bill-item-icon", style: { marginTop: -4 } }} />
+                                                )}
+
+                                                {booking.memberships && (
                                                     <BillItem
                                                         key={booking.id + 'm' + index}
                                                         uniqueKey={booking.id + 'm' + index}
@@ -466,9 +489,9 @@ export default function BookingsV2() {
                                                         amount={booking.memberships.price}
                                                         discount={booking.memberships.discount}
                                                         Icon={Icon.StarFill}
-                                                        iconProps={ { className:"bill-item-icon", style: { marginTop: -4 } }} />
-                                                    : ''
-                                                }
+                                                        iconProps={{ className: "bill-item-icon", style: { marginTop: -4 } }} />
+                                                )}
+
                                                 {booking.vouchers.map((voucher, index) =>
                                                     <BillItem
                                                         key={booking.id + 'v' + index}
@@ -492,7 +515,6 @@ export default function BookingsV2() {
                                                         Icon={FontAwesomeIcon}
                                                         iconProps={{ icon: faMoneyBill1, className: "bill-item-icon" }} />
                                                 )}
-
                                             </ul>
                                             <hr className="mt-1 mb-1" />
                                             <div className="w-100">
@@ -541,6 +563,50 @@ export default function BookingsV2() {
                     })
                 }
             </Row>
+            <Row>
+                <Col>&nbsp;</Col>
+            </Row>
+            <JustHeading title1="Inactive Members" />
+            <DiwaCard varient="primary" loadingTracker={loading}>
+                {
+                    Object.keys(groupedMembers).map((keyName, index) => {
+                        const val = groupedMembers[keyName];
+                        return (
+                            <Accordion flush key={'stockitem' + index}>
+                                <Accordion.Header className="w-100">
+                                    <div className="w-100 pe-2 pb-2">
+                                        <div className="text-start d-inline h5 text-color">Visited {keyName}</div>
+                                        <div className="text-end d-inline float-end text-color">{val.length} members</div>
+                                    </div>
+
+                                </Accordion.Header>
+                                <Accordion.Body>
+                                    <ul className="list-group list-group-flush">
+                                        {
+                                            val.map((item: any, index2: number) => {
+                                                return (<li className="list-group-item bg-transparent text-color border-color ps-0" key={item.user.fname + 'inactive' + index2}>
+                                                    <div className="d-flex justify-content-between">
+                                                        <div>
+                                                            {item.user.fname} {item.user.lname}
+                                                        </div>
+                                                        <div>
+                                                            <p className={`small text-color-50 mb-0`} style={{ marginTop: -4 }}>Mobile: <a href={`tel:${formatMobileNumber(item.mobile)}`} className="text-color-50">{formatMobileNumber(item.mobile)}</a></p>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                                )
+                                            })
+                                        }
+
+                                    </ul>
+
+                                </Accordion.Body>
+                            </Accordion>
+                        )
+
+                    })
+                }
+            </DiwaCard>
         </div>
 
     )

@@ -118,4 +118,16 @@ export function formatMinutes(d: number) {
   return moment.duration(d, "minute").humanize()
 }
 
+export function formatMobileNumber(n: string) {
+  const countryCode = "+"; // Replace with the desired country code
+  const areaCodeLength = 2; // Replace with the desired area code length
+  const separator = "-"; // Replace with the desired separator
+
+  const formattedNumber = n.replace(/\D/g, ""); // Remove non-digit characters
+  const areaCode = formattedNumber.substr(0, areaCodeLength);
+  const phoneNumber = formattedNumber.substr(areaCodeLength);
+
+  return `${countryCode}${areaCode}${separator}${phoneNumber}`;
+}
+
 export function nth(n: number) { return ["st", "nd", "rd"][(((n < 0 ? -n : n) + 90) % 100 - 10) % 10 - 1] || "th" }

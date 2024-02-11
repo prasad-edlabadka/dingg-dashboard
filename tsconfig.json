@@ -23,5 +23,5 @@
   },
   "include": [
     "src"
-  ]
+, "tests/main/tile/BookingsV2.test.tsx", "tests/main/test_Consumption.tsx"  ]
 }

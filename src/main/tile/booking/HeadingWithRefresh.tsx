@@ -9,7 +9,7 @@ function HeadingWithRefresh({ todayFlag, title1, title2, title3, onRefresh }: { 
                 <div className="position-relative today rounded">
                     <h5 className="text-light ">
                         {today?title1:<a href="#home" onClick={() => setToday(true)}>{title1}</a>}
-                        <span> / </span>
+                        <span> {title2 !== ""?'/':''} </span>
                         {!today?title2:<a href="#home" onClick={() => setToday(false)}>{title2}</a>}
                         <span>{title3}</span>
                     </h5>

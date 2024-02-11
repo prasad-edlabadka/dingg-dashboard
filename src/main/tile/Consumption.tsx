@@ -1,54 +1,41 @@
 import { useContext, useEffect, useState } from "react";
 import { Accordion } from "react-bootstrap";
 import { currencyFormatter, formatDate } from "./Utility";
-import { TokenContext } from "../../App";
+import { TokenContext, API_BASE_URL } from "../../App";
 import DiwaCard from "../../components/card/DiwaCard";
 import DiwaRefreshButton from "../../components/button/DiwaRefreshButton";
 
 
 export default function Consumption() {
-    const [reportData, setReportData] = useState({});
+    const [consumptionData, setConsumptionData] = useState({});
     const [loading, setLoading] = useState(true);
+    const [refreshFlag, setRefreshFlag] = useState(false);
     const { callAPI } = useContext(TokenContext);
 
     useEffect(() => {
-        loadData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+        setLoading(true);
+        const apiURL = `${API_BASE_URL}/vendor/report/sales?start_date=${formatDate(new Date())}&report_type=product_consumption_log&app_type=web`;
+        callAPI(apiURL, (data: any) => {
+            const grouped = groupBy(data.data, (v: string) => (`${v["Category"]} - ${v["Sub Category"]}`));
+            setConsumptionData(grouped);
+            setLoading(false);
+        });
+    }, [refreshFlag, callAPI]);
 
     // eslint-disable-next-line no-sequences
     const groupBy = (x: any[], f: { (v: string): any; (arg0: any, arg1: any, arg2: any): string | number; }) => x.reduce((a, b, i) => ((a[f(b, i, x)] ||= []).push(b), a), {});
-
-    const loadData = () => {
-        setLoading(true);
-
-        const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${formatDate(new Date())}&report_type=product_consumption_log&locations=null&app_type=web`;
-        //const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=2023-01-15&report_type=product_consumption_log&locations=null&app_type=web`;
-        callAPI(apiURL, (data: any) => {
-            let grouped = groupBy(data.data, (v: string) => (`${v["Category"]} - ${v["Sub Category"]}`));
-            // for(let i in grouped) {
-            //     grouped[i] = groupBy(grouped[i], (v: string) => v["Sub Category"]);
-            // }
-            setReportData(grouped);
-            setLoading(false);
-        });
-    }
-
-    const refresh = () => {
-        loadData();
-    }
 
     return (
         <DiwaCard varient="indigo" loadingTracker={loading}>
             <div className="position-relative">
                 <h2>Today's Consumption</h2>
-                <DiwaRefreshButton refresh={() => refresh()} />
+                <DiwaRefreshButton refresh={() => setRefreshFlag(!refreshFlag)} />
             </div>
             {
-                Object.keys(reportData).map((keyName, index) => {
-                    const val = reportData[keyName];
+                Object.keys(consumptionData).map((keyName, index) => {
+                    const val = consumptionData[keyName];
                     return (
-                        <Accordion flush key={'consumptionitem' + index}>
+                        <Accordion flush key={`consumptionitem${index}`}>
                             <Accordion.Header className="w-100">
                                 <div className="w-100 pe-2 pb-2">
                                     <div className="text-start d-inline h5 text-color">{keyName}</div>
@@ -71,15 +58,5 @@ export default function Consumption() {
                 })
             }
         </DiwaCard>
-        // <Card className="shadow indigoBg" text="light">
-        //     {
-        //         loading ? <Card.Body><Spinner animation="grow" /></Card.Body> :
-        //             <Card.Body>
-
-
-        //             </Card.Body>
-        //     }
-
-        // </Card>
     )
 }

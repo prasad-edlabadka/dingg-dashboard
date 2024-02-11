@@ -1,26 +1,21 @@
 import { useContext, useEffect, useState } from "react";
 import { Accordion} from "react-bootstrap";
 import { currencyFormatter } from "./Utility";
-import { TokenContext } from "../../App";
+import { TokenContext, API_BASE_URL } from "../../App";
 import DiwaCard from "../../components/card/DiwaCard";
 import DiwaRefreshButton from "../../components/button/DiwaRefreshButton";
 
 export default function Stock() {
     const [reportData, setReportData] = useState([{ itemsTotal: 0, "depth": 0, name: "", quantity: 0, cost: 0, low_qty: 0, items: [{ "depth": 0, name: "", quantity: 0, cost: 0, low_qty: 0 }] }]);
     const [loading, setLoading] = useState(true);
+    const [refreshFlag, setRefreshFlag] = useState(false);
     const [total, setTotal] = useState(-1);
     const { callAPI } = useContext(TokenContext)
 
     useEffect(() => {
-        loadData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    const loadData = () => {
         setLoading(true);
-        const apiURL = ` https://api.dingg.app/api/v1/product/sub-categories-products?product_name=&types=&category_ids=&subcategory_ids=&is_low_qty=true&brand=`
+        const apiURL = `${API_BASE_URL}/product/sub-categories-products?is_low_qty=true`;
         callAPI(apiURL, (data: any) => {
-            //setReportData(data);
             let tot = 0;
             let sortedData = [];
             for (var d in data.data) {
@@ -43,17 +38,13 @@ export default function Stock() {
             setTotal(tot);
             setLoading(false);
         });
-    }
-
-    const refresh = () => {
-        loadData();
-    }
+    }, [refreshFlag, callAPI]);
 
     return (
         <DiwaCard varient="danger" loadingTracker={loading}>
             <div className="position-relative">
                 <h2 className="text-color">Products Low on Stock<p className={`small text-color-danger-50 mb-0`}>Estimated Total Cost: {currencyFormatter.format(total)}</p></h2>
-                <DiwaRefreshButton refresh={() => refresh()} />
+                <DiwaRefreshButton refresh={() => setRefreshFlag(!refreshFlag)} />
             </div>
             {
                 reportData.map((val, index) => {
