@@ -690,7 +690,7 @@ export default function BookingsV2() {
                                 </Form.Group>
                             </Col>
                         </Row>
-                        <Row className="align-items-center">
+                        <Row className="align-items-center pt-3">
                             <Col xs={12}>
                                 <Button variant="success" className="text-light" type="submit" disabled={clicked}>{clicked ? 'Wait...' : 'Save'}</Button>
                             </Col>
@@ -702,7 +702,7 @@ export default function BookingsV2() {
                                 </Form.Group>
                             </Col>
                         </Row>}
-
+                        <Row className="align-items-center">&nbsp;<br/><br/></Row>
                     </Form>
                 </Offcanvas.Body>
             </Offcanvas>
