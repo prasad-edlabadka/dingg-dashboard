@@ -1,11 +1,13 @@
 import { useContext, useEffect, useState } from "react";
 import { Col, OverlayTrigger, ProgressBar, Row, Tooltip, Offcanvas } from "react-bootstrap";
 import { currencyFormatter, formatDate, getLastMonth } from "./Utility";
-import { subDays } from 'date-fns';
+import { subDays, format } from 'date-fns';
 import { TokenContext } from "../../App";
 import DiwaButtonGroup from "../../components/button/DiwaButtonGroup";
 import DiwaCard from "../../components/card/DiwaCard";
 import DiwaRefreshButton from "../../components/button/DiwaRefreshButton";
+import _, { now } from "lodash";
+import moment from "moment";
 
 export default function PaymentMethods() {
     const { callAPI } = useContext(TokenContext);
@@ -21,9 +23,12 @@ export default function PaymentMethods() {
     const [startDate, setStartDate] = useState(new Date(endDate.getFullYear(), endDate.getMonth(), 1));
     const [loading, setLoading] = useState(true);
     const [show, setShow] = useState(false);
+    const [showMonth, setShowMonth] = useState(false);
     const [paymentTypes, setPaymentTypes] = useState([{ name: "", value: 0 }]);
     const [todaysBills, setTodaysBills] = useState([{ user: { fname: "", lname: "" }, bill_payments: [{ payment_mode: 0, amount: 0 }] }]);
+    const [monthBills, setMonthBills] = useState([{ user: { fname: "", lname: "" }, bill_payments: [{ payment_mode: 0, amount: 0, payment_date: "" }] }]);
     const [singleDate, setSingleDate] = useState(new Date());
+    const [monthDetails, setMonthDetails] = useState([{ rangeStart: "", rangeEnd: "", lastDate: "", key: "", date: "", sum: 0 }]);
 
     useEffect(() => {
         setLoading(true);
@@ -33,6 +38,7 @@ export default function PaymentMethods() {
                 return b.total - a.total;
             });
             setReportData(data);
+            console.log(data);
             setTotal(calculateToday(data));
             const dayApiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${formatDate(singleDate)}&report_type=by_payment_mode&end_date=${formatDate(singleDate)}&app_type=web`
             callAPI(dayApiURL, (dayData: any) => {
@@ -53,6 +59,51 @@ export default function PaymentMethods() {
         const todaysBillsURL = `https://api.dingg.app/api/v1/vendor/bills/?web=true&page=1&limit=1000&start=${formatDate(singleDate)}&end=${formatDate(singleDate)}&term=&is_product_only=`;
         callAPI(todaysBillsURL, (data: any) => {
             setTodaysBills(data.data);
+        });
+
+        const monthBillURL = `https://api.dingg.app/api/v1/vendor/bills/?web=true&page=1&limit=5000&start=${formatDate(startDate)}&end=${formatDate(endDate)}&term=&is_product_only=`;
+        const getTotal = (data: any) => {
+            // console.log(data);
+            const total = data.reduce((a: number, b: { amount: number; }) => a + b.amount, 0);
+            // console.log(data, total);
+            return total;
+        }
+        callAPI(monthBillURL, (data: any) => {
+            setMonthBills(data.data);
+            const d: { key: string; date: string; sum: any; }[] = [];
+            const extractedData = data.data.flatMap((v: { bill_payments: any[]; }) => v.bill_payments);
+            const grouped = _.groupBy(_.sortBy(extractedData, ['payment_date']), (v) => v.payment_mode);
+            console.log("@@@@", extractedData, grouped);
+            for (let key in grouped) {
+                const groupedByDate = _.groupBy(grouped[key], (v) => v.payment_date);
+                console.log("####", groupedByDate, key);
+                for (let date in groupedByDate) {
+                    const sum = groupedByDate[date].reduce((a: number, b: { amount: number }) => a + b.amount, 0);
+                    console.log("$$$$", { key: getPaymentModeName(Number.parseInt(key)) || '', date, sum });
+                    d.push({ key: getPaymentModeName(Number.parseInt(key)) || '', date, sum });
+                }
+            }
+
+            console.log(d);
+            const gd =
+                d.reduce((groupedArray: { rangeStart: string, rangeEnd: string, key: string, date: string, sum: number, lastDate: string }[], currentValue: { key: string, date: string, sum: number }) => {
+                    const group = groupedArray.length > 0 ? groupedArray[groupedArray.length - 1] : { ...currentValue, rangeStart: currentValue.date, rangeEnd: currentValue.date, lastDate: currentValue.date };
+                    //console.log(group.date, currentValue.date, moment(currentValue.date).diff(moment(group.date), 'days'));
+                    if (groupedArray.length === 0 || moment(currentValue.date).diff(moment(group.lastDate), 'days') > 1 || group.key !== currentValue.key) {
+                        //console.log("Creating new group", currentValue.date);
+                        groupedArray.push({ rangeStart: currentValue.date, rangeEnd: currentValue.date, lastDate: currentValue.date, key: currentValue.key, date: currentValue.date, sum: currentValue.sum });
+                        //acc.push([value.date])
+                    } else {
+                        //console.log(groupedArray);
+                        //console.log("Adding to existing value", currentValue.date);
+                        group.sum += currentValue.sum;
+                        group.rangeEnd = currentValue.date;
+                        group.lastDate = currentValue.date;
+                        //group.push(value.date);
+                    }
+                    return groupedArray;
+                }, []);
+            setMonthDetails(gd);
         });
 
         const calculateToday = (data: { data: string | any[]; }) => {
@@ -119,11 +170,19 @@ export default function PaymentMethods() {
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+
+    const handleMonthClose = () => setShowMonth(false);
+    const handleMonthShow = () => setShowMonth(true);
+
     const [selectedPaymentMode, setSelectedPaymentMode] = useState("");
     const [bills, setBills] = useState([{ name: "", amount: 0 }]);
 
     const getPaymentModeId = (name: string) => {
         return paymentTypes.find((v: { name: string; }) => v.name.toLowerCase() === name.toLowerCase())?.value;
+    }
+
+    const getPaymentModeName = (id: number) => {
+        return paymentTypes.find((v: { value: number; }) => v.value === id)?.name;
     }
 
     const openDetails = (mode: string) => {
@@ -138,6 +197,12 @@ export default function PaymentMethods() {
         });
         setBills(displayBills);
         handleShow();
+    }
+
+    const openMonth = (mode: string) => {
+        setSelectedPaymentMode(mode);
+        handleMonthShow();
+        console.log(mode, monthDetails.filter(v => v.key.toLowerCase() === selectedPaymentMode.toLowerCase()));
     }
 
     return (
@@ -166,14 +231,40 @@ export default function PaymentMethods() {
                             })
                         }
                     </ul>
-    
+
+                </Offcanvas.Body>
+            </Offcanvas>
+            <Offcanvas show={showMonth} className="h-auto text-color" placement="bottom" backdrop={true} scroll={false} keyboard={false} id="offcanvasBottom2" onHide={handleMonthClose}>
+                <Offcanvas.Header closeButton closeVariant="white"><h5>{getPaymentMethodName(selectedPaymentMode)} Totals</h5></Offcanvas.Header>
+                <Offcanvas.Body className="pt-0">
+                    <ul className="list-group list-group-flush">
+                        {
+                            monthDetails.filter(v => v.key.toLowerCase() === selectedPaymentMode.toLowerCase()).map((val, index) => {
+                                return (
+                                    <li className="list-group-item bg-transparent text-color border-color ps-0" key={val + 'item' + index}>
+                                        <div className="w-100 pe-2 pb-2">
+                                            <div className="text-start d-inline">{format(val.rangeStart || new Date(), "dd-MMM")} to {format(val.rangeEnd || new Date(), "dd-MMM")}</div>
+                                            <div className="text-end d-inline float-end">{currencyFormatter.format(val.sum)}</div>
+                                        </div>
+                                    </li>
+                                )
+                            })
+                        }
+                        <li className="list-group-item bg-transparent text-color border-color ps-0" key="total">
+                            <div className="w-100 pe-2 pb-2">
+                                <div className="text-start d-inline text-bold">Total</div>
+                                <div className="text-end d-inline float-end">{currencyFormatter.format(monthDetails?.filter(v => v.key.toLowerCase() === selectedPaymentMode.toLowerCase())?.reduce((a, b) => a + b.sum, 0) || 0)}</div>
+                            </div>
+                        </li>
+                    </ul>
+
                 </Offcanvas.Body>
             </Offcanvas>
             {
                 reportData.data.map((val, index) => {
                     const targetPercentage = Math.round(val.total * 100 / total)
                     return (
-                        <Row key={'paymentmethod' + index}>
+                        <Row key={'paymentmethod' + index} onClick={() => openMonth(val["payment mode"])}>
                             <Col lg={4} xs={5}>{getPaymentMethodName(val["payment mode"])}</Col>
                             <Col xs={7} className="d-lg-none text-end align-bottom">{currencyFormatter.format(val.total)} ({targetPercentage}%)</Col>
                             <Col lg={4} className="mt-2">
