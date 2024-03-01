@@ -6,7 +6,7 @@ import { TokenContext } from "../../App";
 import DiwaButtonGroup from "../../components/button/DiwaButtonGroup";
 import DiwaCard from "../../components/card/DiwaCard";
 import DiwaRefreshButton from "../../components/button/DiwaRefreshButton";
-import _, { now } from "lodash";
+import _ from "lodash";
 import moment from "moment";
 
 export default function PaymentMethods() {
@@ -26,7 +26,6 @@ export default function PaymentMethods() {
     const [showMonth, setShowMonth] = useState(false);
     const [paymentTypes, setPaymentTypes] = useState([{ name: "", value: 0 }]);
     const [todaysBills, setTodaysBills] = useState([{ user: { fname: "", lname: "" }, bill_payments: [{ payment_mode: 0, amount: 0 }] }]);
-    const [monthBills, setMonthBills] = useState([{ user: { fname: "", lname: "" }, bill_payments: [{ payment_mode: 0, amount: 0, payment_date: "" }] }]);
     const [singleDate, setSingleDate] = useState(new Date());
     const [monthDetails, setMonthDetails] = useState([{ rangeStart: "", rangeEnd: "", lastDate: "", key: "", date: "", sum: 0 }]);
 
@@ -38,7 +37,7 @@ export default function PaymentMethods() {
                 return b.total - a.total;
             });
             setReportData(data);
-            console.log(data);
+            // console.log(data);
             setTotal(calculateToday(data));
             const dayApiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${formatDate(singleDate)}&report_type=by_payment_mode&end_date=${formatDate(singleDate)}&app_type=web`
             callAPI(dayApiURL, (dayData: any) => {
@@ -62,29 +61,25 @@ export default function PaymentMethods() {
         });
 
         const monthBillURL = `https://api.dingg.app/api/v1/vendor/bills/?web=true&page=1&limit=5000&start=${formatDate(startDate)}&end=${formatDate(endDate)}&term=&is_product_only=`;
-        const getTotal = (data: any) => {
-            // console.log(data);
-            const total = data.reduce((a: number, b: { amount: number; }) => a + b.amount, 0);
-            // console.log(data, total);
-            return total;
-        }
+        
         callAPI(monthBillURL, (data: any) => {
-            setMonthBills(data.data);
+            // setMonthBills(data.data);
             const d: { key: string; date: string; sum: any; }[] = [];
-            const extractedData = data.data.flatMap((v: { bill_payments: any[]; }) => v.bill_payments);
+            const extractedData = data.data.filter((v: any) => v.cancel_reason === null).flatMap((v: { bill_payments: any[]; }) => v.bill_payments).filter((v: {is_tip: boolean}) => !v.is_tip);
+            //console.log("%%%%%", data.data.filter((v: any) => v.cancel_reason !== null));
             const grouped = _.groupBy(_.sortBy(extractedData, ['payment_date']), (v) => v.payment_mode);
-            console.log("@@@@", extractedData, grouped);
+            // console.log("@@@@", extractedData, grouped);
             for (let key in grouped) {
                 const groupedByDate = _.groupBy(grouped[key], (v) => v.payment_date);
-                console.log("####", groupedByDate, key);
+                // console.log("####", groupedByDate, key);
                 for (let date in groupedByDate) {
                     const sum = groupedByDate[date].reduce((a: number, b: { amount: number }) => a + b.amount, 0);
-                    console.log("$$$$", { key: getPaymentModeName(Number.parseInt(key)) || '', date, sum });
+                    // console.log("$$$$", { key: getPaymentModeName(Number.parseInt(key)) || '', date, sum });
                     d.push({ key: getPaymentModeName(Number.parseInt(key)) || '', date, sum });
                 }
             }
 
-            console.log(d);
+            // console.log(d);
             const gd =
                 d.reduce((groupedArray: { rangeStart: string, rangeEnd: string, key: string, date: string, sum: number, lastDate: string }[], currentValue: { key: string, date: string, sum: number }) => {
                     const group = groupedArray.length > 0 ? groupedArray[groupedArray.length - 1] : { ...currentValue, rangeStart: currentValue.date, rangeEnd: currentValue.date, lastDate: currentValue.date };
@@ -202,7 +197,7 @@ export default function PaymentMethods() {
     const openMonth = (mode: string) => {
         setSelectedPaymentMode(mode);
         handleMonthShow();
-        console.log(mode, monthDetails.filter(v => v.key.toLowerCase() === selectedPaymentMode.toLowerCase()));
+        // console.log(mode, monthDetails.filter(v => v.key.toLowerCase() === selectedPaymentMode.toLowerCase()));
     }
 
     return (
