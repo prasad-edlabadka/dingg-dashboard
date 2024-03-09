@@ -1,7 +1,7 @@
-import { useContext, useEffect, useState } from "react";
-import {currencyFormatter, formatDate, getFirstDayOfWeek } from "./Utility";
-import {addDays, isAfter, endOfDay, endOfMonth, subMonths, startOfMonth, addMonths, subDays, format } from 'date-fns';
-import { TokenContext } from "../../App";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { currencyFormatter, formatDate, getFirstDayOfWeek } from "./Utility";
+import { addDays, isAfter, endOfDay, endOfMonth, subMonths, startOfMonth, addMonths, subDays, format } from 'date-fns';
+import { TokenContext, API_BASE_URL } from "../../App";
 import DiwaButtonGroup from "../../components/button/DiwaButtonGroup";
 import DiwaCard from "../../components/card/DiwaCard";
 import TitleWithRefresh from "./sale/TitleWithRefresh";
@@ -27,14 +27,6 @@ export default function Sale2() {
     const [monthStart, setMonthStart] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
     const [finMonthStart, setFinMonthStart] = useState(new Date(today.getFullYear(), today.getDate() > 9 ? today.getMonth() : today.getMonth() - 1, 10));
 
-    const [todayData, setTodayData] = useState(dataStructure);
-    const [yesterdayData, setYesterdayData] = useState(dataStructure);
-    const [currentWeekData, setCurrentWeekData] = useState(dataStructure);
-    const [previousWeekData, setPreviousWeekData] = useState(dataStructure);
-    const [currentMonthData, setCurrentMonthData] = useState(dataStructure);
-    const [previousMonthData, setPreviousMonthData] = useState(dataStructure);
-    const [currentFinMonthData, setCurrentFinMonthData] = useState(dataStructure);
-    const [previousFinMonthData, setPreviousFinMonthData] = useState(dataStructure);
     const [cashExpenses, setCashExpenses] = useState(0);
     const [prevCashExpenses, setPrevCashExpenses] = useState(0);
     const [reportData, setReportData] = useState(
@@ -50,134 +42,154 @@ export default function Sale2() {
     const buttonState = useState(0);
     const [activeButtonState, setActiveButtonState] = buttonState;
 
-    useEffect(() => {
-        loadData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [activeButtonState, reload]);
-
-    const loadData = () => {
-        setLoading(true)
-        console.log(`Load data called with button index ${activeButtonState}`);
-        // const today = new Date();
+    const calculateYesterday = useMemo(() => {
+        console.log("Calculating yesterday");
         const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+        return {
+            start: today,
+            end: today,
+            prevStart: yesterday,
+            prevEnd: yesterday
+        }
+    }, [today]);
 
+    const calculateWeekDates = useMemo(() => {
+        console.log("Calculating week");
         const startOfTheWeek = weekStart;
-        const endOfTheWeek = isAfter(addDays(startOfTheWeek, 6), endOfDay(new Date()))? endOfDay(new Date()) : addDays(startOfTheWeek, 6);
+        const endOfTheWeek = isAfter(addDays(startOfTheWeek, 6), endOfDay(new Date())) ? endOfDay(new Date()) : addDays(startOfTheWeek, 6);
         const startOfPrevWeek = addDays(startOfTheWeek, -7);
         const endOfPrevWeek = addDays(startOfPrevWeek, 6);
+        return {
+            start: startOfTheWeek,
+            end: endOfTheWeek,
+            prevStart: startOfPrevWeek,
+            prevEnd: endOfPrevWeek
+        }
+    }, [weekStart]);
 
+    const calculateMonthDates = useMemo(() => {
+        console.log("Calculating month");
         const startOfTheMonth = monthStart
-        const endOfTheMonth = isAfter(endOfMonth(monthStart), endOfDay(new Date()))? endOfDay(new Date()): endOfMonth(monthStart);
+        const endOfTheMonth = isAfter(endOfMonth(monthStart), endOfDay(new Date())) ? endOfDay(new Date()) : endOfMonth(monthStart);
         const startOfPrevMonth = startOfMonth(subMonths(startOfTheMonth, 1));
         const endOfPrevMonth = endOfMonth(startOfPrevMonth);
+        return {
+            start: startOfTheMonth,
+            end: endOfTheMonth,
+            prevStart: startOfPrevMonth,
+            prevEnd: endOfPrevMonth
+        }
+    }, [monthStart]);
 
+    const calculateFinMonthDates = useMemo(() => {
+        console.log("Calculating fin month");
         const startOfFinMonth = finMonthStart;
-        const endOfFinMonth = isAfter(subDays(addMonths(finMonthStart, 1),1), endOfDay(new Date()))? endOfDay(new Date()): subDays(addMonths(finMonthStart, 1),1);
+        const endOfFinMonth = isAfter(subDays(addMonths(finMonthStart, 1), 1), endOfDay(new Date())) ? endOfDay(new Date()) : subDays(addMonths(finMonthStart, 1), 1);
         const startOfPrevFinMonth = subMonths(finMonthStart, 1);
-        const endOfPrevFinMonth = subDays(addMonths(startOfPrevFinMonth, 1),1)
-
-        console.log(activeButtonState);
-        if (activeButtonState === 0) {
-            getReportForDateRange(today, today, (data) => {
-                setTodayData(data);
-                getReportForDateRange(yesterday, yesterday, (data2) => {
-                    setYesterdayData(data2);
-                    calculateToday(data, data2);
-                    setLoading(false);
-                });
-            });
+        const endOfPrevFinMonth = subDays(addMonths(startOfPrevFinMonth, 1), 1);
+        return {
+            start: startOfFinMonth,
+            end: endOfFinMonth,
+            prevStart: startOfPrevFinMonth,
+            prevEnd: endOfPrevFinMonth
         }
+    }, [finMonthStart]);
 
-        if (activeButtonState === 1) {
-            getReportForDateRange(startOfTheWeek, endOfTheWeek, (data) => {
-                setCurrentWeekData(data);
-                getReportForDateRange(startOfPrevWeek, endOfPrevWeek, (data2) => {
-                    setPreviousWeekData(data2);
-                    calculateWeek(data, data2);
-                    setLoading(false);
-                });
-            });
-        }
-
-        if (activeButtonState === 2) {
-            getReportForDateRange(startOfFinMonth, endOfFinMonth, (data) => {
-                setCurrentFinMonthData(data);
-                getReportForDateRange(startOfPrevFinMonth, endOfPrevFinMonth, (data2) => {
-                    setPreviousFinMonthData(data2);
-                    calculateFinMonth(data, data2);
-                    setLoading(false);
-                });
-            });
-        }
-
-        if (activeButtonState === 3) {
-            getReportForDateRange(startOfTheMonth, endOfTheMonth, (data) => {
-                setCurrentMonthData(data);
-                getReportForDateRange(startOfPrevMonth, endOfPrevMonth, (data2) => {
-                    setPreviousMonthData(data2);
-                    calculateCalendarMonth(data, data2);
-                    setLoading(false);
-                });
-            });
-        }
-    }
-
-    const getStatsReport = (start1: Date, end1: Date, start2: Date, end2: Date) => {
+    const getStatsReport = useCallback((start1: Date, end1: Date, start2: Date, end2: Date) => {
         setStatsLoading(true);
-        const apiURL = `https://api.dingg.app/api/v1/vendor/report/consolidated?time_one_start=${formatDate(start1)}&time_one_end=${formatDate(end1)}&time_two_start=${formatDate(start2)}&time_two_end=${formatDate(end2)}`
+        const apiURL = `${API_BASE_URL}/vendor/report/consolidated?time_one_start=${formatDate(start1)}&time_one_end=${formatDate(end1)}&time_two_start=${formatDate(start2)}&time_two_end=${formatDate(end2)}`
         callAPI(apiURL, (data: any) => {
             if (!data) return;
             setStatsLoading(false);
             setReportData(data.data.length === 0 ? [] : data.data)
         });
-        const cashAPIURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${formatDate(start1)}&report_type=by_expense_type&end_date=${formatDate(end1)}&locations=null&app_type=web`;
+        const cashAPIURL = `${API_BASE_URL}/vendor/report/sales?start_date=${formatDate(start1)}&report_type=by_expense_type&end_date=${formatDate(end1)}&locations=null&app_type=web`;
         callAPI(cashAPIURL, (data: any) => {
             if (!data) return;
             setCashExpenses(data.data.find((d: any) => d["expense type"] === "Cash transfer to hub")?.total || 0)
         });
 
-        const prevCashAPIURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${formatDate(start2)}&report_type=by_expense_type&end_date=${formatDate(end2)}&locations=null&app_type=web`;
+        const prevCashAPIURL = `${API_BASE_URL}/vendor/report/sales?start_date=${formatDate(start2)}&report_type=by_expense_type&end_date=${formatDate(end2)}&locations=null&app_type=web`;
         callAPI(prevCashAPIURL, (data: any) => {
             if (!data) return;
             setPrevCashExpenses(data.data.find((d: any) => d["expense type"] === "Cash transfer to hub")?.total || 0)
         });
-    }
+    },[callAPI]);
 
-    const getReportForDateRange = (start: Date, end: Date, cb: (arg0: { price: number; discount: number; tax: number; woTax: number; total: number; tip: number; start: string; end: string; }) => void) => {
+    const getReportForDateRange = useCallback((start: Date, end: Date, cb: (arg0: { price: number; discount: number; tax: number; woTax: number; total: number; tip: number; start: string; end: string; }) => void) => {
         const startDate = formatDate(start);
         const endDate = formatDate(end);
-        const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${startDate}&end_date=${endDate}&report_type=by_type&app_type=web`;
+        const apiURL = `${API_BASE_URL}/vendor/report/sales?start_date=${startDate}&end_date=${endDate}&report_type=by_type&app_type=web`;
         callAPI(apiURL, (data: any) => {
             if (!data) return;
-            let price = 0;
-            let discount = 0;
-            let tax = 0;
-            let woTax = 0;
-            let total = 0;
-            let tip = 0;
-            for (let d in data.data) {
-                const info = data.data[d];
-                price += info.price;
-                discount += info.discount;
-                tax += info.tax;
-                woTax += info["total w/o tax"];
-                total += info.total;
-                if(info.type === "Tips") {
-                    tip += info.total;
+            const values = data.data.reduce((acc: any, info: any) => {
+                acc.total += info.total;
+                acc.price += info.price;
+                acc.discount += info.discount;
+                acc.tax += info.tax;
+                acc.woTax += info["total w/o tax"];
+                if (info.type === "Tips") {
+                    acc.tip += info.total;
                 }
-            }
-            cb({
-                price: price,
-                discount: discount,
-                tax: tax,
-                woTax: woTax,
-                total: total,
-                tip: tip,
-                start: start.toString(),
-                end: end.toString()
-            });
+                return acc;
+            }, {price: 0, discount: 0, tax: 0, woTax: 0, total: 0, tip: 0, start: start.toString(), end: end.toString()});
+            cb(values);
         });
-    }
+    },[callAPI]);
+
+    const getVariation = useCallback((current: { price: number; discount: number; tax: number; woTax: number; total: number; tip: number; start: string; end: string; }, previous: { price: number; discount: number; tax: number; woTax: number; total: number; tip: number; start: string; end: string; }) => {
+        return {
+            price: variation(current.price, previous.price),
+            discount: variation(current.discount, previous.discount),
+            tax: variation(current.tax, previous.tax),
+            woTax: variation(current.woTax, previous.woTax),
+            total: variation(current.total, previous.total),
+            tip: variation(current.tip, previous.tip),
+            start: current.start,
+            end: current.end
+        };
+    },[]);
+
+    const setDisplay = useCallback((cd: any, pd: any, buttonState: number): void => {
+        setDisplaySale(cd);
+        setDisplayPreviousSale(pd);
+        setDisplayVariation(getVariation(cd, pd));
+        const formatStr = buttonState === 0 ? ["dd-MMM (EEEE)"] : buttonState === 1 ? ["dd-MMM (EEE)", "dd-MMM (EEE)"] : ["dd-MMM-yyyy", "dd-MMM-yyyy"];
+        setDisplaySubDuration(format(cd.start, formatStr[0]) + (formatStr[1] ? " to " + format(cd.end, formatStr[1]) : ""));
+    },[getVariation]);
+
+    useEffect(() => {
+        const loadData = () => {
+            setLoading(true)
+            console.log(`Load data called with button index ${activeButtonState}`);
+            const dt = new Date();
+            let dates = {start:dt, end:dt, prevStart:dt, prevEnd:dt};
+            switch(activeButtonState) {
+                case 0: 
+                    dates = calculateYesterday;
+                    break;
+                case 1:
+                    dates = calculateWeekDates;
+                    break;
+                case 2:
+                    dates = calculateFinMonthDates;
+                    break;
+                case 3:
+                    dates = calculateMonthDates;
+                    break;
+            }
+            const {start, end, prevStart, prevEnd} = dates;
+
+            getReportForDateRange(start, end, (currentData) => {
+                getReportForDateRange(prevStart, prevEnd, (previousData) => {
+                    getStatsReport(new Date(currentData.start), new Date(currentData.end), new Date(previousData.start), new Date(previousData.end));
+                    setDisplay(currentData, previousData, activeButtonState);
+                    setLoading(false);
+                });
+            });
+        }
+        loadData();
+    }, [activeButtonState, reload, calculateYesterday, calculateWeekDates, calculateMonthDates, calculateFinMonthDates, getStatsReport, getReportForDateRange, setDisplay]);
 
     const refresh = () => {
         setReload(!reload);
@@ -188,46 +200,11 @@ export default function Sale2() {
         setActiveButtonState(buttonSequence.indexOf(duration));
     }
 
-    const getVariation = (current: { price: number; discount: number; tax: number; woTax: number; total: number; tip: number; start: string; end: string; }, previous: { price: number; discount: number; tax: number; woTax: number; total: number; tip: number; start: string; end: string; }) => {
-        return {
-            price: Math.round(((current.price - previous.price) / (previous.price === 0 ? 100 : previous.price)) * 100),
-            discount: Math.round(((current.discount - previous.discount) / (previous.discount === 0 ? 100 : previous.discount)) * 100),
-            tax: Math.round(((current.tax - previous.tax) / (previous.tax === 0 ? 100 : previous.tax)) * 100),
-            woTax: Math.round(((current.woTax - previous.woTax) / (previous.woTax === 0 ? 100 : previous.woTax)) * 100),
-            total: Math.round(((current.total - previous.total) / (previous.total === 0 ? 100 : previous.total)) * 100),
-            tip: Math.round(((current.tip - previous.tip) / (previous.tip === 0 ? 100 : previous.tip)) * 100),
-            start: current.start,
-            end: current.end
-        };
+    const variation = (current: number, previous: number) => {
+        return Math.round(((current - previous) / (previous === 0 ? 100 : previous)) * 100);
     }
 
-    const calculateToday = (todayDataFromAPI = todayData, yesterdayDataFromAPI = yesterdayData) => {
-        getStatsReport(new Date(todayDataFromAPI.start), new Date(todayDataFromAPI.end), new Date(yesterdayDataFromAPI.start), new Date(yesterdayDataFromAPI.end));
-        setDisplay(todayDataFromAPI, yesterdayDataFromAPI);
-    }
-
-    const calculateWeek = (cw = currentWeekData, pw = previousWeekData) => {
-        getStatsReport(new Date(cw.start), new Date(cw.end), new Date(pw.start), new Date(pw.end));
-        setDisplay(cw, pw);
-    }
-
-    const calculateFinMonth = (cm = currentFinMonthData, pm = previousFinMonthData) => {
-        getStatsReport(new Date(cm.start), new Date(cm.end), new Date(pm.start), new Date(pm.end));
-        setDisplay(cm, pm);
-    }
-
-    const calculateCalendarMonth = (cm = currentMonthData, pm = previousMonthData) => {
-        getStatsReport(new Date(cm.start), new Date(cm.end), new Date(pm.start), new Date(pm.end));
-        setDisplay(cm, pm);
-    }
-
-    const setDisplay = (cd: any, pd: any): void => {
-        setDisplaySale(cd);
-        setDisplayPreviousSale(pd);
-        setDisplayVariation(getVariation(cd, pd));
-        const formatStr = activeButtonState === 0 ? ["dd-MMM (EEEE)"] : activeButtonState === 1 ? ["dd-MMM (EEE)", "dd-MMM (EEE)"] : ["dd-MMM-yyyy", "dd-MMM-yyyy"];
-        setDisplaySubDuration(format(cd.start, formatStr[0]) + (formatStr[1]? " to " + format(cd.end, formatStr[1]): ""));
-    }
+    
 
     const previous = () => {
         switch (activeButtonState) {
@@ -324,8 +301,6 @@ export default function Sale2() {
                         <SaleRow title="Without Discount" current={displaySale.price} previous={displayPreviousSale.price} variation={displayVariation.price} primary={false} />
                         <SaleRow title="Total Discount" current={displaySale.discount} previous={displayPreviousSale.discount} variation={displayVariation.discount} primary={false} />
                         <SaleRow title="Tip (Included in total)" current={displaySale.tip} previous={displayPreviousSale.tip} variation={displayVariation.tip} primary={false} />
-                        {/* <SaleRow title="Tax" current={displaySale.tax} previous={displayPreviousSale.tax} variation={displayVariation.tax} primary={false} />
-                        <SaleRow title="After Tax" current={displaySale.woTax} previous={displayPreviousSale.woTax} variation={displayVariation.woTax} primary={false} /> */}
                         <p></p>
                         <DiwaPaginationButton previous={previous} current={current} next={next} />
                     </DiwaCard>

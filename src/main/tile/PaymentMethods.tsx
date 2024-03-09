@@ -1,8 +1,8 @@
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { Col, OverlayTrigger, ProgressBar, Row, Tooltip, Offcanvas } from "react-bootstrap";
 import { currencyFormatter, formatDate, getLastMonth } from "./Utility";
 import { subDays, format } from 'date-fns';
-import { TokenContext } from "../../App";
+import { TokenContext, API_BASE_URL } from "../../App";
 import DiwaButtonGroup from "../../components/button/DiwaButtonGroup";
 import DiwaCard from "../../components/card/DiwaCard";
 import DiwaRefreshButton from "../../components/button/DiwaRefreshButton";
@@ -10,10 +10,10 @@ import _ from "lodash";
 import moment from "moment";
 
 export default function PaymentMethods() {
-    const { callAPI } = useContext(TokenContext);
-    const [reportData, setReportData] = useState({ data: [{ total: 0, "payment mode": "" }] });
+    const { callAPI, callAPIPromise } = useContext(TokenContext);
+    const [reportData, setReportData] = useState([{ total: 0, "payment mode": "" }]);
     const [total, setTotal] = useState(-1);
-    const [dayReportData, setDayReportData] = useState({ data: [{ total: 0, "payment mode": "", count: 0 }] });
+    const [dayReportData, setDayReportData] = useState([{ total: 0, "payment mode": "", count: 0 }]);
     const [dayTotal, setDayTotal] = useState(-1);
     const buttonState = useState(0);
     const todayButtonState = useState(0);
@@ -29,86 +29,133 @@ export default function PaymentMethods() {
     const [singleDate, setSingleDate] = useState(new Date());
     const [monthDetails, setMonthDetails] = useState([{ rangeStart: "", rangeEnd: "", lastDate: "", key: "", date: "", sum: 0 }]);
 
+    const calculateToday = useCallback((data: string | any[]) => {
+        const len = data.length;
+        let sum = 0;
+        for (let i = 0; i < len; i++) {
+            sum += data[i].total;
+        }
+        return sum;
+    }, []);
+    
     useEffect(() => {
         setLoading(true);
-        const apiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${formatDate(startDate)}&report_type=by_payment_mode&end_date=${formatDate(endDate)}&app_type=web`
-        callAPI(apiURL, (data: any) => {
-            data.data = data.data.sort((a: any, b: any) => {
+        const doIt = async () => {
+            const paymentTypeAPIURL = `${API_BASE_URL}/payment_mode`;
+            const _paymentTypes = (await callAPIPromise(paymentTypeAPIURL)).data;
+            setPaymentTypes(_paymentTypes);
+
+            const todaysBillsURL = `${API_BASE_URL}/vendor/bills/?web=true&page=1&limit=1000&start=${formatDate(singleDate)}&end=${formatDate(singleDate)}&term=&is_product_only=`;
+            const todaysBills = (await callAPIPromise(todaysBillsURL)).data;
+            setTodaysBills(todaysBills);
+
+            const apiURL = `${API_BASE_URL}/vendor/report/sales?start_date=${formatDate(startDate)}&report_type=by_payment_mode&end_date=${formatDate(endDate)}&app_type=web`
+            const paymentSummary = (await callAPIPromise(apiURL)).data.sort((a: any, b: any) => {
                 return b.total - a.total;
             });
-            setReportData(data);
-            // console.log(data);
-            setTotal(calculateToday(data));
-            const dayApiURL = `https://api.dingg.app/api/v1/vendor/report/sales?start_date=${formatDate(singleDate)}&report_type=by_payment_mode&end_date=${formatDate(singleDate)}&app_type=web`
-            callAPI(dayApiURL, (dayData: any) => {
-                dayData.data = dayData.data.sort((a: any, b: any) => {
-                    return b.total - a.total;
-                });
-                setDayReportData(dayData);
-                setDayTotal(calculateToday(dayData));
-                setLoading(false);
+            setReportData(paymentSummary);
+            setTotal(calculateToday(paymentSummary));
+            const dayApiURL = `${API_BASE_URL}/vendor/report/sales?start_date=${formatDate(singleDate)}&report_type=by_payment_mode&end_date=${formatDate(singleDate)}&app_type=web`
+            const dayData = (await callAPIPromise(dayApiURL)).data.sort((a: any, b: any) => {
+                return b.total - a.total;
             });
-        });
+            setDayReportData(dayData);
+            setDayTotal(calculateToday(dayData));
 
-        const paymentTypeAPIURL = "https://api.dingg.app/api/v1/payment_mode";
-        callAPI(paymentTypeAPIURL, (data: any) => {
-            setPaymentTypes(data.data);
-        });
-
-        const todaysBillsURL = `https://api.dingg.app/api/v1/vendor/bills/?web=true&page=1&limit=1000&start=${formatDate(singleDate)}&end=${formatDate(singleDate)}&term=&is_product_only=`;
-        callAPI(todaysBillsURL, (data: any) => {
-            setTodaysBills(data.data);
-        });
-
-        const monthBillURL = `https://api.dingg.app/api/v1/vendor/bills/?web=true&page=1&limit=5000&start=${formatDate(startDate)}&end=${formatDate(endDate)}&term=&is_product_only=`;
-        
-        callAPI(monthBillURL, (data: any) => {
-            // setMonthBills(data.data);
+            const monthBillURL = `${API_BASE_URL}/vendor/bills/?web=true&page=1&limit=1000&start=${formatDate(startDate)}&end=${formatDate(endDate)}&term=&is_product_only=`;
+            const monthBills = (await callAPIPromise(monthBillURL)).data;
             const d: { key: string; date: string; sum: any; }[] = [];
-            const extractedData = data.data.filter((v: any) => v.cancel_reason === null).flatMap((v: { bill_payments: any[]; }) => v.bill_payments).filter((v: {is_tip: boolean}) => !v.is_tip);
-            //console.log("%%%%%", data.data.filter((v: any) => v.cancel_reason !== null));
+            const extractedData = monthBills.filter((v: any) => v.cancel_reason === null).flatMap((v: { bill_payments: any[]; }) => v.bill_payments).filter((v: { is_tip: boolean }) => !v.is_tip);
             const grouped = _.groupBy(_.sortBy(extractedData, ['payment_date']), (v) => v.payment_mode);
-            // console.log("@@@@", extractedData, grouped);
             for (let key in grouped) {
                 const groupedByDate = _.groupBy(grouped[key], (v) => v.payment_date);
-                // console.log("####", groupedByDate, key);
                 for (let date in groupedByDate) {
                     const sum = groupedByDate[date].reduce((a: number, b: { amount: number }) => a + b.amount, 0);
-                    // console.log("$$$$", { key: getPaymentModeName(Number.parseInt(key)) || '', date, sum });
-                    d.push({ key: getPaymentModeName(Number.parseInt(key)) || '', date, sum });
+                    d.push({ key: getPaymentModeName(_paymentTypes, Number.parseInt(key)) || '', date, sum });
                 }
             }
-
-            // console.log(d);
             const gd =
                 d.reduce((groupedArray: { rangeStart: string, rangeEnd: string, key: string, date: string, sum: number, lastDate: string }[], currentValue: { key: string, date: string, sum: number }) => {
                     const group = groupedArray.length > 0 ? groupedArray[groupedArray.length - 1] : { ...currentValue, rangeStart: currentValue.date, rangeEnd: currentValue.date, lastDate: currentValue.date };
-                    //console.log(group.date, currentValue.date, moment(currentValue.date).diff(moment(group.date), 'days'));
                     if (groupedArray.length === 0 || moment(currentValue.date).diff(moment(group.lastDate), 'days') > 1 || group.key !== currentValue.key) {
-                        //console.log("Creating new group", currentValue.date);
                         groupedArray.push({ rangeStart: currentValue.date, rangeEnd: currentValue.date, lastDate: currentValue.date, key: currentValue.key, date: currentValue.date, sum: currentValue.sum });
-                        //acc.push([value.date])
                     } else {
-                        //console.log(groupedArray);
-                        //console.log("Adding to existing value", currentValue.date);
                         group.sum += currentValue.sum;
                         group.rangeEnd = currentValue.date;
                         group.lastDate = currentValue.date;
-                        //group.push(value.date);
                     }
                     return groupedArray;
                 }, []);
             setMonthDetails(gd);
-        });
+            
+            setLoading(false);
 
-        const calculateToday = (data: { data: string | any[]; }) => {
-            const len = data.data.length;
-            let sum = 0;
-            for (let i = 0; i < len; i++) {
-                sum += data.data[i].total;
-            }
-            return sum;
-        }
+
+            // callAPI(apiURL, (data: any) => {
+            //     data.data = data.data.sort((a: any, b: any) => {
+            //         return b.total - a.total;
+            //     });
+            //     setReportData(data);
+            //     // console.log(data);
+            //     setTotal(calculateToday(data));
+            //     const dayApiURL = `${API_BASE_URL}/vendor/report/sales?start_date=${formatDate(singleDate)}&report_type=by_payment_mode&end_date=${formatDate(singleDate)}&app_type=web`
+            //     callAPI(dayApiURL, (dayData: any) => {
+            //         dayData.data = dayData.data.sort((a: any, b: any) => {
+            //             return b.total - a.total;
+            //         });
+            //         setDayReportData(dayData);
+            //         setDayTotal(calculateToday(dayData));
+            //         setLoading(false);
+            //     });
+            // });
+
+
+
+
+            // const monthBillURL = `${API_BASE_URL}/vendor/bills/?web=true&page=1&limit=1000&start=${formatDate(startDate)}&end=${formatDate(endDate)}&term=&is_product_only=`;
+
+            // callAPI(monthBillURL, (data: any) => {
+            //     // setMonthBills(data.data);
+            //     const d: { key: string; date: string; sum: any; }[] = [];
+            //     const extractedData = data.data.filter((v: any) => v.cancel_reason === null).flatMap((v: { bill_payments: any[]; }) => v.bill_payments).filter((v: { is_tip: boolean }) => !v.is_tip);
+            //     //console.log("%%%%%", data.data.filter((v: any) => v.cancel_reason !== null));
+            //     const grouped = _.groupBy(_.sortBy(extractedData, ['payment_date']), (v) => v.payment_mode);
+            //     // console.log("@@@@", extractedData, grouped);
+            //     for (let key in grouped) {
+            //         const groupedByDate = _.groupBy(grouped[key], (v) => v.payment_date);
+            //         // console.log("####", groupedByDate, key);
+            //         for (let date in groupedByDate) {
+            //             const sum = groupedByDate[date].reduce((a: number, b: { amount: number }) => a + b.amount, 0);
+            //             // console.log("$$$$", { key: getPaymentModeName(Number.parseInt(key)) || '', date, sum });
+            //             d.push({ key: getPaymentModeName(Number.parseInt(key)) || '', date, sum });
+            //         }
+            //     }
+
+            //     // console.log(d);
+            //     const gd =
+            //         d.reduce((groupedArray: { rangeStart: string, rangeEnd: string, key: string, date: string, sum: number, lastDate: string }[], currentValue: { key: string, date: string, sum: number }) => {
+            //             const group = groupedArray.length > 0 ? groupedArray[groupedArray.length - 1] : { ...currentValue, rangeStart: currentValue.date, rangeEnd: currentValue.date, lastDate: currentValue.date };
+            //             //console.log(group.date, currentValue.date, moment(currentValue.date).diff(moment(group.date), 'days'));
+            //             if (groupedArray.length === 0 || moment(currentValue.date).diff(moment(group.lastDate), 'days') > 1 || group.key !== currentValue.key) {
+            //                 //console.log("Creating new group", currentValue.date);
+            //                 groupedArray.push({ rangeStart: currentValue.date, rangeEnd: currentValue.date, lastDate: currentValue.date, key: currentValue.key, date: currentValue.date, sum: currentValue.sum });
+            //                 //acc.push([value.date])
+            //             } else {
+            //                 //console.log(groupedArray);
+            //                 //console.log("Adding to existing value", currentValue.date);
+            //                 group.sum += currentValue.sum;
+            //                 group.rangeEnd = currentValue.date;
+            //                 group.lastDate = currentValue.date;
+            //                 //group.push(value.date);
+            //             }
+            //             return groupedArray;
+            //         }, []);
+            //     setMonthDetails(gd);
+            // });
+
+
+        };
+        doIt();
     }, [startDate, endDate, singleDate, callAPI]);
 
     const refresh = () => {
@@ -176,8 +223,8 @@ export default function PaymentMethods() {
         return paymentTypes.find((v: { name: string; }) => v.name.toLowerCase() === name.toLowerCase())?.value;
     }
 
-    const getPaymentModeName = (id: number) => {
-        return paymentTypes.find((v: { value: number; }) => v.value === id)?.name;
+    const getPaymentModeName = (types: any[], id: number) => {
+        return types.find((v: { value: number; }) => v.value === id)?.name;
     }
 
     const openDetails = (mode: string) => {
@@ -197,6 +244,7 @@ export default function PaymentMethods() {
     const openMonth = (mode: string) => {
         setSelectedPaymentMode(mode);
         handleMonthShow();
+        console.log(mode, monthDetails);
         // console.log(mode, monthDetails.filter(v => v.key.toLowerCase() === selectedPaymentMode.toLowerCase()));
     }
 
@@ -236,7 +284,7 @@ export default function PaymentMethods() {
                         {
                             monthDetails.filter(v => v.key.toLowerCase() === selectedPaymentMode.toLowerCase()).map((val, index) => {
                                 return (
-                                    <li className="list-group-item bg-transparent text-color border-color ps-0" key={val + 'item' + index}>
+                                    <li className="list-group-item bg-transparent text-color border-color ps-0" key={val + 'item2' + index}>
                                         <div className="w-100 pe-2 pb-2">
                                             <div className="text-start d-inline">{format(val.rangeStart || new Date(), "dd-MMM")} to {format(val.rangeEnd || new Date(), "dd-MMM")}</div>
                                             <div className="text-end d-inline float-end">{currencyFormatter.format(val.sum)}</div>
@@ -256,7 +304,7 @@ export default function PaymentMethods() {
                 </Offcanvas.Body>
             </Offcanvas>
             {
-                reportData.data.map((val, index) => {
+                reportData.map((val, index) => {
                     const targetPercentage = Math.round(val.total * 100 / total)
                     return (
                         <Row key={'paymentmethod' + index} onClick={() => openMonth(val["payment mode"])}>
@@ -278,7 +326,7 @@ export default function PaymentMethods() {
                 <h3>Payments for Today</h3>
             </div>
             {
-                dayReportData.data.map((val, index) => {
+                dayReportData.map((val, index) => {
                     const targetPercentage = Math.round(val.total * 100 / dayTotal)
                     return (
                         <Row key={'paymentmethodtoday' + index} onClick={() => openDetails(val["payment mode"])}>

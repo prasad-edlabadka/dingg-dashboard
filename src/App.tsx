@@ -5,7 +5,7 @@ import DinggNav from './nav/DinggNav';
 import Main from './main/Main';
 import React, { useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
-import callAPI, { callPOSTAPI, callPUTAPI } from './main/tile/Utility';
+import callAPI, { callAPIWithPromise, callPOSTAPI, callPUTAPI } from './main/tile/Utility';
 
 interface ITokenContext {
   token: string | null;
@@ -17,12 +17,13 @@ interface ITokenContext {
   navOption: string;
   setNavOption: any;
   callAPI: (url: string, cb: any) => void;
+  callAPIPromise: (url: string) => Promise<any>;
   callPOSTAPI: (url: string, data: any, cb: any) => void;
   callPUTAPI: (url: string, data: any, cb: any) => void;
   darkMode: boolean;
 }
 
-const TokenContext = React.createContext<ITokenContext>({ token: null, employeeName: null, location: null, setEmployeeName: () => {}, setLocation: () => {}, updateToken: () => {}, navOption: '', setNavOption: () => {}, callAPI: () => {}, callPOSTAPI: () => {}, callPUTAPI: () => {},darkMode: false});
+const TokenContext = React.createContext<ITokenContext>({ token: null, employeeName: null, location: null, setEmployeeName: () => {}, setLocation: () => {}, updateToken: () => {}, navOption: '', setNavOption: () => {}, callAPI: () => {}, callAPIPromise: (): Promise<any> => Promise.resolve(), callPOSTAPI: () => {}, callPUTAPI: () => {},darkMode: false});
 const API_BASE_URL = 'https://api.dingg.app/api/v1';
 function App() {
 
@@ -73,6 +74,10 @@ function App() {
     callAPI(url, token, setToken, cb);
   }
 
+  const callAPIPromise = (url: string) => {
+    return callAPIWithPromise(url, token, setToken);
+  }
+
   const callPOSTAPI2 = (url: string, data: object, cb: any) => {
     callPOSTAPI(url, data, token, setToken, cb);
   }
@@ -88,7 +93,7 @@ function App() {
     });
 
   return (
-    <TokenContext.Provider value={{ token, employeeName, location: locationName, setEmployeeName: setEmpName, setLocation, updateToken, navOption, setNavOption, callAPI: callGetAPI, callPOSTAPI: callPOSTAPI2, callPUTAPI: callPUTAPI2, darkMode: darkMode }}>
+    <TokenContext.Provider value={{ token, employeeName, location: locationName, setEmployeeName: setEmpName, setLocation, updateToken, navOption, setNavOption, callAPI: callGetAPI, callAPIPromise: callAPIPromise, callPOSTAPI: callPOSTAPI2, callPUTAPI: callPUTAPI2, darkMode: darkMode }}>
       <div  {...handlers}>
         <DinggNav />
         <Main />

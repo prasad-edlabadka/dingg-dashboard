@@ -6,6 +6,7 @@ import Sale2 from "./Sale2";
 // Mock the context
 const mockContext = {
     callAPI: jest.fn(),
+    callAPIPromise: jest.fn(),
     token: 'test-token',
     employeeName: 'test-employee',
     setEmployeeName: jest.fn(),

@@ -15,6 +15,24 @@ export default function callAPI(url: string, token: string | null, setToken: any
     .catch(err => {console.log(err);cb();});
 }
 
+export function callAPIWithPromise(url: string, token: string | null, setToken: any) {
+  const requestMetadata = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': token || ''
+    }
+  };
+  return new Promise((resolve, reject) => {
+    fetch(url, requestMetadata)
+      .then(res => res.status === 401 ? setToken(null) : res.json())
+      .then(data => {
+        resolve(data);
+      })
+      .catch(err => {console.log(err);reject(err);});
+  });
+}
+
 export function callPOSTAPI(url: string, data: object, token: string | null, setToken: any, cb: any) {
   callDataAPI('POST', url, data, token, setToken, cb);
   // const requestMetadata = {

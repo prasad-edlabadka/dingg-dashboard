@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Accordion, Button, Col, Form, Offcanvas, Row } from "react-bootstrap";
 import { currencyFormatter, formatDate, formatMobileNumber, formatTime } from "./Utility";
 import * as Icon from 'react-bootstrap-icons';
@@ -9,7 +9,7 @@ import { TokenContext, API_BASE_URL } from "../../App";
 import DiwaCard from "../../components/card/DiwaCard";
 import BillItem from "./booking/BillItem";
 import HeadingWithRefresh from "./booking/HeadingWithRefresh";
-import { differenceInMonths, formatDistanceToNow, parse } from 'date-fns';
+import { differenceInMonths, formatDistanceToNow, parse, subDays } from 'date-fns';
 import JustHeading from "./booking/JustHeading";
 
 export default function BookingsV2() {
@@ -17,9 +17,8 @@ export default function BookingsV2() {
     const [reload, setReload] = useState(false);
     const todayFlag = useState(true);
     const [today,] = todayFlag;
-    const { callAPI, callPUTAPI } = useContext(TokenContext)
+    const { callAPI, callPUTAPI, callAPIPromise } = useContext(TokenContext)
     const [customerDetails, setCustomerDetails] = useState([{ id: 0, user_histories: [{ amount_spend: 0, total_visit: 0 }] }] as Array<any>);
-    const [members, setMembers] = useState([{ user_id: "", user: { fname: "", lname: "" }, last_visit: "", mobile: "" }]);
     const [show, setShow] = useState(false);
 
     const firstName = useRef<HTMLInputElement>(null);
@@ -285,136 +284,110 @@ export default function BookingsV2() {
 
     const statusColor = ["dark", "primary", "danger", "success", "dark", "primary", "dark", "warning", "warning"];
     const statusDesc = ["Unknown", "Start Serving", "Booking Cancelled", "Completed - Bill not generated", "Unknown", "Upcoming", "Confirmed", "Tentative", "Customer Arrived"];
+    const inactiveDurationInMonths = 2;
+
+    const loadMembers = useCallback(async (groupedData: any) => {
+        const memberURL = `${API_BASE_URL}/vendor/customer_list?page=1&limit=500&amount_start=0&membership_type=0&amount_start=0&is_multi_location=false`;
+        const members = await callAPIPromise(memberURL);
+        const inactiveMembers = members.data.filter((v: { last_visit: string; }) => differenceInMonths(new Date(), parse(v.last_visit, 'yyyy-MM-dd', new Date())) > inactiveDurationInMonths);
+        setGroupedMembers(groupBy(inactiveMembers, (v: { last_visit: string; }) => (`${formatDistanceToNow(parse(v.last_visit, 'yyyy-MM-dd', new Date()), { addSuffix: true })}`)));
+        return members;
+    }, [callAPIPromise]);
+
+    const loadBillingData = useCallback(async (members: any, bookingDate: Date) => {
+        const billURL = `${API_BASE_URL}/vendor/bills?web=true&page=1&limit=1000&start=${formatDate(bookingDate)}&end=${formatDate(bookingDate)}&term=&is_product_only=`;
+        const bills = await callAPIPromise(billURL);
+        if (!bills || bills.data.length === 0) {
+            setBillingData([]);
+        } else {
+            const updatedBills = await Promise.all(bills.data.map(async (bill: any) => {
+                const billDetailsURL = `${API_BASE_URL}/bill?bill_id=${bill.id}`;
+                const billDetails = await callAPIPromise(billDetailsURL);
+                const { billSItems, billPItems, billmitem, billpkitem, billvitems, bill_tips, price, discount, tax, total } = billDetails.data;
+                bill.services = billSItems || [];
+                bill.products = billPItems || [];
+                bill.memberships = billmitem;
+                bill.packages = billpkitem;
+                bill.vouchers = billvitems;
+                bill.tips = bill_tips || [];
+                bill.payments = { price, discount, tax, total };
+                //Check if user is a member
+                bill.user.is_member = members.data.some((m: { user_id: any; }) => m.user_id === bill.user.id);
+                return bill;
+            }));
+            setBillingData(updatedBills);
+        }
+    }, [callAPIPromise]);
+
+    const loadAppointments = useCallback(async () => {
+        const bookingDate = today ? new Date() : new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
+        const apiURL = `${API_BASE_URL}/calender/booking?date=${formatDate(bookingDate)}`;
+        const appointments = await callAPIPromise(apiURL);
+        return appointments;
+    }, [today, callAPIPromise]);
+
+    const mapBookingData = useCallback((v: any, groupedData: any) => {
+        const data = groupedData[v];
+        const startDate = data.map((m: { start: any; }) => m.start).sort(function (a: string, b: string) {
+            return Date.parse(a) > Date.parse(b);
+        })[0];
+        const endDate = data.map((m: { end: any; }) => m.end).sort(function (a: string, b: string) {
+            return Date.parse(a) < Date.parse(b);
+        })[0];
+        const services: { name: any; employee: any; }[] = [];
+        let billAmount = 0;
+        data.forEach((d: { extendedProps: { book: { services: string; employee_name: any; }; }; }) => {
+            d.extendedProps.book.services.split(",").map((a: any) => {
+                billAmount += extractAmount(a);
+                services.push({
+                    name: a,
+                    employee: d.extendedProps.book.employee_name
+                });
+                return null;
+            });
+        });
+        return {
+            customerName: v,
+            start: startDate,
+            end: endDate,
+            status: data[0].extendedProps.book.status,
+            services: services,
+            billAmount: billAmount,
+            customer: {
+                totalBusiness: 0
+            }
+        }
+    }, []);
 
     useEffect(() => {
-        const bookingDate = today ? new Date() : new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
-        const loadAppointments = () => {
-            const apiURL = `${API_BASE_URL}/calender/booking?date=${formatDate(bookingDate)}`;
-            callAPI(apiURL, (data: any) => {
-                if (!data) return;
-                const groupedData = JSON.parse(JSON.stringify(_.groupBy(data.data, (b: { extendedProps: { user: { fname: any; lname: any; }; }; }) => {
-                    return `${b.extendedProps.user.fname || ""} ${b.extendedProps.user.lname || ""}`.trim();
-                }))) as Array<any>;
+        const doIt = async () => {
+            const bookingDate = today ? new Date() : subDays(new Date(), 1);
+            const appointments = await loadAppointments();
 
-                setBookingData([]);
-                customerDetails(data);
-                loadMembers();
-                setBookingData(Object.keys(groupedData).filter(v => !groupedData[v][0].extendedProps.book.bill)
-                    .map(v => {
-                        const data = groupedData[v];
-                        const startDate = data.map((m: { start: any; }) => m.start).sort(function (a: string, b: string) {
-                            return Date.parse(a) > Date.parse(b);
-                        })[0];
-                        const endDate = data.map((m: { end: any; }) => m.end).sort(function (a: string, b: string) {
-                            return Date.parse(a) < Date.parse(b);
-                        })[0];
-                        const services: { name: any; employee: any; }[] = [];
-                        let billAmount = 0;
-                        data.forEach((d: { extendedProps: { book: { services: string; employee_name: any; }; }; }) => {
-                            d.extendedProps.book.services.split(",").map((a: any) => {
-                                billAmount += extractAmount(a);
-                                services.push({
-                                    name: a,
-                                    employee: d.extendedProps.book.employee_name
-                                });
-                                return null;
-                            });
-                        });
-                        return {
-                            customerName: v,
-                            start: startDate,
-                            end: endDate,
-                            status: data[0].extendedProps.book.status,
-                            services: services,
-                            billAmount: billAmount,
-                            customer: {
-                                totalBusiness: 0
-                            }
-                        }
-                    }));
-            });
+            const groupedAppointments = JSON.parse(JSON.stringify(_.groupBy(appointments.data, (b: { extendedProps: { user: { fname: any; lname: any; }; }; }) => {
+                return `${b.extendedProps.user.fname || ""} ${b.extendedProps.user.lname || ""}`.trim();
+            }))) as Array<any>;
+            
+            setCustomerDetails(appointments.data.map(async (appointment: any) => {
+                const customerURL = `${API_BASE_URL}/vendor/customer/detail?id=${appointment.extendedProps.user.id}&is_multi_location=false`;
+                const customerData = await callAPIPromise(customerURL);
+                return customerData.data;
+            }));
+
+            const members = await loadMembers(groupedAppointments);
+
+            setBookingData(Object.keys(groupedAppointments)
+                .filter(v => !groupedAppointments[v][0].extendedProps.book.bill)
+                .map(mapBookingData));
+
+            await loadBillingData(members, bookingDate);
         }
 
-        const monthOld = 2;
-        const loadMembers = () => {
-            const memberURL = `${API_BASE_URL}/vendor/customer_list?page=1&limit=500&amount_start=0&membership_type=0&amount_start=0&is_multi_location=false`;
-            callAPI(memberURL, (data: any) => {
-                setMembers(data.data);
-                const inactiveMembers = data.data.filter((v: { last_visit: string; }) => differenceInMonths(new Date(), parse(v.last_visit, 'yyyy-MM-dd', new Date())) > monthOld);
-                setGroupedMembers(groupBy(inactiveMembers, (v: { last_visit: string; }) => (`${formatDistanceToNow(parse(v.last_visit, 'yyyy-MM-dd', new Date()), { addSuffix: true })}`)));
-            });
-
-        }
-        const identifyMembers = (data: any) => {
-            const updatedData = data.data.map((bill: any) => {
-                const userId = bill.user.id;
-                const isMember = members.some((member: { user_id: any; }) => member.user_id === userId);
-                return {
-                    ...bill,
-                    user: {
-                        ...bill.user,
-                        is_member: isMember
-                    }
-                };
-            });
-            setLoading(false);
-            setBillingData(updatedData);
-        }
-
-        const customerDetails = (data: any) => {
-            const customerPromises = data.data.map((item: any) => {
-                const customerURL = `${API_BASE_URL}/vendor/customer/detail?id=${item.extendedProps.user.id}&is_multi_location=false`;
-                return new Promise((resolve) => {
-                    callAPI(customerURL, (customerData: any) => {
-                        resolve(customerData.data);
-                    });
-                });
-            });
-
-            Promise.all(customerPromises).then((customers) => {
-                setCustomerDetails(customers);
-            });
-        }
         setLoading(true);
-        const apiURL = `${API_BASE_URL}/vendor/bills?web=true&page=1&limit=1000&start=${formatDate(bookingDate)}&end=${formatDate(bookingDate)}&term=&is_product_only=`;
-        callAPI(apiURL, (data: any) => {
-            let counter = 0;
-            if (!data) return;
-            if (data.data.length === 0) {
-                setLoading(false);
-                setBillingData([]);
-            } else {
-                for (var billIndex in data.data) {
-                    const bill = data.data[billIndex];
-                    const billURL = `${API_BASE_URL}/bill?bill_id=${bill.id}`;
-                    // eslint-disable-next-line no-loop-func
-                    callAPI(billURL, (billData: any) => {
-                        const { billSItems, billPItems, billmitem, billpkitem, billvitems, bill_tips, price, discount, tax, total } = billData.data;
-                        bill.services = billSItems || [];
-                        bill.products = billPItems || [];
-                        bill.memberships = billmitem;
-                        bill.packages = billpkitem;
-                        bill.vouchers = billvitems;
-                        bill.tips = bill_tips || [];
-                        bill.payments = {
-                            price,
-                            discount,
-                            tax,
-                            total
-                        };
-                        counter++;
-                        if (counter === data.data.length) {
-                            setLoading(false);
-                            identifyMembers(data);
-                        }
-                    });
-                }
-            }
-
+        Promise.all([doIt()]).then(() => {
+            setLoading(false);
         });
-
-        loadAppointments();
-    }, [callAPI, reload, today]);
+    }, [callAPIPromise, reload, today, loadAppointments, loadMembers, loadBillingData, mapBookingData]);
 
     const extractAmount = (txt: string): number => {
         const indexOfSymbol = txt.indexOf("₹");
@@ -444,29 +417,10 @@ export default function BookingsV2() {
         const getAPIURL = `${API_BASE_URL}/vendor/customer/detail?id=${customerId}&is_multi_location=false`;
         callAPI(getAPIURL, (customerData: any) => {
             const data = {
-                id: customerId, 
+                ...customerData.data,
+                id: customerId,
                 fname: firstName.current?.value || firstNameValue,
                 lname: lastName.current?.value || lastNameValue,
-                mobile: customerData.data.mobile, 
-                country_id: customerData.data.country_id,
-                gender: customerData.data.gender, 
-                dob: customerData.data.dob, 
-                anniversary: customerData.data.anniversary, 
-                sms_promo: customerData.data.sms_promo, 
-                sms_trans: customerData.data.sms_trans, 
-                email_promo: customerData.data.email_promo, 
-                email_trans: customerData.data.email_trans, 
-                gstn: customerData.data.gstn, 
-                address: customerData.data.address, 
-                source_remark: customerData.data.source_remark, 
-                refer_by: customerData.data.refer_by, 
-                source_id: customerData.data.source_id,
-                is_whatsapp_num: customerData.data.is_whatsapp_num, 
-                whatsapp_promo: customerData.data.whatsapp_promo, 
-                whatsapp_trans: customerData.data.whatsapp_trans, 
-                state_id: customerData.data.state_id, 
-                registration_no: customerData.data.registration_no, 
-                email: customerData.data.email
             }
             callPUTAPI(apiURL, data, (customerData: any) => {
                 if (customerData.success) {
@@ -702,7 +656,7 @@ export default function BookingsV2() {
                                 </Form.Group>
                             </Col>
                         </Row>}
-                        <Row className="align-items-center">&nbsp;<br/><br/></Row>
+                        <Row className="align-items-center">&nbsp;<br /><br /></Row>
                     </Form>
                 </Offcanvas.Body>
             </Offcanvas>

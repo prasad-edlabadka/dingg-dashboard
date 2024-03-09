@@ -83,7 +83,7 @@ export default function Expenses() {
             setLoading(false);
         });
 
-        const expenseTypesURL = `${API_BASE_URL}/expense/type`;
+        const expenseTypesURL = `${API_BASE_URL}/vendor/expense/type`;
         callAPI(expenseTypesURL, (data: any) => {
             setExpenseTypes(data.data.map((v: { value: string; name: string; }) => { return { id: v.value, name: v.name } }));
         });
