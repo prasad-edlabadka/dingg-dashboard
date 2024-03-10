@@ -369,11 +369,13 @@ export default function BookingsV2() {
                 return `${b.extendedProps.user.fname || ""} ${b.extendedProps.user.lname || ""}`.trim();
             }))) as Array<any>;
 
-            setCustomerDetails(appointments.data.map(async (appointment: any) => {
+            const customers = await Promise.all(appointments.data.map(async (appointment: any) => {
                 const customerURL = `${API_BASE_URL}/vendor/customer/detail?id=${appointment.extendedProps.user.id}&is_multi_location=false`;
                 const customerData = await callAPIPromise(customerURL);
                 return customerData.data;
             }));
+
+            setCustomerDetails(customers);
 
             const members = await loadMembers(groupedAppointments);
 

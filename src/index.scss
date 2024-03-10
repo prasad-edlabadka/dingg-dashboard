@@ -62,6 +62,7 @@ $input-color: white;
     --diwa-danger-button: var(--bs-danger);
     --diwa-success-button: var(--bs-success);
     --popup-bg-color: var(--bs-light-rgb);
+    --diwa-warning-rgb: #8a6801;
   }
   @media (prefers-color-scheme: dark) {
     --diwa-bg-color: rgba(61,31,32,1) !important;
@@ -83,6 +84,7 @@ $input-color: white;
     --diwa-danger-button: var(--bs-light);
     --diwa-success-button: var(--bs-light);
     --popup-bg-color: var(--bs-dark-rgb);
+    --diwa-warning-rgb: var(--bs-warning-rgb);
   }
 }
 
@@ -238,4 +240,8 @@ input {
   background-color: rgba(var(--input-bg-color),0.5) !important;
   backdrop-filter: blur(1rem);
   border-top: 1px solid var(--text-color-50) !important;
+}
+
+.text-warning {
+  color: var(--diwa-warning-rgb) !important;
 }
