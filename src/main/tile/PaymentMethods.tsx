@@ -89,74 +89,9 @@ export default function PaymentMethods() {
             setMonthDetails(gd);
             
             setLoading(false);
-
-
-            // callAPI(apiURL, (data: any) => {
-            //     data.data = data.data.sort((a: any, b: any) => {
-            //         return b.total - a.total;
-            //     });
-            //     setReportData(data);
-            //     // console.log(data);
-            //     setTotal(calculateToday(data));
-            //     const dayApiURL = `${API_BASE_URL}/vendor/report/sales?start_date=${formatDate(singleDate)}&report_type=by_payment_mode&end_date=${formatDate(singleDate)}&app_type=web`
-            //     callAPI(dayApiURL, (dayData: any) => {
-            //         dayData.data = dayData.data.sort((a: any, b: any) => {
-            //             return b.total - a.total;
-            //         });
-            //         setDayReportData(dayData);
-            //         setDayTotal(calculateToday(dayData));
-            //         setLoading(false);
-            //     });
-            // });
-
-
-
-
-            // const monthBillURL = `${API_BASE_URL}/vendor/bills/?web=true&page=1&limit=1000&start=${formatDate(startDate)}&end=${formatDate(endDate)}&term=&is_product_only=`;
-
-            // callAPI(monthBillURL, (data: any) => {
-            //     // setMonthBills(data.data);
-            //     const d: { key: string; date: string; sum: any; }[] = [];
-            //     const extractedData = data.data.filter((v: any) => v.cancel_reason === null).flatMap((v: { bill_payments: any[]; }) => v.bill_payments).filter((v: { is_tip: boolean }) => !v.is_tip);
-            //     //console.log("%%%%%", data.data.filter((v: any) => v.cancel_reason !== null));
-            //     const grouped = _.groupBy(_.sortBy(extractedData, ['payment_date']), (v) => v.payment_mode);
-            //     // console.log("@@@@", extractedData, grouped);
-            //     for (let key in grouped) {
-            //         const groupedByDate = _.groupBy(grouped[key], (v) => v.payment_date);
-            //         // console.log("####", groupedByDate, key);
-            //         for (let date in groupedByDate) {
-            //             const sum = groupedByDate[date].reduce((a: number, b: { amount: number }) => a + b.amount, 0);
-            //             // console.log("$$$$", { key: getPaymentModeName(Number.parseInt(key)) || '', date, sum });
-            //             d.push({ key: getPaymentModeName(Number.parseInt(key)) || '', date, sum });
-            //         }
-            //     }
-
-            //     // console.log(d);
-            //     const gd =
-            //         d.reduce((groupedArray: { rangeStart: string, rangeEnd: string, key: string, date: string, sum: number, lastDate: string }[], currentValue: { key: string, date: string, sum: number }) => {
-            //             const group = groupedArray.length > 0 ? groupedArray[groupedArray.length - 1] : { ...currentValue, rangeStart: currentValue.date, rangeEnd: currentValue.date, lastDate: currentValue.date };
-            //             //console.log(group.date, currentValue.date, moment(currentValue.date).diff(moment(group.date), 'days'));
-            //             if (groupedArray.length === 0 || moment(currentValue.date).diff(moment(group.lastDate), 'days') > 1 || group.key !== currentValue.key) {
-            //                 //console.log("Creating new group", currentValue.date);
-            //                 groupedArray.push({ rangeStart: currentValue.date, rangeEnd: currentValue.date, lastDate: currentValue.date, key: currentValue.key, date: currentValue.date, sum: currentValue.sum });
-            //                 //acc.push([value.date])
-            //             } else {
-            //                 //console.log(groupedArray);
-            //                 //console.log("Adding to existing value", currentValue.date);
-            //                 group.sum += currentValue.sum;
-            //                 group.rangeEnd = currentValue.date;
-            //                 group.lastDate = currentValue.date;
-            //                 //group.push(value.date);
-            //             }
-            //             return groupedArray;
-            //         }, []);
-            //     setMonthDetails(gd);
-            // });
-
-
         };
         doIt();
-    }, [startDate, endDate, singleDate, callAPI]);
+    }, [startDate, endDate, singleDate, callAPIPromise, callAPI, calculateToday]);
 
     const refresh = () => {
         const dt = new Date();

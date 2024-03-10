@@ -326,8 +326,9 @@ export default function BookingsV2() {
         return appointments;
     }, [today, callAPIPromise]);
 
-    const mapBookingData = useCallback((v: any, groupedData: any) => {
+    const mapBookingData = useCallback((v: any, index: number, groupedData: any) => {
         const data = groupedData[v];
+        console.log(groupedData, v, data);
         const startDate = data.map((m: { start: any; }) => m.start).sort(function (a: string, b: string) {
             return Date.parse(a) > Date.parse(b);
         })[0];
@@ -367,7 +368,7 @@ export default function BookingsV2() {
             const groupedAppointments = JSON.parse(JSON.stringify(_.groupBy(appointments.data, (b: { extendedProps: { user: { fname: any; lname: any; }; }; }) => {
                 return `${b.extendedProps.user.fname || ""} ${b.extendedProps.user.lname || ""}`.trim();
             }))) as Array<any>;
-            
+
             setCustomerDetails(appointments.data.map(async (appointment: any) => {
                 const customerURL = `${API_BASE_URL}/vendor/customer/detail?id=${appointment.extendedProps.user.id}&is_multi_location=false`;
                 const customerData = await callAPIPromise(customerURL);
@@ -378,7 +379,38 @@ export default function BookingsV2() {
 
             setBookingData(Object.keys(groupedAppointments)
                 .filter(v => !groupedAppointments[v][0].extendedProps.book.bill)
-                .map(mapBookingData));
+                .map(v => {
+                    const data = groupedAppointments[v];
+                    const startDate = data.map((m: { start: any; }) => m.start).sort(function (a: string, b: string) {
+                        return Date.parse(a) > Date.parse(b);
+                    })[0];
+                    const endDate = data.map((m: { end: any; }) => m.end).sort(function (a: string, b: string) {
+                        return Date.parse(a) < Date.parse(b);
+                    })[0];
+                    const services: { name: any; employee: any; }[] = [];
+                    let billAmount = 0;
+                    data.forEach((d: { extendedProps: { book: { services: string; employee_name: any; }; }; }) => {
+                        d.extendedProps.book.services.split(",").map((a: any) => {
+                            billAmount += extractAmount(a);
+                            services.push({
+                                name: a,
+                                employee: d.extendedProps.book.employee_name
+                            });
+                            return null;
+                        });
+                    });
+                    return {
+                        customerName: v,
+                        start: startDate,
+                        end: endDate,
+                        status: data[0].extendedProps.book.status,
+                        services: services,
+                        billAmount: billAmount,
+                        customer: {
+                            totalBusiness: 0
+                        }
+                    }
+                }));
 
             await loadBillingData(members, bookingDate);
         }
