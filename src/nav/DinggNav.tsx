@@ -13,7 +13,7 @@ function DinggNav() {
     { name: 'finance', icon: FontAwesomeIcon, link: '#home', iconProps: { icon: faIndianRupeeSign } },
     { name: 'staff', icon: FontAwesomeIcon, link: '#home', iconProps: { icon: faUsers } },
     { name: 'reload', icon: Icon.ArrowClockwise, link: '#home', onClick: () => window.location.reload()},
-    { name: 'logout', icon: Icon.Power, link: '#home', onClick: () => updateToken(null) }
+    { name: 'logout', icon: Icon.Power, link: '#home', onClick: () => {updateToken(null);localStorage.setItem('autoLogin', 'false')} }
   ]
   return (
     <DiwaNavBar navs={navs} />
