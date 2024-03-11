@@ -144,10 +144,10 @@ export default function Expenses() {
                     <Button variant="indigo" className="text-color" size="lg" onClick={() => handleShow()}><Icon.PlusLg /></Button>
                     <Button variant="indigo" className="text-color" size="lg" onClick={() => refresh()}><Icon.ArrowClockwise /></Button>
                 </div>
-                <Offcanvas show={show} className="h-auto bg-dark text-white" placement="bottom" backdrop={true} scroll={false} keyboard={false} id="offcanvasBottom" onHide={handleClose}>
-                    <Offcanvas.Header closeButton closeVariant="white"><h5>Add New Expense</h5></Offcanvas.Header>
+                <Offcanvas show={show} className="h-auto bg-dark text-color" placement="bottom" backdrop={true} scroll={false} keyboard={false} id="offcanvasBottom" onHide={handleClose}>
+                    <Offcanvas.Header closeButton closeVariant="color"><h5>Add New Expense</h5></Offcanvas.Header>
                     <Offcanvas.Body className="pt-0">
-                        <Form className="mt-0" onSubmit={createExpense}>
+                        <Form className="mt-0 text-color" onSubmit={createExpense}>
                             <Row className="align-items-center mb-2">
                                 <Col xs={12}>
                                     <Form.Group>

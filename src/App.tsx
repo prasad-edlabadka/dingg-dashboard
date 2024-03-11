@@ -86,11 +86,11 @@ function App() {
     callPUTAPI(url, data, token, setToken, cb);
   }
 
-  const [darkMode, setDarkMode] = useState(!window.matchMedia('(prefers-color-scheme: dark)').matches);
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-        console.log("Dark mode is " + (e.matches ? "on" : "off"));
-        setDarkMode(!e.matches);
-    });
+  const [darkMode, ] = useState(!window.matchMedia('(prefers-color-scheme: dark)').matches);
+    // window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+    //     console.log("Dark mode is " + (e.matches ? "on" : "off"));
+    //     setDarkMode(!e.matches);
+    // });
 
   return (
     <TokenContext.Provider value={{ token, employeeName, location: locationName, setEmployeeName: setEmpName, setLocation, updateToken, navOption, setNavOption, callAPI: callGetAPI, callAPIPromise: callAPIPromise, callPOSTAPI: callPOSTAPI2, callPUTAPI: callPUTAPI2, darkMode: darkMode }}>

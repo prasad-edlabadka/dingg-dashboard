@@ -27,7 +27,7 @@ export default function Consumption() {
 
     return (
         <DiwaCard varient="indigo" loadingTracker={loading}>
-            <div className="position-relative">
+            <div className="position-relative text-color">
                 <h2>Today's Consumption</h2>
                 <DiwaRefreshButton refresh={() => setRefreshFlag(!refreshFlag)} />
             </div>

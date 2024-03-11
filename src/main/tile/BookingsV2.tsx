@@ -492,7 +492,7 @@ export default function BookingsV2() {
                                 <Col xl={4} xs={12} className="gy-2" key={"booking" + index}>
                                     <DiwaCard varient={booking.status ? 'success' : 'danger'} loadingTracker={loading}>
                                         <div>
-                                            <h3>{
+                                            <h3 className="text-color">{
                                                 booking.user.is_member ? <Icon.StarFill style={{ marginTop: -4, paddingRight: 4 }} color="gold" /> : ''}{`${booking.user.fname || ""} ${booking.user.lname || ""}`.trim()} ({currencyFormatter.format(booking.payments.total)})
                                                 <p className="d-inline float-end small"><FontAwesomeIcon icon={faPenToSquare} onClick={() => editName(booking.user.id, `${booking.user.fname}`, `${booking.user.lname}`)} /></p>
                                                 <p className="d-block small mb-0 text-color-50">Spent {currencyFormatter.format(cust?.amount_spend)} in {cust?.total_visit} visits with average of {currencyFormatter.format(cust?.amount_spend / cust?.total_visit)} per visit</p></h3>
@@ -569,8 +569,8 @@ export default function BookingsV2() {
                                                         iconProps={{ icon: faMoneyBill1, className: "bill-item-icon" }} />
                                                 )}
                                             </ul>
-                                            <hr className="mt-1 mb-1" />
-                                            <div className="w-100">
+                                            <hr className="mt-1 mb-1 border-color" />
+                                            <div className="w-100 text-color-50">
                                                 {
                                                     booking.status ?
                                                         <>
@@ -661,9 +661,9 @@ export default function BookingsV2() {
                 }
             </DiwaCard>
             <Offcanvas show={show} className="h-auto bg-dark text-white" placement="bottom" backdrop={true} scroll={false} keyboard={false} id="offcanvasBottom" onHide={handleClose}>
-                <Offcanvas.Header closeButton closeVariant="white"><h5>Edit Name</h5></Offcanvas.Header>
+                <Offcanvas.Header closeButton closeVariant="color"><h5 className="text-color">Edit Name</h5></Offcanvas.Header>
                 <Offcanvas.Body className="pt-0">
-                    <Form className="mt-0" onSubmit={submitUpdatedName}>
+                    <Form className="mt-0 text-color" onSubmit={submitUpdatedName}>
                         <Row className="align-items-center mb-1">
                             <Col xs={6}>
                                 <Form.Group>

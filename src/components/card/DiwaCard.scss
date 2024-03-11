@@ -7,123 +7,123 @@ $box-shadow: 0.5rem .5rem 1rem rgba(#000, .45);
   border-radius: $border-radius !important;
   box-shadow: $box-shadow !important;
 }
+
+:root {
+  --card-bg-color: #fff;
+  --card-text-color: #000;
+  --card-border-color: #000;
+  --card-border-radius: 1rem;
+  --card-box-shadow: 0.5rem 0.5rem 1.3rem rgba($color: #000, $alpha: 0.5);
+  --diwa-card-border-width: "2px";
+  --diwa-border-top-alpha: 0.9;
+  --diwa-border-left-alpha: 0.9;
+  --diwa-border-bottom-alpha: 0.9;
+  --diwa-border-right-alpha: 0.9;
+  --background-alpha-end: 0.25;
+  --background-alpha-start: 0.3;
+  --card-bg-danger-color: var(--bs-danger-rgb);
+  --card-bg-success-color: var(--bs-success-rgb);
+  --card-bg-primary-color: var(--bs-primary-rgb);
+  --card-bg-warning-color: var(--bs-warning-rgb);
+  --card-bg-dark-color: var(--bs-dark-rgb);
+  --card-bg-indigo-color: 13,110,253;
+  --card-bg-purple-color: 102,16,242;
+}
+
+.dark {
+  --card-bg-color: #000;
+  --card-text-color: #fff;
+  --card-border-color: #fff;
+  --diwa-card-border-width: 1px;
+  --card-box-shadow: 0.5rem 0.5rem 1.3rem rgba($color: #fff, $alpha: 0.5);
+  --diwa-border-top-alpha: 0.5;
+  --diwa-border-left-alpha: 0.5;
+  --diwa-border-bottom-alpha: 0.1;
+  --diwa-border-right-alpha: 0.1;
+  --background-alpha-end: 0.4;
+  --background-alpha-start: 0.6;
+  --card-bg-danger-color: 255,255,255;
+  --card-bg-success-color: 255,255,255;
+  --card-bg-primary-color: 255,255,255;
+  --card-bg-warning-color: 255,255,255;
+  --card-bg-dark-color: 255,255,255;
+  --card-bg-indigo-color: 255,255,255;
+  --card-bg-purple-color: 255,255,255;
+
+}
+
 .card {
-    box-shadow: inset 0 0 2000px #dbdbdb80;
-    backdrop-filter: blur(1rem);
-    box-shadow: 0.5rem 0.5rem 1.3rem rgba($color: #000, $alpha: 0.5) !important;
-    border-top-color: rgba(225, 225, 225, 0.5);
-    border-left-color: rgba(225, 225, 225, 0.5);
-    border-bottom-color: rgba(225, 225, 225, 0.1);
-    border-right-color: rgba(225, 225, 225, 0.1);
-    border-radius: 1.5rem;
-    // height: 100%;
-  }
-  
-  .card.bg-danger {
-    background-color: unset !important;
-    @media (prefers-color-scheme: light) {
-      background: linear-gradient(to right bottom, rgba(var(--bs-danger-rgb), 0.3), rgba(var(--bs-danger-rgb), 0.25));
-      border-top-color: rgba(var(--bs-danger-rgb), 0.9);
-      border-left-color: rgba(var(--bs-danger-rgb), 0.9);
-      border-bottom-color: rgba(var(--bs-danger-rgb), 0.9);
-      border-right-color: rgba(var(--bs-danger-rgb), 0.9);
-      border-width: 2px;
-    }
-    @media (prefers-color-scheme: dark) {
-      background: linear-gradient(to right bottom, rgba(var(--bs-danger-rgb), 0.6), rgba(var(--bs-danger-rgb), 0.4));
-    }
-    //background: linear-gradient(to right bottom, rgba(var(--bs-danger-rgb), 0.6), rgba(var(--bs-danger-rgb), 0.4) );
-  }
-  
-  .card.bg-success {
-    background-color: unset !important;
-    @media (prefers-color-scheme: light) {
-      background: linear-gradient(to right bottom, rgba(var(--bs-success-rgb), 0.3), rgba(var(--bs-success-rgb), 0.25));
-      border-top-color: rgba(var(--bs-success-rgb), 0.9);
-      border-left-color: rgba(var(--bs-success-rgb), 0.9);
-      border-bottom-color: rgba(var(--bs-success-rgb), 0.9);
-      border-right-color: rgba(var(--bs-success-rgb), 0.9);
-      border-width: 2px;
-    }
-    @media (prefers-color-scheme: dark) {
-      background: linear-gradient(to right bottom, rgba(var(--bs-success-rgb), 0.6), rgba(var(--bs-success-rgb), 0.4));
-    }
-    
-  }
-  
-  .card.bg-primary {
-    background-color: unset !important;
-    @media (prefers-color-scheme: light) {
-      background: linear-gradient(to right bottom, rgba(var(--bs-primary-rgb), 0.3), rgba(var(--bs-primary-rgb), 0.25));
-      border-top-color: rgba(var(--bs-primary-rgb), 0.9);
-      border-left-color: rgba(var(--bs-primary-rgb), 0.9);
-      border-bottom-color: rgba(var(--bs-primary-rgb), 0.9);
-      border-right-color: rgba(var(--bs-primary-rgb), 0.9);
-      border-width: 2px;
-    }
-    @media (prefers-color-scheme: dark) {
-      background: linear-gradient(to right bottom, rgba(var(--bs-primary-rgb), 0.6), rgba(var(--bs-primary-rgb), 0.4));
-    }
-    
-  }
-  
-  .card.bg-warning {
-    background-color: unset !important;
-    @media (prefers-color-scheme: light) {
-      background: linear-gradient(to right bottom, rgba(var(--bs-warning-rgb), 0.2), rgba(var(--bs-warning-rgb), 0.1));
-      border-top-color: rgba(var(--bs-warning-rgb), 0.6);
-      border-left-color: rgba(var(--bs-warning-rgb), 0.6);
-      border-bottom-color: rgba(var(--bs-warning-rgb), 0.6);
-      border-right-color: rgba(var(--bs-warning-rgb), 0.6);
-      border-width: 2px;
-    }
-    @media (prefers-color-scheme: dark) {
-      background: linear-gradient(to right bottom, rgba(var(--bs-warning-rgb), 0.6), rgba(var(--bs-warning-rgb), 0.4));
-    }
-    
-  }
-  
-  .card.bg-dark {
-    background-color: unset !important;
-    @media (prefers-color-scheme: light) {
-      background: linear-gradient(to right bottom, rgba(var(--bs-dark-rgb), 0.3), rgba(var(--bs-dark-rgb), 0.25));
-      border-top-color: rgba(var(--bs-dark-rgb), 0.9);
-      border-left-color: rgba(var(--bs-dark-rgb), 0.9);
-      border-bottom-color: rgba(var(--bs-dark-rgb), 0.9);
-      border-right-color: rgba(var(--bs-dark-rgb), 0.9);
-      border-width: 2px;
-    }
-    @media (prefers-color-scheme: dark) {
-      background: linear-gradient(to right bottom, rgba(var(--bs-dark-rgb), 0.6), rgba(var(--bs-dark-rgb), 0.4));
-    }
-  }
-  
-  .card.bg-indigo {
-    background-color: unset !important;
-    @media (prefers-color-scheme: light) {
-      background: linear-gradient(to right bottom, rgba(var(--bs-primary-rgb), 0.3), rgba(var(--bs-primary-rgb), 0.25));
-      border-top-color: rgba(var(--bs-primary-rgb), 0.9);
-      border-left-color: rgba(var(--bs-primary-rgb), 0.9);
-      border-bottom-color: rgba(var(--bs-primary-rgb), 0.9);
-      border-right-color: rgba(var(--bs-primary-rgb), 0.9);
-      border-width: 2px;
-    }
-    @media (prefers-color-scheme: dark) {
-      background: linear-gradient(to right bottom, rgba(13, 110, 253, 0.6), rgba(13, 110, 253, 0.4));
-    }
-  }
-  
-  .card.bg-purple {
-    background-color: unset !important;
-    @media (prefers-color-scheme: light) {
-      background: linear-gradient(to right bottom, rgba(#6610f2, 0.3), rgba(#6610f2, 0.25));
-      border-top-color: rgba(#6610f2, 0.9);
-      border-left-color: rgba(#6610f2, 0.9);
-      border-bottom-color: rgba(#6610f2, 0.9);
-      border-right-color: rgba(#6610f2, 0.9);
-      border-width: 2px;
-    }
-    @media (prefers-color-scheme: dark) {
-      background: linear-gradient(to right bottom, rgba(#6610f2, 0.6), rgba(#6610f2, 0.4)) !important;
-    }
-  }
+  box-shadow: inset 0 0 2000px #dbdbdb80;
+  backdrop-filter: blur(1rem);
+  box-shadow: 0.5rem 0.5rem 1.3rem rgba($color: #000, $alpha: 0.5) !important;
+  border-color: unset;
+  border-top-color: rgba(var(--card-bg-color), var(--diwa-border-top-alpha));
+  border-left-color: rgba(var(--card-bg-color), var(--diwa-border-left-alpha));
+  border-bottom-color: rgba(var(--card-bg-color), var(--diwa-border-bottom-alpha));
+  border-right-color: rgba(var(--card-bg-color), var(--diwa-border-right-alpha));
+  border-radius: 1.5rem;
+  border-width: var(--diwa-card-border-width);
+}
+
+.card.bg-danger {
+  background-color: unset !important;
+  background: linear-gradient(to right bottom, rgba(var(--bs-danger-rgb), var(--background-alpha-start)), rgba(var(--bs-danger-rgb), var(--background-alpha-end)));
+  border-top-color: rgba(var(--card-bg-danger-color), var(--diwa-border-top-alpha)) !important;
+  border-left-color: rgba(var(--card-bg-danger-color), var(--diwa-border-left-alpha)) !important;
+  border-bottom-color: rgba(var(--card-bg-danger-color), var(--diwa-border-bottom-alpha)) !important;
+  border-right-color: rgba(var(--card-bg-danger-color), var(--diwa-border-right-alpha)) !important;
+}
+
+.card.bg-success {
+  background-color: unset !important;
+  background: linear-gradient(to right bottom, rgba(var(--bs-success-rgb), var(--background-alpha-start)), rgba(var(--bs-success-rgb), var(--background-alpha-end)));
+  border-top-color: rgba(var(--card-bg-success-color), var(--diwa-border-top-alpha)) !important;
+  border-left-color: rgba(var(--card-bg-success-color), var(--diwa-border-left-alpha)) !important;
+  border-bottom-color: rgba(var(--card-bg-success-color), var(--diwa-border-bottom-alpha)) !important;
+  border-right-color: rgba(var(--card-bg-success-color), var(--diwa-border-right-alpha)) !important;
+}
+
+.card.bg-primary {
+  background-color: unset !important;
+  background: linear-gradient(to right bottom, rgba(var(--bs-primary-rgb), var(--background-alpha-start)), rgba(var(--bs-primary-rgb), var(--background-alpha-end)));
+  border-top-color: rgba(var(--card-bg-primary-color), var(--diwa-border-top-alpha)) !important;
+  border-left-color: rgba(var(--card-bg-primary-color), var(--diwa-border-left-alpha)) !important;
+  border-bottom-color: rgba(var(--card-bg-primary-color), var(--diwa-border-bottom-alpha)) !important;
+  border-right-color: rgba(var(--card-bg-primary-color), var(--diwa-border-right-alpha)) !important;
+}
+
+.card.bg-warning {
+  background-color: unset !important;
+  background: linear-gradient(to right bottom, rgba(var(--bs-warning-rgb), var(--background-alpha-start)), rgba(var(--bs-warning-rgb), var(--background-alpha-end)));
+  border-top-color: rgba(var(--card-bg-warning-color), var(--diwa-border-top-alpha)) !important;
+  border-left-color: rgba(var(--card-bg-warning-color), var(--diwa-border-left-alpha)) !important;
+  border-bottom-color: rgba(var(--card-bg-warning-color), var(--diwa-border-bottom-alpha)) !important;
+  border-right-color: rgba(var(--card-bg-warning-color), var(--diwa-border-right-alpha)) !important;
+}
+
+.card.bg-dark {
+  background-color: unset !important;
+  background: linear-gradient(to right bottom, rgba(var(--bs-dark-rgb), var(--background-alpha-start)), rgba(var(--bs-dark-rgb), var(--background-alpha-end)));
+  border-top-color: rgba(var(--card-bg-dark-color), var(--diwa-border-top-alpha)) !important;
+  border-left-color: rgba(var(--card-bg-dark-color), var(--diwa-border-left-alpha)) !important;
+  border-bottom-color: rgba(var(--card-bg-dark-color), var(--diwa-border-bottom-alpha)) !important;
+  border-right-color: rgba(var(--card-bg-dark-color), var(--diwa-border-right-alpha)) !important;
+}
+
+.card.bg-indigo {
+  background-color: unset !important;
+  background: linear-gradient(to right bottom, rgba(var(--bs-primary-rgb), var(--background-alpha-start)), rgba(var(--bs-primary-rgb), var(--background-alpha-end)));
+  border-top-color: rgba(var(--card-bg-indigo-color), var(--diwa-border-top-alpha)) !important;
+  border-left-color: rgba(var(--card-bg-indigo-color), var(--diwa-border-left-alpha)) !important;
+  border-bottom-color: rgba(var(--card-bg-indigo-color), var(--diwa-border-bottom-alpha)) !important;
+  border-right-color: rgba(var(--card-bg-indigo-color), var(--diwa-border-right-alpha)) !important;
+}
+
+.card.bg-purple {
+  background-color: unset !important;
+  background: linear-gradient(to right bottom, rgba(#6610f2, var(--background-alpha-start)), rgba(#6610f2, var(--background-alpha-end)));
+  border-top-color: rgba(var(--card-bg-purple-color), var(--diwa-border-top-alpha)) !important;
+  border-left-color: rgba(var(--card-bg-purple-color), var(--diwa-border-left-alpha)) !important;
+  border-bottom-color: rgba(var(--card-bg-purple-color), var(--diwa-border-bottom-alpha)) !important;
+  border-right-color: rgba(var(--card-bg-purple-color), var(--diwa-border-right-alpha)) !important;
+}

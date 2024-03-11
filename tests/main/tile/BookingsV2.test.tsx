@@ -1,73 +1,37 @@
-// FILEPATH: /Users/prasad/Desktop/code/dingg-dashboard/src/main/tile/BookingsV2.test.tsx
-import { render, screen } from "@testing-library/react";
-import { act } from "react-dom/test-utils";
-import BookingsV2 from "../../../src/main/tile/BookingsV2";
-import { differenceInMonths, parse } from 'date-fns';
+import { renderHook, act } from '@testing-library/react-hooks';
+import { API_BASE_URL } from '../../../src/App'; // replace with your actual import
 
-jest.mock('date-fns', () => ({
-    differenceInMonths: jest.fn(),
-    parse: jest.fn(),
+jest.mock('../../../src/App', () => ({ // replace with your actual import
+    callAPIPromise: jest.fn(),
 }));
 
-jest.mock('./api', () => ({
-    callAPI: jest.fn(),
-}));
+describe('loadAppointments', () => {
+    let useLoadAppointments: (arg0: boolean, arg1: any) => any;
+    let callAPIPromise: any;
 
-describe('BookingsV2 component tests', () => {
-    // Mock data
-    const mockData = {
-        data: [
-            {
-                user: {
-                    id: 1,
-                    is_member: false,
-                },
-            },
-            {
-                user: {
-                    id: 2,
-                    is_member: false,
-                },
-            },
-        ],
-    };
+    beforeEach(() => {
+        jest.resetModules();
+        jest.clearAllMocks();
+        jest.spyOn(global, 'Date')
+            .mockImplementationOnce(() => new Date('2022-01-01T00:00:00Z').toISOString())
+            .mockImplementationOnce(() => new Date('2021-12-31T00:00:00Z').toISOString());
+        callAPIPromise = require('your/api/call/location').callAPIPromise; // replace with your actual import
+        useLoadAppointments = require('/Users/prasad/Desktop/code/dingg-dashboard/src/main/tile/BookingsV2.tsx').loadAppointments;
+    });
 
-    const mockMembers = [
-        { user_id: 1 },
-        { user_id: 3 },
-    ];
+    it('should call the API with the correct URL when today is true', async () => {
+        const { result } = renderHook(() => useLoadAppointments(true, callAPIPromise));
+        await act(async () => {
+            await result.current();
+        });
+        expect(callAPIPromise).toHaveBeenCalledWith(`${API_BASE_URL}/calender/booking?date=2022-01-01`);
+    });
 
-    
-
-    // // Test case 2: loadMembers function correctly sets members and inactive members
-    // test('loadMembers function correctly sets members and inactive members', async () => {
-    //     const setMembers = jest.fn();
-    //     const setInactiveMembers = jest.fn();
-    //     const callAPI = jest.fn().mockImplementation((url, callback) => {
-    //         callback(mockMembers);
-    //     });
-
-    //     await act(async () => {
-    //         loadMembers(setMembers, setInactiveMembers, callAPI);
-    //     });
-
-    //     expect(setMembers).toHaveBeenCalledWith(mockMembers);
-    //     expect(setInactiveMembers).toHaveBeenCalled();
-    // });
-
-    // // Test case 3: loadMembers function correctly handles error
-    // test('loadMembers function correctly handles error', async () => {
-    //     const setMembers = jest.fn();
-    //     const setInactiveMembers = jest.fn();
-    //     const callAPI = jest.fn().mockImplementation(() => {
-    //         throw new Error('API error');
-    //     });
-
-    //     await act(async () => {
-    //         loadMembers(setMembers, setInactiveMembers, callAPI);
-    //     });
-
-    //     expect(setMembers).not.toHaveBeenCalled();
-    //     expect(setInactiveMembers).not.toHaveBeenCalled();
-    // });
+    it('should call the API with the correct URL when today is false', async () => {
+        const { result } = renderHook(() => useLoadAppointments(false, callAPIPromise));
+        await act(async () => {
+            await result.current();
+        });
+        expect(callAPIPromise).toHaveBeenCalledWith(`${API_BASE_URL}/calender/booking?date=2021-12-31`);
+    });
 });

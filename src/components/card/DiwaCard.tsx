@@ -12,7 +12,7 @@ function DiwaCard(props: { children?: any; varient: "danger" | "success" | "prim
     return (
         <Card className="shadow mt-3" bg={varient} text={textVarient} data-testid="card-parent">
             {
-                loadingTracker ? <Card.Body data-testid="card-loading-body"><Spinner animation="grow" /></Card.Body> :
+                loadingTracker ? <Card.Body data-testid="card-loading-body"><Spinner animation="grow" className="text-color-50"/></Card.Body> :
                     <Card.Body data-testid="card-content-body">
                         {props.children}
                     </Card.Body>

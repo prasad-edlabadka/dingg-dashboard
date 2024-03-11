@@ -1,12 +1,14 @@
-import { Col, Container, Row } from "react-bootstrap";
+import { Col, Container, Form, Row } from "react-bootstrap";
 import DinggLogin from "./DinggLogin";
 import ProductTiles from "./ProductTiles";
 import Tiles from "./Tiles";
 import FinanceTiles from "./FinanceTiles";
 import StaffTiles from "./StaffTiles";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { TokenContext } from "../App";
 import DiwaCard from "../components/card/DiwaCard";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSun, faMoon } from "@fortawesome/free-regular-svg-icons";
 
 function Main() {
     const { token, navOption, employeeName, location } = useContext(TokenContext);
@@ -16,6 +18,7 @@ function Main() {
         "finance": FinanceTiles,
         "staff": StaffTiles
     }
+    
     if (!token) {
         return (
             <Container>
@@ -27,9 +30,10 @@ function Main() {
         )
     }
     const SelectedScreen = screens[navOption || 'home'] || Tiles;
+    
     return (<Container>
         <DiwaCard varient="purple" loadingTracker={false}>
-            <h4 className="mb-0">Welcome {employeeName}<p className="small mb-0">To {location}</p></h4>
+            <h4 className="mb-0 text-color">Welcome {employeeName}<p className="small mb-0">To {location}</p></h4>
         </DiwaCard>
         {<SelectedScreen />}
     </Container>)

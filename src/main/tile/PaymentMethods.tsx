@@ -187,12 +187,12 @@ export default function PaymentMethods() {
 
         <DiwaCard varient="purple" loadingTracker={loading}>
             <DiwaButtonGroup buttons={buttons} state={buttonState} />
-            <div className="position-relative">
+            <div className="position-relative text-color">
                 <h3>Payments for {startDate.toLocaleDateString('en-GB', { month: 'long' })}</h3>
                 <DiwaRefreshButton refresh={() => refresh()} />
             </div>
             <Offcanvas show={show} className="h-auto text-color" placement="bottom" backdrop={true} scroll={false} keyboard={false} id="offcanvasBottom" onHide={handleClose}>
-                <Offcanvas.Header closeButton closeVariant="white"><h5>{getPaymentMethodName(selectedPaymentMode)} transactions</h5></Offcanvas.Header>
+                <Offcanvas.Header closeButton closeVariant="close"><h5>{getPaymentMethodName(selectedPaymentMode)} transactions</h5></Offcanvas.Header>
                 <Offcanvas.Body className="pt-0">
                     <ul className="list-group list-group-flush">
                         {
@@ -213,7 +213,7 @@ export default function PaymentMethods() {
                 </Offcanvas.Body>
             </Offcanvas>
             <Offcanvas show={showMonth} className="h-auto text-color" placement="bottom" backdrop={true} scroll={false} keyboard={false} id="offcanvasBottom2" onHide={handleMonthClose}>
-                <Offcanvas.Header closeButton closeVariant="white"><h5>{getPaymentMethodName(selectedPaymentMode)} Totals</h5></Offcanvas.Header>
+                <Offcanvas.Header closeButton closeVariant="close"><h5>{getPaymentMethodName(selectedPaymentMode)} Totals</h5></Offcanvas.Header>
                 <Offcanvas.Body className="pt-0">
                     <ul className="list-group list-group-flush">
                         {
@@ -242,9 +242,9 @@ export default function PaymentMethods() {
                 reportData.map((val, index) => {
                     const targetPercentage = Math.round(val.total * 100 / total)
                     return (
-                        <Row key={'paymentmethod' + index} onClick={() => openMonth(val["payment mode"])}>
+                        <Row className="text-color" key={'paymentmethod' + index} onClick={() => openMonth(val["payment mode"])}>
                             <Col lg={4} xs={5}>{getPaymentMethodName(val["payment mode"])}</Col>
-                            <Col xs={7} className="d-lg-none text-end align-bottom">{currencyFormatter.format(val.total)} ({targetPercentage}%)</Col>
+                            <Col xs={7} className="d-lg-none text-end align-bottom text-color">{currencyFormatter.format(val.total)} ({targetPercentage}%)</Col>
                             <Col lg={4} className="mt-2">
                                 <OverlayTrigger overlay={
                                     <Tooltip id="tooltip-disabled">{targetPercentage}% Achieved</Tooltip>}>
@@ -257,14 +257,14 @@ export default function PaymentMethods() {
             }
             <div className="mt-2">&nbsp;</div>
             <DiwaButtonGroup buttons={todayButtons} state={todayButtonState} />
-            <div className="position-relative mt-4">
+            <div className="position-relative mt-4 text-color">
                 <h3>Payments for Today</h3>
             </div>
             {
                 dayReportData.map((val, index) => {
                     const targetPercentage = Math.round(val.total * 100 / dayTotal)
                     return (
-                        <Row key={'paymentmethodtoday' + index} onClick={() => openDetails(val["payment mode"])}>
+                        <Row className="text-color" key={'paymentmethodtoday' + index} onClick={() => openDetails(val["payment mode"])}>
                             <Col lg={4} xs={5}>{getPaymentMethodName(val["payment mode"])}</Col>
                             <Col xs={7} className="d-lg-none text-end align-bottom">{currencyFormatter.format(val.total)} <span className="small text-color-50">({val.count} payments)</span></Col>
                             <Col lg={4} className="mt-2">

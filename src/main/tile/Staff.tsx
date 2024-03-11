@@ -102,7 +102,7 @@ export default function Staff() {
 
     return (
         <DiwaCard varient="indigo" loadingTracker={loading}>
-            <div className="position-relative">
+            <div className="position-relative text-color">
                 <h2>Staff Sales Target<p className="small mb-0 text-color-50">For services only</p></h2>
                 <DiwaRefreshButton refresh={() => refresh()} />
             </div>
@@ -117,7 +117,7 @@ export default function Staff() {
                     return (
                         <div key={'staff' + index} className="mt-3 pt-2 pb-2 rounded black-bg">
                             <Row className="ps-2 pe-2 align-bottom">
-                                <Col xs={7} className="align-bottom pe-0"><h4>{val.stylist}</h4></Col>
+                                <Col xs={7} className="align-bottom pe-0 text-color"><h4>{val.stylist}</h4></Col>
                                 <Col xs={5} className="text-end align-bottom text-color-50 ps-0">Target {currencyFormatter.format(target)}</Col>
                             </Row>
                             <TargetProgress label="Without discount" value={val["service price"]} target={target} percentAchieved={targetPercentage}/>
