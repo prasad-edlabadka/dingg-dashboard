@@ -67,9 +67,10 @@ function DinggLogin() {
                                 <Form.Control type="password" placeholder="Password" ref={passwordRef} />
                             </Form.Group>
                             <Row>
-                                <Col><Button variant="primary" type="button" className="bg-danger border-0 bg-color-diwa" onClick={handleClick} disabled={loading}>{loading ? "Please wait..." : "Login"}</Button>
+                                <Col xs="4">
+                                    <Button variant="primary" type="button" className="bg-danger border-0 bg-color-diwa" onClick={handleClick} disabled={loading}>{loading ? "Please wait..." : "Login"}</Button>
                                 </Col>
-                                <Col className="d-flex justify-content-end align-items-center">
+                                <Col xs="8" className="d-flex justify-content-end align-items-center">
                                     <span className="d-inline pe-2 text-color">Light <FontAwesomeIcon icon={faSun} className="text-color" /></span>
                                     <span className="d-inline">
                                         <Form.Check // prettier-ignore
