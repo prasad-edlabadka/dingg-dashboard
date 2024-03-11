@@ -35,19 +35,6 @@ export function callAPIWithPromise(url: string, token: string | null, setToken: 
 
 export function callPOSTAPI(url: string, data: object, token: string | null, setToken: any, cb: any) {
   callDataAPI('POST', url, data, token, setToken, cb);
-  // const requestMetadata = {
-  //   method: 'POST',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //     'Authorization': token || ''
-  //   },
-  //   body: JSON.stringify(data)
-  // };
-  // fetch(url, requestMetadata)
-  //   .then(res => res.status === 401 ? setToken(null) : res.json())
-  //   .then(data => {
-  //     cb(data);
-  //   });
 }
 
 function callDataAPI(method: string, url: string, data: object, token: string | null, setToken: any, cb: any) {

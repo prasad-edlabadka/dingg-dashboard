@@ -594,7 +594,7 @@ export default function BookingsV2() {
                         return (
                             <Col xl={4} xs={12} className="gy-2" key={booking.customerName}>
                                 <DiwaCard varient={varient} loadingTracker={loading}>
-                                    <div>
+                                    <div className="text-color">
                                         <h3>{booking.customerName} ({currencyFormatter.format(booking.billAmount)})</h3>
                                         <ul className="list-group list-group-flush">
                                             {booking.services.map(service => {
@@ -605,8 +605,8 @@ export default function BookingsV2() {
                                             }
                                         </ul>
                                     </div>
-                                    <hr className="mt-1 mb-1" />
-                                    <div className="w-100">
+                                    <hr className="mt-1 mb-1 border-color" />
+                                    <div className="w-100 text-color">
                                         <div className="text-start d-inline small align-top">{statusDesc[booking.status] || "Unknown"}</div>
                                         <div className="text-end d-inline small float-end align-top">{formatTime(new Date(booking.start))} - {formatTime(new Date(booking.end))}</div>
                                     </div>

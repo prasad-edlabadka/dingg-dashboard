@@ -35,13 +35,18 @@ function DinggLogin() {
             .catch(err => { console.log(err); setError(err.message); setLoading(false); });
     };
 
-
-    const [darkMode, setDarkMode] = useState(window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const localDarkMode = localStorage.getItem("darkMode");
+    const [darkMode, setDarkMode] = useState((localDarkMode?(localDarkMode.toLowerCase() === "true"): window.matchMedia('(prefers-color-scheme: dark)').matches));
     const [neverChange,] = useState(0);
     const darkModeHandler = (e: MediaQueryListEvent) => {
         console.log("Dark mode is " + (e.matches ? "on" : "off"));
         setDarkMode(e.matches);
     }
+
+    const toggleDarkMode = () => {
+        setDarkMode(!darkMode);
+        localStorage.setItem("darkMode", (!darkMode).toString());
+    };
 
     useEffect(() => {
         darkMode ? document.body.classList.add('dark') : document.body.classList.remove('dark');
@@ -78,7 +83,7 @@ function DinggLogin() {
                                             id="dark-mode-switch"
                                             className="form-control-lg pe-0"
                                             checked={darkMode}
-                                            onChange={() => setDarkMode(!darkMode)}
+                                            onChange={toggleDarkMode}
                                         />
                                     </span>
                                     <span className="d-inline text-color"><FontAwesomeIcon icon={faMoon} className="text-color" /> Dark</span>
