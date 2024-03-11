@@ -1,10 +1,7 @@
 import { Col, Row } from "react-bootstrap";
 import { currencyFormatter } from "../Utility";
-import { TokenContext } from "../../../App";
-import { useContext } from "react";
 
 export default function BillItem({uniqueKey, name, employee, amount, discount, Icon, iconProps}: { uniqueKey: string, name: string, employee: string, amount: number, discount: number, Icon: any, iconProps?: object }) {
-    const {darkMode} = useContext(TokenContext);
     return (
         <li className={`list-group-item bg-transparent text-color border-color-25 ps-0`} key={uniqueKey}>
             <Row>

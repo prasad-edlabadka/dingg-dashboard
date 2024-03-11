@@ -1,11 +1,8 @@
 import { Col, Row } from "react-bootstrap";
 import * as Icon from 'react-bootstrap-icons';
 import { currencyFormatter } from "../Utility";
-import { TokenContext } from "../../../App";
-import { useContext } from "react";
 
 function SaleRow({title, current, previous, variation, primary}: {title: string, current: number, previous: number, variation: number, primary: boolean}) {
-    const {darkMode} = useContext(TokenContext);
     return (
         <Row className={`border-bottom border-color-25 pb-1 pt-1`}>
             {primary && <Col xs="4" className="align-self-center text-color"><h4>{title}</h4></Col>}

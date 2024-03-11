@@ -1,9 +1,6 @@
 import { Col, Row } from "react-bootstrap";
-import { TokenContext } from "../../../App";
-import { useContext } from "react";
 
 function DataPoint({ data }: { data: any[] }) {
-    const {darkMode} = useContext(TokenContext);
     return (
         <Row>
             {data.map((item, index) => {

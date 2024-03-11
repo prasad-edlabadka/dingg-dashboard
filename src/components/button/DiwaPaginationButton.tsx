@@ -1,6 +1,4 @@
 import { Button, ButtonGroup } from "react-bootstrap";
-import { TokenContext } from "../../App";
-import { useContext } from "react";
 
 function DiwaPaginationButton({ previous, current, next }: { previous: any, current: any, next: any}) {
 
@@ -14,7 +12,6 @@ function DiwaPaginationButton({ previous, current, next }: { previous: any, curr
             cb();
         };
     }
-    const {darkMode} = useContext(TokenContext);
     return (<div className="position-relative mb-3">
         <ButtonGroup size="sm" data-testid="button-parent">
             {buttons.map((button, index) => {

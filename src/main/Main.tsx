@@ -1,14 +1,14 @@
-import { Col, Container, Form, Row } from "react-bootstrap";
+import { Col, Container, Row } from "react-bootstrap";
 import DinggLogin from "./DinggLogin";
 import ProductTiles from "./ProductTiles";
 import Tiles from "./Tiles";
 import FinanceTiles from "./FinanceTiles";
 import StaffTiles from "./StaffTiles";
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { TokenContext } from "../App";
 import DiwaCard from "../components/card/DiwaCard";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSun, faMoon } from "@fortawesome/free-regular-svg-icons";
+// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+// import { faSun, faMoon } from "@fortawesome/free-regular-svg-icons";
 
 function Main() {
     const { token, navOption, employeeName, location } = useContext(TokenContext);
