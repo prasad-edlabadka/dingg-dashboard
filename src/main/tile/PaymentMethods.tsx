@@ -37,7 +37,7 @@ export default function PaymentMethods() {
         }
         return sum;
     }, []);
-    
+
     useEffect(() => {
         setLoading(true);
         const doIt = async () => {
@@ -67,6 +67,7 @@ export default function PaymentMethods() {
             const d: { key: string; date: string; sum: any; }[] = [];
             const extractedData = monthBills.filter((v: any) => v.cancel_reason === null).flatMap((v: { bill_payments: any[]; }) => v.bill_payments).filter((v: { is_tip: boolean }) => !v.is_tip);
             const grouped = _.groupBy(_.sortBy(extractedData, ['payment_date']), (v) => v.payment_mode);
+
             for (let key in grouped) {
                 const groupedByDate = _.groupBy(grouped[key], (v) => v.payment_date);
                 for (let date in groupedByDate) {
@@ -87,7 +88,6 @@ export default function PaymentMethods() {
                     return groupedArray;
                 }, []);
             setMonthDetails(gd);
-            
             setLoading(false);
         };
         doIt();
@@ -230,8 +230,8 @@ export default function PaymentMethods() {
                         }
                         <li className="list-group-item bg-transparent text-color border-color ps-0" key="total">
                             <div className="w-100 pe-2 pb-2">
-                                <div className="text-start d-inline text-bold">Total</div>
-                                <div className="text-end d-inline float-end">{currencyFormatter.format(monthDetails?.filter(v => v.key.toLowerCase() === selectedPaymentMode.toLowerCase())?.reduce((a, b) => a + b.sum, 0) || 0)}</div>
+                                <div className="text-start d-inline fw-bold">Total</div>
+                                <div className="text-end d-inline float-end fw-bold">{currencyFormatter.format(monthDetails?.filter(v => v.key.toLowerCase() === selectedPaymentMode.toLowerCase())?.reduce((a, b) => a + b.sum, 0) || 0)}</div>
                             </div>
                         </li>
                     </ul>

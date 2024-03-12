@@ -29,56 +29,63 @@ $input-color: white;
 }
 
 @font-face {
-  font-family: 'Flama Italic';
-  font-style: normal;
+  font-family: 'Flama';
+  font-style: italic;
   font-weight: normal;
   src: local('Flama Italic'), url('./fonts/Flama Italic.woff') format('woff');
 }
 
 @font-face {
-  font-family: 'Flama Bold Italic';
-  font-style: normal;
-  font-weight: normal;
+  font-family: 'Flama';
+  font-style: italic;
+  font-weight: bold;
   src: local('Flama Bold Italic'), url('./fonts/Flama Bold Italic.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Flama';
+  font-style: normal;
+  font-weight: bold;
+  src: local('Flama Bold'), url('./fonts/Flama-Bold.woff') format('woff');
 }
 
 :root {
   //@media (prefers-color-scheme: light) {
-    --diwa-bg-color: #eee;
-    --diwa-fg-color: #333;
-    --diwa-today-bg-color: var(--bs-dark-rgb);
-    --diwa-today-link-color: rgb(var(--bs-body-bg-rgb));
-    --diwa-accordion-open: url("data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill='%23000'%3e%3cpath fill-rule=%27evenodd%27 d=%27M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z%27/%3e%3c/svg%3e");
-    --diwa-accordion-close: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
-    --diwa-accordion-border-color: rgba(0,0,0,0.125);
-    --diwa-file-button-color: var(--bs-primary);
-    --bill-item-icon: #cc9a06;
-    --text-color: var(--bs-dark);
-    --text-color-50: rgba(var(--bs-dark-rgb), 0.5);
-    --text-color-danger-50: rgba(var(--bs-danger-rgb), 1);
-    --diwa-border-color: var(--bs-dark-rgb);
-    --input-bg-color: var(--bs-light);
-    --staff-bg-color: var(--bs-primary-rgb);
-    --diwa-danger-button: var(--bs-danger);
-    --diwa-success-button: var(--bs-success);
-    --popup-bg-color: var(--bs-light-rgb);
-    --diwa-warning-rgb: #8a6801;
-    --diwa-caret-success-color: var(--bs-success);
-    --diwa-caret-danger-color: var(--bs-danger);
-    --diwa-close-button: invert(0%);
- // }
- 
+  --diwa-bg-color: #eee;
+  --diwa-fg-color: #333;
+  --diwa-today-bg-color: var(--bs-dark-rgb);
+  --diwa-today-link-color: rgb(var(--bs-body-bg-rgb));
+  --diwa-accordion-open: url("data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill='%23000'%3e%3cpath fill-rule=%27evenodd%27 d=%27M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z%27/%3e%3c/svg%3e");
+  --diwa-accordion-close: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+  --diwa-accordion-border-color: rgba(0, 0, 0, 0.125);
+  --diwa-file-button-color: var(--bs-primary);
+  --bill-item-icon: #cc9a06;
+  --text-color: var(--bs-dark);
+  --text-color-50: rgba(var(--bs-dark-rgb), 0.5);
+  --text-color-danger-50: rgba(var(--bs-danger-rgb), 1);
+  --diwa-border-color: var(--bs-dark-rgb);
+  --input-bg-color: var(--bs-light);
+  --staff-bg-color: var(--bs-primary-rgb);
+  --diwa-danger-button: var(--bs-danger);
+  --diwa-success-button: var(--bs-success);
+  --popup-bg-color: var(--bs-light-rgb);
+  --diwa-warning-rgb: #8a6801;
+  --diwa-caret-success-color: var(--bs-success);
+  --diwa-caret-danger-color: var(--bs-danger);
+  --diwa-close-button: invert(0%);
+  // }
+
 }
 
 .dark {
-  --diwa-bg-color: rgba(61,31,32,1) !important;
+  --diwa-bg-color: rgba(61, 31, 32, 1) !important;
   --diwa-fg-color: #FFF;
   --diwa-today-bg-color: var(--bs-body-bg-rgb);
   --diwa-today-link-color: rgba(var(--bs-primary-rgb), 0.9);
   --diwa-accordion-color: fff;
   --diwa-accordion-open: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
   --diwa-accordion-close: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
-  --diwa-accordion-border-color: rgba(255,255,255,0.25);
+  --diwa-accordion-border-color: rgba(255, 255, 255, 0.25);
   --diwa-file-button-color: #333;
   --bill-item-icon: rgb(255, 193, 7);
   --text-color: var(--bs-light);
@@ -115,7 +122,7 @@ body {
   height: 100%;
   width: 100%;
   background-size: contain;
-  background-repeat:space;
+  background-repeat: space;
   background: var(--diwa-bg-color) !important;
   background-attachment: fixed;
   background-position: center center;
@@ -161,7 +168,7 @@ code {
 }
 
 .today a {
-color: var(--diwa-today-link-color)
+  color: var(--diwa-today-link-color)
 }
 
 .today .btn {
@@ -171,10 +178,10 @@ color: var(--diwa-today-link-color)
 .neonText {
   color: #fff;
   text-shadow:
-      0 0 27px #aaa,
-      0 0 30px #aaa,
-      0 0 51px #aaa,
-     
+    0 0 27px #aaa,
+    0 0 30px #aaa,
+    0 0 51px #aaa,
+
 }
 
 .accordion-button.collapsed::after {
@@ -182,7 +189,7 @@ color: var(--diwa-today-link-color)
 }
 
 .accordion-button:not(.collapsed)::after {
-  background-image: var(--diwa-accordion-open);  
+  background-image: var(--diwa-accordion-open);
 }
 
 .accordion-button:not(.collapsed) {
@@ -191,12 +198,12 @@ color: var(--diwa-today-link-color)
 }
 
 input[type=file]::file-selector-button {
-  background-color: var(--diwa-file-button-color);  
+  background-color: var(--diwa-file-button-color);
 }
 
 .offcanvas-backdrop.show {
   opacity: 1;
-  background-color: rgba(15,23,42,.5);
+  background-color: rgba(15, 23, 42, .5);
   backdrop-filter: blur(4px);
 }
 
@@ -207,22 +214,22 @@ input[type=file]::file-selector-button {
 
 .black-bg {
   background: linear-gradient(to right bottom, rgba(var(--staff-bg-color), 0.5), rgba(var(--staff-bg-color), 0.3)) !important;
-  border: 1px solid rgba(var(--staff-bg-color),1) !important;
+  border: 1px solid rgba(var(--staff-bg-color), 1) !important;
 }
 
 .bill-item-icon {
   color: var(--bill-item-icon);
 }
 
-.text-color  {
+.text-color {
   color: var(--text-color) !important;
 }
 
-.text-color-50  {
+.text-color-50 {
   color: var(--text-color-50) !important;
 }
 
-.text-color-danger-50  {
+.text-color-danger-50 {
   color: var(--text-color-danger-50) !important;
 }
 
@@ -249,7 +256,7 @@ input {
 }
 
 .translucent-navbar {
-  background-color: rgba(var(--input-bg-color),0.5) !important;
+  background-color: rgba(var(--input-bg-color), 0.5) !important;
   backdrop-filter: blur(1rem);
   border-top: 1px solid var(--text-color-50) !important;
 }
@@ -275,7 +282,9 @@ input {
   // color: var(--text-color) !important;
   filter: var(--diwa-close-button);
 }
-textarea, select {
+
+textarea,
+select {
   background-color: var(--input-bg-color) !important;
   color: var(--text-color) !important;
 }
@@ -285,12 +294,13 @@ textarea, select {
 }
 
 .form-check-input:focus {
-  box-shadow: 0 0 0 0.25rem rgba($diwa-color,0.25);
+  box-shadow: 0 0 0 0.25rem rgba($diwa-color, 0.25);
 }
 
 
 
-.form-switch .form-check-input:checked, .form-switch .form-check-input:focus {
+.form-switch .form-check-input:checked,
+.form-switch .form-check-input:focus {
   background-image: url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%27-4 -4 8 8%27%3e%3ccircle r=%273%27 fill=%27%23db7879%27/%3e%3c/svg%3e');
 }
 
