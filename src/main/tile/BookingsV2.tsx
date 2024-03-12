@@ -292,7 +292,13 @@ export default function BookingsV2() {
         const inactiveMembers = members.data.filter((v: { last_visit: string; }) => differenceInMonths(new Date(), parse(v.last_visit, 'yyyy-MM-dd', new Date())) > inactiveDurationInMonths);
         setGroupedMembers(groupBy(inactiveMembers, (v: { last_visit: string; }) => (`${formatDistanceToNow(parse(v.last_visit, 'yyyy-MM-dd', new Date()), { addSuffix: true })}`)));
         return members;
-    }, [callAPIPromise]);
+    }, []);
+
+    const testAPI = useCallback(async () => {
+        const apiURL = `https://api.dingg.app/api/v1/vendor/account/types`;
+        const data = await callAPIPromise(apiURL);
+        console.log(data);
+    }, []);
 
     const loadBillingData = useCallback(async (members: any, bookingDate: Date) => {
         const billURL = `${API_BASE_URL}/vendor/bills?web=true&page=1&limit=1000&start=${formatDate(bookingDate)}&end=${formatDate(bookingDate)}&term=&is_product_only=`;
@@ -317,14 +323,14 @@ export default function BookingsV2() {
             }));
             setBillingData(updatedBills);
         }
-    }, [callAPIPromise]);
+    }, []);
 
     const loadAppointments = useCallback(async () => {
         const bookingDate = today ? new Date() : new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
         const apiURL = `${API_BASE_URL}/calender/booking?date=${formatDate(bookingDate)}`;
         const appointments = await callAPIPromise(apiURL);
         return appointments;
-    }, [today, callAPIPromise]);
+    }, [today]);
 
     const mapBookingData = useCallback((v: any, index: number, groupedData: any) => {
         const data = groupedData[v];
@@ -362,6 +368,7 @@ export default function BookingsV2() {
 
     useEffect(() => {
         const doIt = async () => {
+            const a = await testAPI();
             const bookingDate = today ? new Date() : subDays(new Date(), 1);
             const appointments = await loadAppointments();
 
@@ -421,7 +428,7 @@ export default function BookingsV2() {
         Promise.all([doIt()]).then(() => {
             setLoading(false);
         });
-    }, [callAPIPromise, reload, today, loadAppointments, loadMembers, loadBillingData, mapBookingData]);
+    }, [reload, today]);
 
     const extractAmount = (txt: string): number => {
         const indexOfSymbol = txt.indexOf("₹");

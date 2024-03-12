@@ -12,7 +12,7 @@ import { Col, Row } from "react-bootstrap";
 import DiwaPaginationButton from "../../components/button/DiwaPaginationButton";
 
 export default function Sale2() {
-    const { callAPI } = useContext(TokenContext);
+    const { callAPI, callAPIPromise } = useContext(TokenContext);
     const dataStructure = { price: -1, discount: -1, tax: -1, woTax: -1, total: -1, tip: -1, start: "Loading...", end: "Loading..." };
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -114,7 +114,7 @@ export default function Sale2() {
             if (!data) return;
             setPrevCashExpenses(data.data.find((d: any) => d["expense type"] === "Cash transfer to hub")?.total || 0)
         });
-    },[callAPI]);
+    }, []);
 
     const getReportForDateRange = useCallback((start: Date, end: Date, cb: (arg0: { price: number; discount: number; tax: number; woTax: number; total: number; tip: number; start: string; end: string; }) => void) => {
         const startDate = formatDate(start);
@@ -132,10 +132,10 @@ export default function Sale2() {
                     acc.tip += info.total;
                 }
                 return acc;
-            }, {price: 0, discount: 0, tax: 0, woTax: 0, total: 0, tip: 0, start: start.toString(), end: end.toString()});
+            }, { price: 0, discount: 0, tax: 0, woTax: 0, total: 0, tip: 0, start: start.toString(), end: end.toString() });
             cb(values);
         });
-    },[callAPI]);
+    }, []);
 
     const getVariation = useCallback((current: { price: number; discount: number; tax: number; woTax: number; total: number; tip: number; start: string; end: string; }, previous: { price: number; discount: number; tax: number; woTax: number; total: number; tip: number; start: string; end: string; }) => {
         return {
@@ -148,7 +148,7 @@ export default function Sale2() {
             start: current.start,
             end: current.end
         };
-    },[]);
+    }, []);
 
     const setDisplay = useCallback((cd: any, pd: any, buttonState: number): void => {
         setDisplaySale(cd);
@@ -156,40 +156,37 @@ export default function Sale2() {
         setDisplayVariation(getVariation(cd, pd));
         const formatStr = buttonState === 0 ? ["dd-MMM (EEEE)"] : buttonState === 1 ? ["dd-MMM (EEE)", "dd-MMM (EEE)"] : ["dd-MMM-yyyy", "dd-MMM-yyyy"];
         setDisplaySubDuration(format(cd.start, formatStr[0]) + (formatStr[1] ? " to " + format(cd.end, formatStr[1]) : ""));
-    },[getVariation]);
+    }, [getVariation]);
 
     useEffect(() => {
-        const loadData = () => {
-            setLoading(true)
-            console.log(`Load data called with button index ${activeButtonState}`);
-            const dt = new Date();
-            let dates = {start:dt, end:dt, prevStart:dt, prevEnd:dt};
-            switch(activeButtonState) {
-                case 0: 
-                    dates = calculateYesterday;
-                    break;
-                case 1:
-                    dates = calculateWeekDates;
-                    break;
-                case 2:
-                    dates = calculateFinMonthDates;
-                    break;
-                case 3:
-                    dates = calculateMonthDates;
-                    break;
-            }
-            const {start, end, prevStart, prevEnd} = dates;
-
-            getReportForDateRange(start, end, (currentData) => {
-                getReportForDateRange(prevStart, prevEnd, (previousData) => {
-                    getStatsReport(new Date(currentData.start), new Date(currentData.end), new Date(previousData.start), new Date(previousData.end));
-                    setDisplay(currentData, previousData, activeButtonState);
-                    setLoading(false);
-                });
-            });
+        setLoading(true)
+        console.log(`Load data called with button index ${activeButtonState}`);
+        const dt = new Date();
+        let dates = { start: dt, end: dt, prevStart: dt, prevEnd: dt };
+        switch (activeButtonState) {
+            case 0:
+                dates = calculateYesterday;
+                break;
+            case 1:
+                dates = calculateWeekDates;
+                break;
+            case 2:
+                dates = calculateFinMonthDates;
+                break;
+            case 3:
+                dates = calculateMonthDates;
+                break;
         }
-        loadData();
-    }, [activeButtonState, reload, calculateYesterday, calculateWeekDates, calculateMonthDates, calculateFinMonthDates, getStatsReport, getReportForDateRange, setDisplay]);
+        const { start, end, prevStart, prevEnd } = dates;
+
+        getReportForDateRange(start, end, (currentData) => {
+            getReportForDateRange(prevStart, prevEnd, (previousData) => {
+                getStatsReport(new Date(currentData.start), new Date(currentData.end), new Date(previousData.start), new Date(previousData.end));
+                setDisplay(currentData, previousData, activeButtonState);
+                setLoading(false);
+            });
+        });
+    }, [activeButtonState, reload]);
 
     const refresh = () => {
         setReload(!reload);
@@ -204,7 +201,7 @@ export default function Sale2() {
         return Math.round(((current - previous) / (previous === 0 ? 100 : previous)) * 100);
     }
 
-    
+
 
     const previous = () => {
         switch (activeButtonState) {

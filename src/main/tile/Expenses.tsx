@@ -1,11 +1,12 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Accordion, Button, ButtonGroup, Col, Form, Offcanvas, Row } from "react-bootstrap";
-import {currencyFormatter, formatDate, formatDisplayDate, getStartOfFinanceMonthDate, getStartOfMonthDate } from "./Utility";
-import { addDays } from "date-fns";
+import { currencyFormatter, formatDate, formatDisplayDate, getFirstDayOfWeek, getStartOfFinanceMonthDate, getStartOfMonthDate } from "./Utility";
+import { addDays, addMonths, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
 import * as Icon from 'react-bootstrap-icons';
 import { TokenContext } from "../../App";
 import DiwaButtonGroup from "../../components/button/DiwaButtonGroup";
 import DiwaCard from "../../components/card/DiwaCard";
+import DiwaPaginationButton from "../../components/button/DiwaPaginationButton";
 
 export default function Expenses() {
     const { callAPI, callPOSTAPI } = useContext(TokenContext)
@@ -13,11 +14,11 @@ export default function Expenses() {
     const [loading, setLoading] = useState(true);
     const [total, setTotal] = useState(-1);
     const [show, setShow] = useState(false);
-    const buttonState = useState(0);
-    const [, setButtonIndex] = buttonState;
+    const buttonState = useState(2);
+    const [buttonIndex, setButtonIndex] = buttonState;
     const [activeButtonIndex, setActiveButtonIndex] = useState(0);
     const [expenseTypes, setExpenseTypes] = useState([]);
-    const [startDate, setStartDate] = useState(getStartOfFinanceMonthDate(new Date()));
+    const [startDate, setStartDate] = useState(startOfMonth(new Date()));
     const [endDate, setEndDate] = useState(new Date());
 
     const handleClose = () => setShow(false);
@@ -38,7 +39,7 @@ export default function Expenses() {
 
     const createExpense = (e: any) => {
         e.preventDefault();
-        if(clicked) return;
+        if (clicked) return;
         setClicked(true);
         if (expenseType.current?.value === '' || expenseDate.current?.value === '' || givenTo.current?.value === '' || amount.current?.value === '' || description.current?.value === '') {
             setErrorMessage("Please fill all the fields");
@@ -88,58 +89,109 @@ export default function Expenses() {
             setExpenseTypes(data.data.map((v: { value: string; name: string; }) => { return { id: v.value, name: v.name } }));
         });
 
-        
+
         callAPI(`${API_BASE_URL}/payment_mode`, (data: any) => {
             const pm = [];
-            pm.push(data.data.find((v:any) => v.name === 'ONLINE').value);
-            pm.push(data.data.find((v:any) => v.name === 'CASH').value);
+            pm.push(data.data.find((v: any) => v.name === 'ONLINE').value);
+            pm.push(data.data.find((v: any) => v.name === 'CASH').value);
             setPaymentModes(pm);
         });
 
         callAPI(`${API_BASE_URL}/vendor/account/list`, (data: any) => {
             const acc = [];
-            acc.push(data.data.find((v:any) => v.name === 'ICICI Bank Account').id);
-            acc.push(data.data.find((v:any) => v.name === 'Petty cash').id);
+            acc.push(data.data.find((v: any) => v.name === 'ICICI Bank Account').id);
+            acc.push(data.data.find((v: any) => v.name === 'Petty cash').id);
             setAccounts(acc);
         });
     }, [startDate, endDate, expensesToIgnore, callAPI]);
 
     const refresh = () => {
-        setStartDate(getStartOfFinanceMonthDate(new Date()));
+        setStartDate(startOfMonth(new Date()));
         setEndDate(new Date());
-        setButtonIndex(0);
+        setButtonIndex(2);
     }
 
     const setDuration = (duration: string) => {
-        if (duration === 'month') {
-            setStartDate(getStartOfFinanceMonthDate(new Date()));
+        if (duration === 'day') {
+            setStartDate(new Date());
             setEndDate(new Date());
-        } else if (duration === 'cal_month') {
-            setStartDate(getStartOfMonthDate(new Date()));
+        } else if (duration === 'week') {
+            setStartDate(getFirstDayOfWeek(new Date()));
             setEndDate(new Date());
-        } else if (duration === 'prev_month') {
-            setStartDate(getStartOfFinanceMonthDate(addDays(getStartOfFinanceMonthDate(new Date()), -1)));
-            setEndDate(addDays(getStartOfFinanceMonthDate(new Date()), -1));
-        } else if (duration === 'prev_cal_month') {
-            setStartDate(getStartOfMonthDate(addDays(getStartOfMonthDate(new Date()), -1)));
-            setEndDate(addDays(getStartOfMonthDate(new Date()), -1));
+        } else if (duration === 'month') {
+            setStartDate(startOfMonth(new Date()));
+            setEndDate(new Date());
+        }
+    }
+
+    const previous = () => {
+        switch (buttonIndex) {
+            case 0:
+                setStartDate(addDays(startDate, -1));
+                setEndDate(addDays(endDate, -1));
+                break;
+            case 1:
+                setStartDate(addDays(startDate, -7));
+                setEndDate(addDays(endOfWeek(addDays(startDate, -7)), 1));
+                break;
+            case 2:
+                setStartDate(addMonths(startDate, -1));
+                setEndDate(endOfMonth(addMonths(startDate, -1)));
+                break;
+            default:
+                break;
+        }
+    }
+
+    const next = () => {
+        switch (buttonIndex) {
+            case 0:
+                setStartDate(addDays(startDate, 1));
+                setEndDate(addDays(endDate, 1));
+                break;
+            case 1:
+                setStartDate(addDays(startDate, 7));
+                setEndDate(addDays(endOfWeek(addDays(endDate, 7)), 1));
+                break;
+            case 2:
+                setStartDate(addMonths(startDate, 1));
+                setEndDate(endOfMonth(addMonths(startDate, 1)));
+                break;
+            default:
+                break;
+        }
+    }
+
+    const current = () => {
+        switch (buttonIndex) {
+            case 0:
+                setStartDate(new Date());
+                setEndDate(new Date());
+                break;
+            case 1:
+                setStartDate(getFirstDayOfWeek(new Date()));
+                setEndDate(new Date());
+                break;
+            case 2:
+                setStartDate(startOfMonth(new Date()));
+                setEndDate(new Date());
+                break;
+            default:
+                break;
         }
     }
 
     const buttons = [
-        { title: 'Fin Month', onClick: () => setDuration('month') },
-        { title: 'Cal Month', onClick: () => setDuration('cal_month') },
-        { title: 'Prev. Fin Month', onClick: () => setDuration('prev_month') },
-        { title: 'Prev. Cal Month', onClick: () => setDuration('prev_cal_month') },
+        { title: 'Daily', onClick: () => setDuration('day') },
+        { title: 'Weekly', onClick: () => setDuration('week') },
+        { title: 'Monthly', onClick: () => setDuration('month') },
     ];
-
-
 
     return (
         <DiwaCard varient="danger" loadingTracker={loading}>
             <DiwaButtonGroup buttons={buttons} state={buttonState} />
             <div className="position-relative">
-                <h2 className="text-color">Monthly Expenses <p className="small text-color-danger-50 mb-1">{formatDisplayDate(startDate)} to {formatDisplayDate(endDate)}</p><p className="small mb-0 text-color-50">Total: {currencyFormatter.format(total)}</p></h2>
+                <h2 className="text-color">{buttons[buttonIndex].title} Expenses <p className="small text-color-danger-50 mb-1">{formatDisplayDate(startDate)} to {formatDisplayDate(endDate)}</p><p className="small mb-0 text-color-50">Total: {currencyFormatter.format(total)}</p></h2>
                 <div className="position-absolute top-0 end-0" style={{ marginTop: -6 }}>
                     <Button variant="indigo" className="text-color" size="lg" onClick={() => handleShow()}><Icon.PlusLg /></Button>
                     <Button variant="indigo" className="text-color" size="lg" onClick={() => refresh()}><Icon.ArrowClockwise /></Button>
@@ -199,7 +251,7 @@ export default function Expenses() {
                             </Row>
                             <Row className="align-items-center">
                                 <Col xs={12}>
-                                    <Button variant="success" className="text-light" type="submit" disabled={clicked}>{clicked?'Wait...':'Save'}</Button>
+                                    <Button variant="success" className="text-light" type="submit" disabled={clicked}>{clicked ? 'Wait...' : 'Save'}</Button>
                                 </Col>
                             </Row>
                             {errorMessage !== '' && <Row className="align-items-center mb-2">
@@ -221,35 +273,37 @@ export default function Expenses() {
                     const val = expenseData[keyName];
                     return (
                         expensesToIgnore.indexOf(keyName) !== -1 ? null :
-                        <Accordion flush key={'expense' + index}>
-                            <Accordion.Header className="w-100">
-                                <div className="w-100 pe-2 pb-1">
-                                    <div className="text-start d-inline h5 text-color">{keyName}</div>
-                                    <div className="text-end d-inline float-end text-color"><p className="d-inline mb-0">{currencyFormatter.format(getTotal(val))}</p></div>
-                                </div>
-                            </Accordion.Header>
-                            <Accordion.Body>
-                                <ul className="list-group list-group-flush">
-                                    {
-                                        val.map((item: { [x: string]: string; }, index2: number) => {
-                                            return (<li className="list-group-item bg-transparent text-color border-color ps-0" key={keyName + 'item' + index2}>
-                                                <div className="w-100 pe-2 pb-2">
-                                                    <div className="text-start d-inline h5">{currencyFormatter.format(Number(item["amount"]))}</div>
-                                                    <div className="text-end d-inline float-end">{item["date"]}</div>
-                                                </div>
-                                                <p className="small text-color-50 mb-0" style={{ marginTop: -4 }}>{item["description"]}</p>
-                                                <p className="small text-color-50 mb-0" style={{ marginTop: -4 }}>Given to {item["given to"]} by {item["Payment mode"]}</p>
-                                            </li>
-                                            )
-                                        })
-                                    }
-                                </ul>
-                            </Accordion.Body>
-                        </Accordion>
+                            <Accordion flush key={'expense' + index}>
+                                <Accordion.Header className="w-100">
+                                    <div className="w-100 pe-2 pb-1">
+                                        <div className="text-start d-inline h5 text-color">{keyName}</div>
+                                        <div className="text-end d-inline float-end text-color"><p className="d-inline mb-0">{currencyFormatter.format(getTotal(val))}</p></div>
+                                    </div>
+                                </Accordion.Header>
+                                <Accordion.Body>
+                                    <ul className="list-group list-group-flush">
+                                        {
+                                            val.map((item: { [x: string]: string; }, index2: number) => {
+                                                return (<li className="list-group-item bg-transparent text-color border-color ps-0" key={keyName + 'item' + index2}>
+                                                    <div className="w-100 pe-2 pb-2">
+                                                        <div className="text-start d-inline h5">{currencyFormatter.format(Number(item["amount"]))}</div>
+                                                        <div className="text-end d-inline float-end">{item["date"]}</div>
+                                                    </div>
+                                                    <p className="small text-color-50 mb-0" style={{ marginTop: -4 }}>{item["description"]}</p>
+                                                    <p className="small text-color-50 mb-0" style={{ marginTop: -4 }}>Given to {item["given to"]} by {item["Payment mode"]}</p>
+                                                </li>
+                                                )
+                                            })
+                                        }
+                                    </ul>
+                                </Accordion.Body>
+                            </Accordion>
                     )
 
                 })
             }
+            <p></p>
+            <DiwaPaginationButton previous={previous} current={current} next={next} />
         </DiwaCard>
     )
 
