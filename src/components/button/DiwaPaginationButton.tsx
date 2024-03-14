@@ -1,6 +1,6 @@
 import { Button, ButtonGroup } from "react-bootstrap";
 
-function DiwaPaginationButton({ previous, current, next }: { previous: any, current: any, next: any}) {
+function DiwaPaginationButton({ previous, current, next }: { previous: () => void, current: () => void, next: () => void }) {
 
     const buttons = [
         { title: "< Prev", onClick: () => previous() },
@@ -8,8 +8,10 @@ function DiwaPaginationButton({ previous, current, next }: { previous: any, curr
         { title: "Next >", onClick: () => next() }
     ];
     const handleButtonClick = (index: number, cb: any) => {
-        if(cb && typeof cb === 'function') {
+        if (cb && typeof cb === 'function') {
             cb();
+        } else {
+            console.error('No function provided');
         };
     }
     return (<div className="position-relative mb-3">
@@ -23,4 +25,4 @@ function DiwaPaginationButton({ previous, current, next }: { previous: any, curr
     </div>);
 }
 
-export default DiwaPaginationButton ;
+export default DiwaPaginationButton;
