@@ -12,7 +12,7 @@ import { Col, Row } from "react-bootstrap";
 import DiwaPaginationButton from "../../components/button/DiwaPaginationButton";
 
 export default function Sale2() {
-    const { callAPI, callAPIPromise } = useContext(TokenContext);
+    const { callAPI } = useContext(TokenContext);
     const dataStructure = { price: -1, discount: -1, tax: -1, woTax: -1, total: -1, tip: -1, start: "Loading...", end: "Loading..." };
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -297,7 +297,7 @@ export default function Sale2() {
                         <SaleRow title="Sale" current={displaySale.total} previous={displayPreviousSale.total} variation={displayVariation.total} primary={true} />
                         <SaleRow title="Without Discount" current={displaySale.price} previous={displayPreviousSale.price} variation={displayVariation.price} primary={false} />
                         <SaleRow title="Total Discount" current={displaySale.discount} previous={displayPreviousSale.discount} variation={displayVariation.discount} primary={false} />
-                        <SaleRow title="Tip (Included in total)" current={displaySale.tip} previous={displayPreviousSale.tip} variation={displayVariation.tip} primary={false} />
+                        <SaleRow title="Tip (Part of total)" current={displaySale.tip} previous={displayPreviousSale.tip} variation={displayVariation.tip} primary={false} />
                         <p></p>
                         <DiwaPaginationButton previous={previous} current={current} next={next} />
                     </DiwaCard>

@@ -18,7 +18,14 @@ function Main() {
         "finance": FinanceTiles,
         "staff": StaffTiles
     }
-    
+    // const [darkMode, setDarkMode] = useState(document.body.classList.contains('dark'));
+
+    // const toggleDarkMode = () => {
+    //     setDarkMode(!darkMode);
+    //     !darkMode ? document.body.classList.add('dark') : document.body.classList.remove('dark');
+    //     // localStorage.setItem("darkMode", (!darkMode).toString());
+    // };
+
     if (!token) {
         return (
             <Container>
@@ -30,10 +37,26 @@ function Main() {
         )
     }
     const SelectedScreen = screens[navOption || 'home'] || Tiles;
-    
+
+
+
     return (<Container>
-        <DiwaCard varient="purple" loadingTracker={false}>
+        <DiwaCard varient="pink" loadingTracker={false}>
             <h4 className="mb-0 text-color">Welcome {employeeName}<p className="small mb-0">To {location}</p></h4>
+            {/* <Col xs="4" className="d-flex justify-content-end align-items-center">
+                <span className="d-inline pe-2 text-color"><FontAwesomeIcon icon={faSun} className="text-color" /></span>
+                <span className="d-inline">
+                    <Form.Check // prettier-ignore
+                        type="switch"
+                        id="dark-mode-switch"
+                        className="form-control-lg pe-0"
+                        checked={darkMode}
+                        onChange={toggleDarkMode}
+                    />
+                </span>
+                <span className="d-inline text-color"><FontAwesomeIcon icon={faMoon} className="text-color" /></span>
+
+            </Col> */}
         </DiwaCard>
         {<SelectedScreen />}
     </Container>)

@@ -188,7 +188,7 @@ export default function PaymentMethods() {
         <DiwaCard varient="purple" loadingTracker={loading}>
             <DiwaButtonGroup buttons={buttons} state={buttonState} />
             <div className="position-relative text-color">
-                <h3>Payments for {startDate.toLocaleDateString('en-GB', { month: 'long' })}</h3>
+                <h2>Payments for {startDate.toLocaleDateString('en-GB', { month: 'long' })}</h2>
                 <DiwaRefreshButton refresh={() => refresh()} />
             </div>
             <Offcanvas show={show} className="h-auto text-color" placement="bottom" backdrop={true} scroll={false} keyboard={false} id="offcanvasBottom" onHide={handleClose}>
@@ -258,7 +258,7 @@ export default function PaymentMethods() {
             <div className="mt-2">&nbsp;</div>
             <DiwaButtonGroup buttons={todayButtons} state={todayButtonState} />
             <div className="position-relative mt-4 text-color">
-                <h3>Payments for Today</h3>
+                <h2>Payments for Today</h2>
             </div>
             {
                 dayReportData.map((val, index) => {

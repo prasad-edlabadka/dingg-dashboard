@@ -1,4 +1,5 @@
 $box-shadow: 0.5rem .5rem 1rem rgba(#000, .45);
+
 @mixin card($bg-color, $text-color, $border-color, $border-width, $border-radius, $box-shadow) {
   background-color: $bg-color !important;
   color: $text-color !important;
@@ -12,8 +13,6 @@ $box-shadow: 0.5rem .5rem 1rem rgba(#000, .45);
   --card-bg-color: #fff;
   --card-text-color: #000;
   --card-border-color: #000;
-  --card-border-radius: 1rem;
-  --card-box-shadow: 0.5rem 0.5rem 1.3rem rgba($color: #000, $alpha: 0.5);
   --diwa-card-border-width: "2px";
   --diwa-border-top-alpha: 0.9;
   --diwa-border-left-alpha: 0.9;
@@ -26,30 +25,30 @@ $box-shadow: 0.5rem .5rem 1rem rgba(#000, .45);
   --card-bg-primary-color: var(--bs-primary-rgb);
   --card-bg-warning-color: var(--bs-warning-rgb);
   --card-bg-dark-color: var(--bs-dark-rgb);
-  --card-bg-indigo-color: 13,110,253;
-  --card-bg-purple-color: 102,16,242;
+  --card-bg-indigo-color: 13, 110, 253;
+  --card-bg-purple-color: 102, 16, 242;
+  --card-bg-diwa-color: 219, 120, 121;
 }
 
 .dark {
   --card-bg-color: #000;
   --card-text-color: #fff;
   --card-border-color: #fff;
-  --diwa-card-border-width: 1px;
-  --card-box-shadow: 0.5rem 0.5rem 1.3rem rgba($color: #fff, $alpha: 0.5);
-  --diwa-border-top-alpha: 0.5;
-  --diwa-border-left-alpha: 0.5;
-  --diwa-border-bottom-alpha: 0.1;
-  --diwa-border-right-alpha: 0.1;
-  --background-alpha-end: 0.4;
-  --background-alpha-start: 0.6;
-  --card-bg-danger-color: 255,255,255;
-  --card-bg-success-color: 255,255,255;
-  --card-bg-primary-color: 255,255,255;
-  --card-bg-warning-color: 255,255,255;
-  --card-bg-dark-color: 255,255,255;
-  --card-bg-indigo-color: 255,255,255;
-  --card-bg-purple-color: 255,255,255;
-
+  --diwa-card-border-width: 2px;
+  --diwa-border-top-alpha: 0.9;
+  --diwa-border-left-alpha: 0.9;
+  --diwa-border-bottom-alpha: 0.9;
+  --diwa-border-right-alpha: 0.9;
+  --background-alpha-end: 0.45;
+  --background-alpha-start: 0.5;
+  --card-bg-danger-color: 255, 255, 255;
+  --card-bg-success-color: 255, 255, 255;
+  --card-bg-primary-color: 255, 255, 255;
+  --card-bg-warning-color: 255, 255, 255;
+  --card-bg-dark-color: 255, 255, 255;
+  --card-bg-indigo-color: 255, 255, 255;
+  --card-bg-purple-color: 255, 255, 255;
+  --card-bg-diwa-color: 255, 255, 255;
 }
 
 .card {
@@ -126,4 +125,13 @@ $box-shadow: 0.5rem .5rem 1rem rgba(#000, .45);
   border-left-color: rgba(var(--card-bg-purple-color), var(--diwa-border-left-alpha)) !important;
   border-bottom-color: rgba(var(--card-bg-purple-color), var(--diwa-border-bottom-alpha)) !important;
   border-right-color: rgba(var(--card-bg-purple-color), var(--diwa-border-right-alpha)) !important;
+}
+
+.card.bg-pink {
+  background-color: unset !important;
+  background: linear-gradient(to right bottom, rgba(219, 120, 121, var(--background-alpha-start)), rgba(219, 120, 121, var(--background-alpha-end)));
+  border-top-color: rgba(var(--card-bg-diwa-color), var(--diwa-border-top-alpha)) !important;
+  border-left-color: rgba(var(--card-bg-diwa-color), var(--diwa-border-left-alpha)) !important;
+  border-bottom-color: rgba(var(--card-bg-diwa-color), var(--diwa-border-bottom-alpha)) !important;
+  border-right-color: rgba(var(--card-bg-diwa-color), var(--diwa-border-right-alpha)) !important;
 }

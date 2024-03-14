@@ -3,7 +3,7 @@ import './App.css';
 
 import DinggNav from './nav/DinggNav';
 import Main from './main/Main';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
 import callAPI, { callAPIWithPromise, callPOSTAPI, callPUTAPI } from './main/tile/Utility';
 
@@ -23,7 +23,7 @@ interface ITokenContext {
   darkMode: boolean;
 }
 
-const TokenContext = React.createContext<ITokenContext>({ token: null, employeeName: null, location: null, setEmployeeName: () => {}, setLocation: () => {}, updateToken: () => {}, navOption: '', setNavOption: () => {}, callAPI: () => {}, callAPIPromise: (): Promise<any> => Promise.resolve(), callPOSTAPI: () => {}, callPUTAPI: () => {},darkMode: false});
+const TokenContext = React.createContext<ITokenContext>({ token: null, employeeName: null, location: null, setEmployeeName: () => { }, setLocation: () => { }, updateToken: () => { }, navOption: '', setNavOption: () => { }, callAPI: () => { }, callAPIPromise: (): Promise<any> => Promise.resolve(), callPOSTAPI: () => { }, callPUTAPI: () => { }, darkMode: false });
 const API_BASE_URL = 'https://api.dingg.app/api/v1';
 function App() {
 
@@ -50,14 +50,14 @@ function App() {
   const updateToken = (token: string | null) => {
     setToken(token);
     localStorage.removeItem("token");
-    if(token !== null) {
+    if (token !== null) {
       localStorage.setItem("token", token);
     }
   }
   const setEmpName = (employeeName: string | null) => {
     setEmployeeName(employeeName || '');
     localStorage.removeItem("employeeName");
-    if(employeeName !== null) {
+    if (employeeName !== null) {
       localStorage.setItem("employeeName", employeeName);
     }
   }
@@ -65,11 +65,11 @@ function App() {
   const setLocation = (location: string | null) => {
     setLocationName(location || '');
     localStorage.removeItem("locationName");
-    if(location !== null) {
+    if (location !== null) {
       localStorage.setItem("locationName", location);
     }
   }
-  
+
   const callGetAPI = (url: string, cb: any) => {
     callAPI(url, token, setToken, cb);
   }
@@ -86,11 +86,17 @@ function App() {
     callPUTAPI(url, data, token, setToken, cb);
   }
 
-  const [darkMode, ] = useState(!window.matchMedia('(prefers-color-scheme: dark)').matches);
-    // window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-    //     console.log("Dark mode is " + (e.matches ? "on" : "off"));
-    //     setDarkMode(!e.matches);
-    // });
+  useEffect(() => {
+    console.log("Setting color mode in App.tsx...");
+    const dm = localStorage.getItem("darkMode") === "true";
+    dm ? document.body.classList.add('dark') : document.body.classList.remove('dark');
+  }, []);
+
+  const [darkMode,] = useState(!window.matchMedia('(prefers-color-scheme: dark)').matches);
+  // window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+  //     console.log("Dark mode is " + (e.matches ? "on" : "off"));
+  //     setDarkMode(!e.matches);
+  // });
 
   return (
     <TokenContext.Provider value={{ token, employeeName, location: locationName, setEmployeeName: setEmpName, setLocation, updateToken, navOption, setNavOption, callAPI: callGetAPI, callAPIPromise: callAPIPromise, callPOSTAPI: callPOSTAPI2, callPUTAPI: callPUTAPI2, darkMode: darkMode }}>

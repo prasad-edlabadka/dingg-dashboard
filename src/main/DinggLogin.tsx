@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { Button, Col, Form, Image, Row } from "react-bootstrap";
+import { Alert, Button, Col, Form, Image, Row } from "react-bootstrap";
 import { TokenContext } from "../App";
 import DiwaCard from "../components/card/DiwaCard";
 import { faSun, faMoon } from "@fortawesome/free-regular-svg-icons";
@@ -33,20 +33,27 @@ function DinggLogin() {
         };
         fetch(apiURL, requestMetadata)
             .then(res => res.json())
-            .then(recipes => {
-                updateToken(recipes.token);
-                setEmployeeName(recipes.data.employee.name);
-                setLocation(`${recipes.data.vendor_locations[0].business_name} - ${recipes.data.vendor_locations[0].locality}`);
-                setLoading(false);
-                localStorage.setItem("userId", userId || "");
-                localStorage.setItem("password", password || "");
+            .then(resp => {
+                if (resp.success) {
+                    updateToken(resp.token);
+                    setEmployeeName(resp.data.employee.name);
+                    setLocation(`${resp.data.vendor_locations[0].business_name} - ${resp.data.vendor_locations[0].locality}`);
+                    setLoading(false);
+                    localStorage.setItem("userId", userId || "");
+                    localStorage.setItem("password", password || "");
+                } else {
+                    setError(resp.message);
+                    setLoading(false);
+                    localStorage.setItem("userId", "");
+                    localStorage.setItem("password", "");
+                }
             })
-            .catch(err => { 
+            .catch(err => {
                 console.log(err);
-                setError(err.message); 
-                setLoading(false); 
+                setError(err.message);
+                setLoading(false);
                 localStorage.setItem("userId", "");
-                localStorage.setItem("password","");
+                localStorage.setItem("password", "");
             });
     };
 
@@ -71,12 +78,13 @@ function DinggLogin() {
     }
 
     useEffect(() => {
+        console.log("Setting color mode in Login...")
         darkMode ? document.body.classList.add('dark') : document.body.classList.remove('dark');
     }, [darkMode]);
 
     useEffect(() => {
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', darkModeHandler);
-        if(autoLogin && initialUserId !== "" && initialPassword !== "") {
+        if (autoLogin && initialUserId !== "" && initialPassword !== "") {
             handleClick();
         }
     }, [neverChange]);
@@ -84,24 +92,34 @@ function DinggLogin() {
         <div>
             <Row>
                 <Col>
-                    <DiwaCard varient="dark" loadingTracker={false}>
+                    <DiwaCard varient="pink" loadingTracker={false}>
                         <h2 className="text-color">Login</h2>
                         <Form>
                             <Form.Group className="mb-3" controlId="phone">
                                 <Form.Label className="text-color">Mobile Number</Form.Label>
-                                <Form.Control type="tel" placeholder="Enter phone number" ref={phoneRef} value={initialUserId} onChange={(e) => setInitialUserId(e.target.value)}/>
+                                <Form.Control type="tel" placeholder="Enter phone number" ref={phoneRef} value={initialUserId} onChange={(e) => setInitialUserId(e.target.value)} />
                             </Form.Group>
 
                             <Form.Group className="mb-3" controlId="password">
                                 <Form.Label className="text-color">Password</Form.Label>
-                                <Form.Control type="password" placeholder="Password" ref={passwordRef} value={initialPassword} onChange={(e) => setInitialPassword(e.target.value)}/>
+                                <Form.Control type="password" placeholder="Password" ref={passwordRef} value={initialPassword} onChange={(e) => setInitialPassword(e.target.value)} />
                             </Form.Group>
                             <Row>
-                                <Col xs="4">
+                                <Col xs="8" className="d-flex align-items-center">
                                     <Button variant="primary" type="button" className="bg-danger border-0 bg-color-diwa" onClick={handleClick} disabled={loading}>{loading ? "Please wait..." : "Login"}</Button>
+                                    <span className="d-inline ">
+                                        <Form.Check // prettier-ignore
+                                            type="checkbox"
+                                            id="auto-login-mode-switch"
+                                            className="form-control-lg pe-0 simple-check"
+                                            checked={autoLogin}
+                                            onChange={toggleAutoLogin}
+                                        />
+                                    </span>
+                                    <span className="d-inline text-color ps-2">Remember me</span>
                                 </Col>
-                                <Col xs="8" className="d-flex justify-content-end align-items-center">
-                                    <span className="d-inline pe-2 text-color">Light <FontAwesomeIcon icon={faSun} className="text-color" /></span>
+                                <Col xs="4" className="d-flex justify-content-end align-items-center">
+                                    <span className="d-inline pe-2 text-color"><FontAwesomeIcon icon={faSun} className="text-color" /></span>
                                     <span className="d-inline">
                                         <Form.Check // prettier-ignore
                                             type="switch"
@@ -111,27 +129,31 @@ function DinggLogin() {
                                             onChange={toggleDarkMode}
                                         />
                                     </span>
-                                    <span className="d-inline text-color"><FontAwesomeIcon icon={faMoon} className="text-color" /> Dark</span>
+                                    <span className="d-inline text-color"><FontAwesomeIcon icon={faMoon} className="text-color" /></span>
 
                                 </Col>
                             </Row>
-                            <Row>
+                            {/* <Row>
                                 <Col xs="8" className="d-flex justify-content-start align-items-center">
                                     <span className="d-inline">
                                         <Form.Check // prettier-ignore
-                                            type="switch"
+                                            type="checkbox"
                                             id="auto-login-mode-switch"
                                             className="form-control-lg pe-0"
                                             checked={autoLogin}
                                             onChange={toggleAutoLogin}
                                         />
                                     </span>
-                                    <span className="d-inline text-color">Auto login?</span>
+                                    <span className="d-inline text-color ps-2">Auto login?</span>
                                 </Col>
 
-                            </Row>
+                            </Row> */}
 
-                            {error === "" ? "" : <p className="text-danger">{error}</p>}
+                            {error !== "" &&
+                                <Alert variant="danger" className="mt-3">
+                                    {error}
+                                </Alert>}
+                            {/* <p className="text-danger">{error}</p>} */}
                         </Form>
                     </DiwaCard>
                 </Col>

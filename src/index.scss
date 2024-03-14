@@ -1,4 +1,4 @@
-$diwa-color: #db7879;
+$diwa-color: rgb(219, 120, 121);
 $body-bg: rgb(15, 13, 14);
 $red: #C02826;
 $font-family-base: 'Flama';
@@ -49,6 +49,13 @@ $input-color: white;
   src: local('Flama Bold'), url('./fonts/Flama-Bold.woff') format('woff');
 }
 
+@font-face {
+  font-family: 'Flama';
+  font-style: normal;
+  font-weight: 300;
+  src: local('Flama Medium'), url('./fonts/Flama-Medium.woff') format('woff');
+}
+
 :root {
   //@media (prefers-color-scheme: light) {
   --diwa-bg-color: #eee;
@@ -73,6 +80,9 @@ $input-color: white;
   --diwa-caret-success-color: var(--bs-success);
   --diwa-caret-danger-color: var(--bs-danger);
   --diwa-close-button: invert(0%);
+  --diwa-error-bg: var(--bs-danger);
+  --diwa-error-fg: var(--bs-light);
+  --diwa-checkbox-tick: url("data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 20 20%27%3e%3cpath fill=%27none%27 stroke=%27%23000%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%273%27 d=%27m6 10 3 3 6-6%27/%3e%3c/svg%3e");
   // }
 
 }
@@ -101,6 +111,9 @@ $input-color: white;
   --diwa-caret-success-color: var(--bs-light);
   --diwa-caret-danger-color: var(--bs-light);
   --diwa-close-button: invert(100%);
+  --diwa-error-bg: var(--bs-danger);
+  --diwa-error-fg: var(--bs-light);
+  --diwa-checkbox-tick: url("data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 20 20%27%3e%3cpath fill=%27none%27 stroke=%27%23fff%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%273%27 d=%27m6 10 3 3 6-6%27/%3e%3c/svg%3e")
 }
 
 body {
@@ -112,6 +125,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background: var(--diwa-bg-color) !important;
   color: var(--diwa-fg-color) !important;
+}
+
+h2 {
+  font-weight: 300;
 }
 
 .bg {
@@ -299,11 +316,26 @@ select {
 
 
 
-.form-switch .form-check-input:checked,
+// .form-switch .form-check-input:checked,
 .form-switch .form-check-input:focus {
   background-image: url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%27-4 -4 8 8%27%3e%3ccircle r=%273%27 fill=%27%23db7879%27/%3e%3c/svg%3e');
 }
 
 .form-switch .form-check-input {
   background-image: url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%27-4 -4 8 8%27%3e%3ccircle r=%273%27 fill=%27%23777777%27/%3e%3c/svg%3e');
+}
+
+
+
+.simple-check input {
+  background-image: var(--diwa-checkbox-tick) !important;
+}
+
+.form-check-input:checked {
+  border-color: $diwa-color !important;
+}
+
+.alert-danger {
+  background-color: var(--diwa-error-bg) !important;
+  color: var(--diwa-error-fg) !important;
 }
