@@ -1,8 +1,8 @@
 $diwa-color: rgb(219, 120, 121);
 $body-bg: rgb(15, 13, 14);
-$red: #C02826;
-$font-family-base: 'Flama';
-$box-shadow: 0.5rem .5rem 1rem rgba(#000, .45);
+$red: #c02826;
+$font-family-base: "Flama";
+$box-shadow: 0.5rem 0.5rem 1rem rgba(#000, 0.45);
 $accordion-bg: transparent;
 $accordion-button-color: var(--bs-white);
 $accordion-button-active-bg: transparent;
@@ -14,46 +14,46 @@ $accordion-padding-y: 0.2rem;
 $accordion-padding-x: 0rem;
 $input-color: white;
 
-@import '~bootstrap/scss/bootstrap.scss';
+@import "~bootstrap/scss/bootstrap.scss";
 
 @font-face {
-  font-family: 'Evergreen';
+  font-family: "Evergreen";
   src: url(./fonts/Evergreen.otf);
 }
 
 @font-face {
-  font-family: 'Flama';
+  font-family: "Flama";
   font-style: normal;
   font-weight: normal;
-  src: local('Flama'), url('./fonts/Flama Regular.woff') format('woff');
+  src: local("Flama"), url("./fonts/Flama Regular.woff") format("woff");
 }
 
 @font-face {
-  font-family: 'Flama';
+  font-family: "Flama";
   font-style: italic;
   font-weight: normal;
-  src: local('Flama Italic'), url('./fonts/Flama Italic.woff') format('woff');
+  src: local("Flama Italic"), url("./fonts/Flama Italic.woff") format("woff");
 }
 
 @font-face {
-  font-family: 'Flama';
+  font-family: "Flama";
   font-style: italic;
   font-weight: bold;
-  src: local('Flama Bold Italic'), url('./fonts/Flama Bold Italic.woff') format('woff');
+  src: local("Flama Bold Italic"), url("./fonts/Flama Bold Italic.woff") format("woff");
 }
 
 @font-face {
-  font-family: 'Flama';
+  font-family: "Flama";
   font-style: normal;
   font-weight: bold;
-  src: local('Flama Bold'), url('./fonts/Flama-Bold.woff') format('woff');
+  src: local("Flama Bold"), url("./fonts/Flama-Bold.woff") format("woff");
 }
 
 @font-face {
-  font-family: 'Flama';
+  font-family: "Flama";
   font-style: normal;
   font-weight: 300;
-  src: local('Flama Medium'), url('./fonts/Flama-Medium.woff') format('woff');
+  src: local("Flama Medium"), url("./fonts/Flama-Medium.woff") format("woff");
 }
 
 :root {
@@ -82,14 +82,13 @@ $input-color: white;
   --diwa-close-button: invert(0%);
   --diwa-error-bg: var(--bs-danger);
   --diwa-error-fg: var(--bs-light);
-  --diwa-checkbox-tick: url("data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 20 20%27%3e%3cpath fill=%27none%27 stroke=%27%23000%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%273%27 d=%27m6 10 3 3 6-6%27/%3e%3c/svg%3e");
+  --diwa-checkbox-tick: url("data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 20 20%27%3e%3cpath fill=%27none%27 stroke=%27%23000000%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%273%27 d=%27m6 10 3 3 6-6%27/%3e%3c/svg%3e");
   // }
-
 }
 
 .dark {
   --diwa-bg-color: rgba(61, 31, 32, 1) !important;
-  --diwa-fg-color: #FFF;
+  --diwa-fg-color: #fff;
   --diwa-today-bg-color: var(--bs-body-bg-rgb);
   --diwa-today-link-color: rgba(var(--bs-primary-rgb), 0.9);
   --diwa-accordion-color: fff;
@@ -113,14 +112,13 @@ $input-color: white;
   --diwa-close-button: invert(100%);
   --diwa-error-bg: var(--bs-danger);
   --diwa-error-fg: var(--bs-light);
-  --diwa-checkbox-tick: url("data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 20 20%27%3e%3cpath fill=%27none%27 stroke=%27%23fff%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%273%27 d=%27m6 10 3 3 6-6%27/%3e%3c/svg%3e")
+  --diwa-checkbox-tick: url("data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 20 20%27%3e%3cpath fill=%27none%27 stroke=%27%23fff%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%273%27 d=%27m6 10 3 3 6-6%27/%3e%3c/svg%3e");
 }
 
 body {
   margin: 0;
-  font-family: 'Flama', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: "Flama", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
+    "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: var(--diwa-bg-color) !important;
@@ -146,18 +144,15 @@ h2 {
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
-
-
 .card-header {
-  font-family: 'Flama' !important;
+  font-family: "Flama" !important;
 }
 
 .evergreen {
-  font-family: 'Evergreen' !important;
+  font-family: "Evergreen" !important;
 }
 
 // .card {
@@ -172,12 +167,16 @@ code {
 // }
 
 .small {
-  font-size: 0.80rem;
+  font-size: 0.8rem;
 }
 
 .today {
   background-color: unset !important;
-  background: linear-gradient(to right bottom, rgba(var(--diwa-today-bg-color), 0.6), rgba(var(--diwa-today-bg-color), 0.6));
+  background: linear-gradient(
+    to right bottom,
+    rgba(var(--diwa-today-bg-color), 0.6),
+    rgba(var(--diwa-today-bg-color), 0.6)
+  );
   padding: 0.5rem;
   padding-top: 0.8rem;
   border-radius: 1rem !important;
@@ -185,7 +184,7 @@ code {
 }
 
 .today a {
-  color: var(--diwa-today-link-color)
+  color: var(--diwa-today-link-color);
 }
 
 .today .btn {
@@ -194,11 +193,7 @@ code {
 
 .neonText {
   color: #fff;
-  text-shadow:
-    0 0 27px #aaa,
-    0 0 30px #aaa,
-    0 0 51px #aaa,
-
+  text-shadow: 0 0 27px #aaa, 0 0 30px #aaa, 0 0 51px #aaa;
 }
 
 .accordion-button.collapsed::after {
@@ -214,13 +209,13 @@ code {
   box-shadow: none;
 }
 
-input[type=file]::file-selector-button {
+input[type="file"]::file-selector-button {
   background-color: var(--diwa-file-button-color);
 }
 
 .offcanvas-backdrop.show {
   opacity: 1;
-  background-color: rgba(15, 23, 42, .5);
+  background-color: rgba(15, 23, 42, 0.5);
   backdrop-filter: blur(4px);
 }
 
@@ -230,7 +225,11 @@ input[type=file]::file-selector-button {
 }
 
 .black-bg {
-  background: linear-gradient(to right bottom, rgba(var(--staff-bg-color), 0.5), rgba(var(--staff-bg-color), 0.3)) !important;
+  background: linear-gradient(
+    to right bottom,
+    rgba(var(--staff-bg-color), 0.5),
+    rgba(var(--staff-bg-color), 0.3)
+  ) !important;
   border: 1px solid rgba(var(--staff-bg-color), 1) !important;
 }
 
@@ -314,28 +313,39 @@ select {
   box-shadow: 0 0 0 0.25rem rgba($diwa-color, 0.25);
 }
 
-
-
 // .form-switch .form-check-input:checked,
 .form-switch .form-check-input:focus {
-  background-image: url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%27-4 -4 8 8%27%3e%3ccircle r=%273%27 fill=%27%23db7879%27/%3e%3c/svg%3e');
+  background-image: url("data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%27-4 -4 8 8%27%3e%3ccircle r=%273%27 fill=%27%23db7879%27/%3e%3c/svg%3e");
 }
 
 .form-switch .form-check-input {
-  background-image: url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%27-4 -4 8 8%27%3e%3ccircle r=%273%27 fill=%27%23777777%27/%3e%3c/svg%3e');
+  background-image: url("data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%27-4 -4 8 8%27%3e%3ccircle r=%273%27 fill=%27%23777777%27/%3e%3c/svg%3e");
 }
 
-
-
-.simple-check input {
+.simple-check-active {
   background-image: var(--diwa-checkbox-tick) !important;
+  background-repeat: none;
+  background-size: contain;
+  background-position: center;
+}
+
+.simple-check {
+  background-image: unset !important;
 }
 
 .form-check-input:checked {
   border-color: $diwa-color !important;
 }
 
+.form-check-input:not(:checked) {
+  border-color: $diwa-color !important;
+}
+
 .alert-danger {
   background-color: var(--diwa-error-bg) !important;
   color: var(--diwa-error-fg) !important;
+}
+
+.separator {
+  background-color: rgba(var(--card-bg-diwa-color), var(--diwa-border-top-alpha));
 }

@@ -3,12 +3,12 @@ import DiwaButtonGroup from "./DiwaButtonGroup";
 import { useState } from "react";
 
 const buttons = [
-    { title: 'Button 1', onClick: () => {}},
-    { title: 'Button 2', onClick: () => {}},
-    { title: 'Button 3', onClick: () => {}}
+    { title: 'Button 1', onClick: () => { } },
+    { title: 'Button 2', onClick: () => { } },
+    { title: 'Button 3', onClick: () => { } }
 ]
 
-const Wrapper = ({ wrapButtons }: { wrapButtons: { title: string,  onClick: any, onClickParams?: any[] }[] }) => {
+const Wrapper = ({ wrapButtons }: { wrapButtons: { title: string, onClick: any, onClickParams?: any[] }[] }) => {
     const btn = useState(0);
     return (
         <DiwaButtonGroup buttons={wrapButtons} state={btn} />
@@ -112,9 +112,9 @@ describe('DiwaButtonGroup component interaction tests', () => {
     test('DiwaButtonGroup component calls onClick function when button is clicked', () => {
         const onClick = jest.fn();
         const buttons = [
-            { title: 'Button 1', onClick: onClick},
-            { title: 'Button 2', onClick: onClick},
-            { title: 'Button 3', onClick: onClick}
+            { title: 'Button 1', onClick: onClick },
+            { title: 'Button 2', onClick: onClick },
+            { title: 'Button 3', onClick: onClick }
         ]
         render(<Wrapper wrapButtons={buttons} />);
         const parent = screen.getByTestId('button-parent');
@@ -128,11 +128,11 @@ describe('DiwaButtonGroup component interaction tests', () => {
     test('DiwaButtonGroup component calls onClick function with correct parameters when button is clicked', () => {
         const onClick = jest.fn();
         const onClickParams = ['param1', 'param2'];
-        const onClickParams2 = [{'param3':'sample'}, 'param4'];
+        const onClickParams2 = [{ 'param3': 'sample' }, 'param4'];
         const buttons = [
-            { title: 'Button 1', onClick: onClick, onClickParams:onClickParams},
-            { title: 'Button 2', onClick: onClick, onClickParams:onClickParams},
-            { title: 'Button 3', onClick: onClick, onClickParams:onClickParams2}
+            { title: 'Button 1', onClick: onClick, onClickParams: onClickParams },
+            { title: 'Button 2', onClick: onClick, onClickParams: onClickParams },
+            { title: 'Button 3', onClick: onClick, onClickParams: onClickParams2 }
         ]
         render(<Wrapper wrapButtons={buttons} />);
         const parent = screen.getByTestId('button-parent');
@@ -146,9 +146,9 @@ describe('DiwaButtonGroup component interaction tests', () => {
     test('DiwaButtonGroup component does not call onClick function when button is clicked and onClick is not defined', () => {
         const onClick = jest.fn();
         const buttons = [
-            { title: 'Button 1', onClick: onClick},
-            { title: 'Button 2', onClick: null},
-            { title: 'Button 3', onClick: onClick}
+            { title: 'Button 1', onClick: onClick },
+            { title: 'Button 2', onClick: null },
+            { title: 'Button 3', onClick: onClick }
         ]
         render(<Wrapper wrapButtons={buttons} />);
         const parent = screen.getByTestId('button-parent');
@@ -159,4 +159,15 @@ describe('DiwaButtonGroup component interaction tests', () => {
         expect(onClick).toHaveBeenCalledTimes(1);
     });
 
+    test('DiwaButtonGroup component does not call onClick function when button is clicked and onClick is not a function', () => {
+        const onClick = jest.fn();
+        const buttons = [
+            { title: 'Button 1', onClick: onClick },
+            { title: 'Button 2', onClick: 'not a function' },
+            { title: 'Button 3', onClick: onClick }
+        ]
+        render(<Wrapper wrapButtons={buttons} />);
+        const parent = screen.getByTestId('button-parent');
+        expect(parent).toBeInTheDocument();
+    });
 })

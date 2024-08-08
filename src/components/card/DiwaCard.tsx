@@ -1,14 +1,11 @@
 import { Card, Spinner } from "react-bootstrap";
 import './DiwaCard.scss';
-import { useContext } from "react";
-import { TokenContext } from "../../App";
 
 function DiwaCard(props: { children?: any; varient: "danger" | "success" | "primary" | "warning" | "dark" | "indigo" | "purple" | "pink"; loadingTracker: boolean; }) {
 
     const { varient, loadingTracker } = props;
-    const { darkMode } = useContext(TokenContext);
 
-    const textVarient = darkMode ? (varient === "indigo" || varient === "purple" || varient == "pink" ? "dark" : varient) : "light";
+    const textVarient = varient === "indigo" || varient === "purple" || varient == "pink" ? "dark" : 'light';
     return (
         <Card className="shadow mt-3" bg={varient} text={textVarient} data-testid="card-parent">
             {

@@ -41,6 +41,44 @@ describe('DiwaNavBar component tests', () => {
         });
     });
 
+    //test case 4: check if DiwaNavBar component renders with correct navs when token is null
+    test('DiwaNavBar component renders with no navs when token is null', () => {
+        renderNav(navs, null);
+        const diwaNavBar = screen.queryByTestId('navbar-parent');
+        expect(diwaNavBar).toBeNull();
+    });
+
+    //test case 5: check if DiwaNavBar component renders with correct navs when navOption is null
+    test('DiwaNavBar component renders with correct navs when navOption is null', () => {
+        renderNav(navs, 'dummyToken', '');
+        const diwaNavBar = screen.getByTestId('navbar-parent');
+        expect(diwaNavBar).toBeInTheDocument();
+        const navsCount = screen.getAllByTestId('nav-item');
+        expect(navsCount.length).toBe(navs.length);
+        navs.forEach((nav) => {
+            const navLink = screen.getByTestId(`nav-text-${nav.name}`);
+            expect(navLink).toBeInTheDocument();
+            const navIcon = screen.getByTestId(`nav-icon-${nav.name}`);
+            expect(navIcon).toBeInTheDocument();
+        });
+    });
+
+    //test case 6: check if DiwaNavBar component renders with dark mode
+    test('DiwaNavBar component renders with dark mode', () => {
+        renderNav(navs, 'dummyToken', '', false);
+        const diwaNavBar = screen.getByTestId('navbar-parent');
+        expect(diwaNavBar).toBeInTheDocument();
+        expect(diwaNavBar).toHaveClass('bg-dark');
+    });
+
+    //test case 7: check if DiwaNavBar component renders with dark mode
+    test('DiwaNavBar component renders with light mode', () => {
+        renderNav(navs, 'dummyToken', '', true);
+        const diwaNavBar = screen.getByTestId('navbar-parent');
+        expect(diwaNavBar).toBeInTheDocument();
+        expect(diwaNavBar).toHaveClass('bg-secondary');
+    });
+
 });
 describe('DiwaNavBar component tests with different props', () => {
 
@@ -90,9 +128,9 @@ describe('DiwaNavBar component tests with different props', () => {
 function renderNav(navs: {
     name: string; icon: any;
     link: string; iconProps?: object | undefined; onClick?: any;
-}[], token: string | null, navOption: string = '') {
+}[], token: string | null, navOption: string = '', darkMode: boolean = false) {
     return render(
-        <TokenContext.Provider value={{ token: token, employeeName: '', location: '', setLocation: () => {}, setEmployeeName: ()=>{}, updateToken: () => { }, navOption: navOption, setNavOption: () => { }, callAPI: () => { }, callAPIPromise: (): Promise<any> => Promise.resolve(), callPOSTAPI: () => { }, callPUTAPI: () => {}, darkMode: false }}>
+        <TokenContext.Provider value={{ token: token, employeeName: '', location: '', setLocation: () => { }, setEmployeeName: () => { }, updateToken: () => { }, navOption: navOption, setNavOption: () => { }, callAPI: () => { }, callAPIPromise: (): Promise<any> => Promise.resolve(), callPOSTAPI: () => { }, callPUTAPI: () => { }, darkMode: darkMode }}>
             <DiwaNavBar navs={navs} />
         </TokenContext.Provider>);
 }

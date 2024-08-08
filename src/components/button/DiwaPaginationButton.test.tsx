@@ -35,4 +35,39 @@ describe('DiwaPaginationButton component tests', () => {
         fireEvent.click(buttons[2]);
         expect(nextMock).toHaveBeenCalled();
     });
+
+    // Test case 4: Check if DiwaPaginationButton component renders with correct button text
+    test('DiwaPaginationButton component renders with correct button text', () => {
+        render(<DiwaPaginationButton previous={previousMock} current={currentMock} next={nextMock} />);
+        const buttons = screen.getAllByTestId('button');
+        expect(buttons[0].textContent).toBe('< Prev');
+        expect(buttons[1].textContent).toBe('Reset');
+        expect(buttons[2].textContent).toBe('Next >');
+    });
+
+    // Test case 5: Check if DiwaPaginationButton component renders with correct button color
+    test('DiwaPaginationButton component renders with correct button color', () => {
+        render(<DiwaPaginationButton previous={previousMock} current={currentMock} next={nextMock} />);
+        const buttons = screen.getAllByTestId('button');
+        expect(buttons[0]).toHaveClass('btn-outline-color');
+        expect(buttons[1]).toHaveClass('btn-outline-color');
+        expect(buttons[2]).toHaveClass('btn-outline-color');
+    });
+
+    // Test case 6: Check if DiwaPaginationButton component renders with correct button size
+    test('DiwaPaginationButton component renders with correct button size', () => {
+        render(<DiwaPaginationButton previous={previousMock} current={currentMock} next={nextMock} />);
+        const buttons = screen.getAllByTestId('button');
+        expect(buttons[0]).toHaveClass('btn');
+        expect(buttons[1]).toHaveClass('btn');
+        expect(buttons[2]).toHaveClass('btn');
+        expect(buttons[0]).not.toHaveClass('btn-sm');
+        expect(buttons[1]).not.toHaveClass('btn-sm');
+        expect(buttons[2]).not.toHaveClass('btn-sm');
+        expect(buttons[0]).not.toHaveClass('btn-lg');
+        expect(buttons[1]).not.toHaveClass('btn-lg');
+        expect(buttons[2]).not.toHaveClass('btn-lg');
+    });
+
+
 });
