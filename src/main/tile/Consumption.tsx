@@ -34,7 +34,7 @@ export default function Consumption() {
         <DiwaRefreshButton refresh={() => setRefreshFlag(!refreshFlag)} />
       </div>
       {Object.keys(consumptionData).length === 0 ? (
-        <div className="text-color rounded black-bg px-2 py-1 mt-3">
+        <div className="text-color rounded translucent-bg px-2 py-1 mt-3">
           <span>No consumption today</span>
         </div>
       ) : (

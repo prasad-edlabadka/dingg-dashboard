@@ -319,7 +319,7 @@ export default function PaymentMethods() {
         </Offcanvas.Body>
       </Offcanvas>
       {reportData.length === 0 ? (
-        <div className="text-color rounded black-bg px-2 py-1">
+        <div className="text-color rounded translucent-bg px-2 py-1">
           <span>No payments this month</span>
         </div>
       ) : (
@@ -351,7 +351,7 @@ export default function PaymentMethods() {
         <h2>Payments for Today</h2>
       </div>
       {dayReportData.length === 0 ? (
-        <div className="text-color rounded black-bg px-2 py-1">
+        <div className="text-color rounded translucent-bg px-2 py-1">
           <span>No payments today</span>
         </div>
       ) : (

@@ -84,6 +84,7 @@ $input-color: white;
   --diwa-error-fg: var(--bs-light);
   --diwa-checkbox-tick: url("data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 20 20%27%3e%3cpath fill=%27none%27 stroke=%27%23000000%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%273%27 d=%27m6 10 3 3 6-6%27/%3e%3c/svg%3e");
   // }
+  --diwa-translucent-color: rgba(255, 255, 255, 0.8);
 }
 
 .dark {
@@ -113,6 +114,7 @@ $input-color: white;
   --diwa-error-bg: var(--bs-danger);
   --diwa-error-fg: var(--bs-light);
   --diwa-checkbox-tick: url("data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 20 20%27%3e%3cpath fill=%27none%27 stroke=%27%23fff%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%273%27 d=%27m6 10 3 3 6-6%27/%3e%3c/svg%3e");
+  --diwa-translucent-color: rgba(0, 0, 0, 0.1);
 }
 
 body {
@@ -231,6 +233,11 @@ input[type="file"]::file-selector-button {
     rgba(var(--staff-bg-color), 0.3)
   ) !important;
   border: 1px solid rgba(var(--staff-bg-color), 1) !important;
+}
+
+.translucent-bg {
+  background-color: var(--diwa-translucent-color) !important;
+  backdrop-filter: blur(1rem);
 }
 
 .bill-item-icon {

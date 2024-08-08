@@ -325,7 +325,7 @@ export default function Expenses() {
       </div>
 
       {Object.keys(expenseData).length === 0 ? (
-        <div className="text-color rounded black-bg px-2 py-1">
+        <div className="text-color rounded translucent-bg px-2 py-1">
           <span>No {buttons[buttonIndex].title.toLowerCase()} expenses</span>
         </div>
       ) : (
