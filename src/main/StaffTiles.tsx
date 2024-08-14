@@ -1,6 +1,6 @@
 import { Col, Row } from "react-bootstrap";
 import Salary from "./tile/Salary";
-import Staff from "./tile/Staff";
+import Staff from "./tile/staff/Staff";
 
 export default function StaffTiles() {
   const tileList = [Staff, Salary];

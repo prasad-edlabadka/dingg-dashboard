@@ -1,6 +1,17 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { currencyFormatter, formatDate, getFirstDayOfWeek } from "./Utility";
-import { addDays, isAfter, endOfDay, endOfMonth, subMonths, startOfMonth, addMonths, subDays, format } from "date-fns";
+import {
+  addDays,
+  isAfter,
+  endOfDay,
+  endOfMonth,
+  subMonths,
+  startOfMonth,
+  addMonths,
+  subDays,
+  format,
+  parse,
+} from "date-fns";
 import { TokenContext, API_BASE_URL } from "../../App";
 import DiwaButtonGroup from "../../components/button/DiwaButtonGroup";
 import DiwaCard from "../../components/card/DiwaCard";
@@ -10,6 +21,12 @@ import DataPoint from "./sale/DataPoint";
 import MultiRowDataPoint from "./sale/MultiRowDataPoint";
 import { Col, Row } from "react-bootstrap";
 import DiwaPaginationButton from "../../components/button/DiwaPaginationButton";
+import { Chart as ChartJS } from "chart.js/auto";
+import { Bar } from "react-chartjs-2";
+// ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement);
+ChartJS.defaults.elements.line.borderColor = "#fff";
+ChartJS.defaults.elements.point.borderColor = "#fff";
+ChartJS.defaults.elements.point.hoverRadius = 6;
 
 export default function Sale2() {
   const { callAPI } = useContext(TokenContext);
@@ -30,6 +47,32 @@ export default function Sale2() {
   const [displayPreviousSale, setDisplayPreviousSale] = useState(dataStructure);
   const [displayVariation, setDisplayVariation] = useState(dataStructure);
   const [displaySubDuration, setDisplaySubDuration] = useState(new Date().toLocaleDateString());
+  const [rawData, setRawData] = useState({ datasets: [] });
+  const [chartOptions] = useState({
+    responsive: true,
+    plugins: {
+      legend: {
+        display: false,
+      },
+      title: {
+        display: false,
+      },
+    },
+    scales: {
+      y: {
+        display: false,
+        ticks: {
+          display: false,
+        },
+      },
+      x: {
+        display: false,
+        ticks: {
+          display: false,
+        },
+      },
+    },
+  });
 
   const [today, setToday] = useState(new Date());
   const [weekStart, setWeekStart] = useState(getFirstDayOfWeek(today));
@@ -150,13 +193,17 @@ export default function Sale2() {
         tip: number;
         start: string;
         end: string;
-      }) => void
+      }) => void,
+      storeData?: any
     ) => {
       const startDate = formatDate(start);
       const endDate = formatDate(end);
       const apiURL = `${API_BASE_URL}/vendor/report/sales?start_date=${startDate}&end_date=${endDate}&report_type=by_type&app_type=web`;
       callAPI(apiURL, (data: any) => {
         if (!data) return;
+        if (typeof storeData === "function") {
+          storeData(data.data);
+        }
         const values = data.data.reduce(
           (acc: any, info: any) => {
             acc.total += info.total;
@@ -237,21 +284,30 @@ export default function Sale2() {
     console.log(`Load data called with button index ${activeButtonState}`);
     const dt = new Date();
     let dates = { start: dt, end: dt, prevStart: dt, prevEnd: dt };
+    var chartType = "";
     switch (activeButtonState) {
       case 0:
+        chartType = "day";
         dates = calculateYesterday;
         break;
       case 1:
+        chartType = "day";
         dates = calculateWeekDates;
         break;
       case 2:
+        chartType = "day";
         dates = calculateFinMonthDates;
         break;
       case 3:
+        chartType = "day";
         dates = calculateMonthDates;
         break;
     }
     const { start, end, prevStart, prevEnd } = dates;
+    const hours: string[] = [];
+    for (let i = 0; i < 24; i++) {
+      hours.push(`${i % 12 || 12} ${i < 12 ? "AM" : "PM"}`);
+    }
 
     getReportForDateRange(start, end, (currentData) => {
       getReportForDateRange(prevStart, prevEnd, (previousData) => {
@@ -262,6 +318,58 @@ export default function Sale2() {
           new Date(previousData.end)
         );
         setDisplay(currentData, previousData, activeButtonState);
+        const apiURL =
+          activeButtonState === 0
+            ? `${API_BASE_URL}/vendor/report/sales?start_date=${formatDate(
+                start
+              )}&report_type=hour_of_day_by_all&app_type=web&range_type=day`
+            : `${API_BASE_URL}/vendor/report/trend?type=${chartType}&report_type=by_all&start=${formatDate(
+                start
+              )}&end=${formatDate(end)}&app_type=web`;
+        callAPI(apiURL, (data: any) => {
+          const hourData: number[] = [];
+          if (activeButtonState === 0) {
+            for (let i = 0; i < 24; i++) {
+              const v = data.data.find((v: any) => v.hour === `${i}`);
+              hourData[i] = v?.total || 0;
+              // hourData.push(0);
+            }
+          }
+          const chartData = {
+            labels:
+              activeButtonState === 0
+                ? hours
+                : data.data.map((v: any) => {
+                    if (activeButtonState === 0) {
+                      return `${v.hour % 12 || 12} ${v.hour >= 12 ? "PM" : "AM"}`;
+                    } else if (activeButtonState > 1) {
+                      return format(parse(v.range, "yyyy-MM-dd", new Date()), "dd-MMM");
+                    } else {
+                      return format(parse(v.range, "yyyy-MM-dd", new Date()), "EEEE");
+                    }
+                    // return v["range"];
+                  }),
+            datasets: [
+              {
+                type: "bar",
+                label: "Total Amount",
+                data: activeButtonState === 0 ? hourData : data.data.map((v: any) => v["total amount"]),
+
+                backgroundColor:
+                  currentData.total > previousData.total ? "rgba(25, 135, 84, 1)" : "rgba(192, 40, 38, 1)",
+              },
+              {
+                type: "line",
+                label: "Total Amount",
+                data: activeButtonState === 0 ? hourData : data.data.map((v: any) => v["total amount"]),
+
+                backgroundColor:
+                  currentData.total > previousData.total ? "rgba(25, 135, 84, 1)" : "rgba(192, 40, 38, 1)",
+              },
+            ],
+          };
+          setRawData(chartData as any);
+        });
         setLoading(false);
       });
     });
@@ -410,6 +518,8 @@ export default function Sale2() {
     },
   ];
 
+  useEffect(() => {}, [activeButtonState, reload]);
+
   return (
     <Row>
       <Col xs={12}>
@@ -453,6 +563,8 @@ export default function Sale2() {
           />
           <p></p>
           <DiwaPaginationButton previous={previous} current={current} next={next} />
+
+          <Bar data={rawData} options={chartOptions} />
         </DiwaCard>
       </Col>
 

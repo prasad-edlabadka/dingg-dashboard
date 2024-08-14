@@ -1,11 +1,11 @@
 import { useEffect, useState, useContext } from "react";
 import { Col, Row } from "react-bootstrap";
-import { currencyFormatter, formatDate, getLastMonth } from "./Utility";
-import { TokenContext, API_BASE_URL } from "../../App";
-import DiwaButtonGroup from "../../components/button/DiwaButtonGroup";
-import DiwaCard from "../../components/card/DiwaCard";
-import DiwaRefreshButton from "../../components/button/DiwaRefreshButton";
-import TargetProgress from "./staff/TargetProgress";
+import { currencyFormatter, formatDate, getLastMonth } from "../Utility";
+import { TokenContext, API_BASE_URL } from "../../../App";
+import DiwaButtonGroup from "../../../components/button/DiwaButtonGroup";
+import DiwaCard from "../../../components/card/DiwaCard";
+import DiwaRefreshButton from "../../../components/button/DiwaRefreshButton";
+import TargetProgress from "./TargetProgress";
 
 export default function Staff() {
   const { callAPI } = useContext(TokenContext);
