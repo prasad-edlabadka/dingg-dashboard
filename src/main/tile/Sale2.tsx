@@ -11,6 +11,7 @@ import {
   subDays,
   format,
   parse,
+  isBefore,
 } from "date-fns";
 import { TokenContext, API_BASE_URL } from "../../App";
 import DiwaButtonGroup from "../../components/button/DiwaButtonGroup";
@@ -56,6 +57,9 @@ export default function Sale2() {
       },
       title: {
         display: false,
+        align: "start" as any,
+        position: "top" as any,
+        text: "Analysis",
       },
     },
     scales: {
@@ -66,9 +70,9 @@ export default function Sale2() {
         },
       },
       x: {
-        display: false,
+        display: true,
         ticks: {
-          display: false,
+          display: true,
         },
       },
     },
@@ -287,7 +291,7 @@ export default function Sale2() {
     var chartType = "";
     switch (activeButtonState) {
       case 0:
-        chartType = "day";
+        chartType = "hour";
         dates = calculateYesterday;
         break;
       case 1:
@@ -304,10 +308,22 @@ export default function Sale2() {
         break;
     }
     const { start, end, prevStart, prevEnd } = dates;
-    const hours: string[] = [];
-    for (let i = 0; i < 24; i++) {
-      hours.push(`${i % 12 || 12} ${i < 12 ? "AM" : "PM"}`);
+
+    const labels: string[] = [];
+    if (activeButtonState === 0) {
+      for (let i = 0; i < 24; i++) {
+        labels.push(`${i % 12 || 12} ${i < 12 ? "AM" : "PM"}`);
+      }
+    } else {
+      let startDate = start;
+      let endPlusOne = addDays(end, 1);
+      while (isBefore(startDate, endPlusOne)) {
+        const fmt = activeButtonState > 1 ? "dd-MMM" : "EEEE";
+        labels.push(format(startDate, fmt));
+        startDate = addDays(startDate, 1);
+      }
     }
+    console.log(labels);
 
     getReportForDateRange(start, end, (currentData) => {
       getReportForDateRange(prevStart, prevEnd, (previousData) => {
@@ -327,33 +343,28 @@ export default function Sale2() {
                 start
               )}&end=${formatDate(end)}&app_type=web`;
         callAPI(apiURL, (data: any) => {
-          const hourData: number[] = [];
-          if (activeButtonState === 0) {
-            for (let i = 0; i < 24; i++) {
-              const v = data.data.find((v: any) => v.hour === `${i}`);
-              hourData[i] = v?.total || 0;
-              // hourData.push(0);
+          const values: number[] = labels.map((v: string) => {
+            let found = null;
+            if (activeButtonState === 0) {
+              found = data.data.find(
+                (d: any) => `${Number.parseInt(d.hour) % 12 || 12} ${Number.parseInt(d.hour) < 12 ? "AM" : "PM"}` === v
+              );
+            } else if (activeButtonState === 1) {
+              found = data.data.find((d: any) => format(parse(d.range, "yyyy-MM-dd", new Date()), "EEEE") === v);
+            } else {
+              found = data.data.find((d: any) => format(parse(d.range, "yyyy-MM-dd", new Date()), "dd-MMM") === v);
             }
-          }
+            return Number((found && found["total amount"]) || found?.total || "0");
+          });
+
           const chartData = {
-            labels:
-              activeButtonState === 0
-                ? hours
-                : data.data.map((v: any) => {
-                    if (activeButtonState === 0) {
-                      return `${v.hour % 12 || 12} ${v.hour >= 12 ? "PM" : "AM"}`;
-                    } else if (activeButtonState > 1) {
-                      return format(parse(v.range, "yyyy-MM-dd", new Date()), "dd-MMM");
-                    } else {
-                      return format(parse(v.range, "yyyy-MM-dd", new Date()), "EEEE");
-                    }
-                    // return v["range"];
-                  }),
+            labels: labels,
+
             datasets: [
               {
                 type: "bar",
                 label: "Total Amount",
-                data: activeButtonState === 0 ? hourData : data.data.map((v: any) => v["total amount"]),
+                data: values,
 
                 backgroundColor:
                   currentData.total > previousData.total ? "rgba(25, 135, 84, 1)" : "rgba(192, 40, 38, 1)",
@@ -361,7 +372,7 @@ export default function Sale2() {
               {
                 type: "line",
                 label: "Total Amount",
-                data: activeButtonState === 0 ? hourData : data.data.map((v: any) => v["total amount"]),
+                data: values,
 
                 backgroundColor:
                   currentData.total > previousData.total ? "rgba(25, 135, 84, 1)" : "rgba(192, 40, 38, 1)",
@@ -564,7 +575,7 @@ export default function Sale2() {
           <p></p>
           <DiwaPaginationButton previous={previous} current={current} next={next} />
 
-          <Bar data={rawData} options={chartOptions} />
+          <Bar data={rawData} options={chartOptions} style={{ borderWidth: 1, borderColor: "black" }} />
         </DiwaCard>
       </Col>
 

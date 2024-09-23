@@ -118,7 +118,7 @@ export default function Expenses() {
 
     callAPI(`${API_BASE_URL}/vendor/account/list`, (data: any) => {
       const acc = [];
-      acc.push(data.data.find((v: any) => v.name === "ICICI Bank Account").id);
+      acc.push(data.data.find((v: any) => v.name === "ICICI").id);
       acc.push(data.data.find((v: any) => v.name === "Petty cash").id);
       setAccounts(acc);
     });
