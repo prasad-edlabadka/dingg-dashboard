@@ -1,9 +1,10 @@
 import { Col, Row } from "react-bootstrap";
 import Salary from "./tile/Salary";
 import Staff from "./tile/staff/Staff";
+import ServiceStats from "./tile/staff/ServiceStats";
 
 export default function StaffTiles() {
-  const tileList = [Staff, Salary];
+  const tileList = [Staff, Salary, ServiceStats];
   return (
     <div>
       <Row>

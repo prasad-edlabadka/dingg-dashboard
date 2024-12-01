@@ -6,6 +6,7 @@ import DiwaButtonGroup from "../../../components/button/DiwaButtonGroup";
 import DiwaCard from "../../../components/card/DiwaCard";
 import DiwaRefreshButton from "../../../components/button/DiwaRefreshButton";
 import TargetProgress from "./TargetProgress";
+import { addMonths } from "date-fns";
 
 export default function Staff() {
   const { callAPI } = useContext(TokenContext);
@@ -98,9 +99,17 @@ export default function Staff() {
     if (type === "current") {
       setStartDate(new Date(date.getFullYear(), date.getMonth(), 1));
       setEndDate(date);
-    } else {
+    } else if (type === "previous") {
       const lastMonthDate = new Date(date.getFullYear(), date.getMonth(), 1);
       setStartDate(new Date(date.getFullYear(), date.getMonth() - 1, 1));
+      setEndDate(new Date(lastMonthDate.getTime() - 1));
+    } else if (type === "previous2") {
+      const lastMonthDate = new Date(date.getFullYear(), date.getMonth() - 1, 1);
+      setStartDate(new Date(date.getFullYear(), date.getMonth() - 2, 1));
+      setEndDate(new Date(lastMonthDate.getTime() - 1));
+    } else if (type === "previous3") {
+      const lastMonthDate = new Date(date.getFullYear(), date.getMonth() - 2, 1);
+      setStartDate(new Date(date.getFullYear(), date.getMonth() - 3, 1));
       setEndDate(new Date(lastMonthDate.getTime() - 1));
     }
   };
@@ -108,6 +117,14 @@ export default function Staff() {
   const buttons = [
     { title: new Date().toLocaleDateString("en-GB", { month: "long" }), onClick: () => setDuration("current") },
     { title: getLastMonth().toLocaleDateString("en-GB", { month: "long" }), onClick: () => setDuration("previous") },
+    {
+      title: addMonths(new Date(), -2).toLocaleDateString("en-GB", { month: "long" }),
+      onClick: () => setDuration("previous2"),
+    },
+    {
+      title: addMonths(new Date(), -3).toLocaleDateString("en-GB", { month: "long" }),
+      onClick: () => setDuration("previous3"),
+    },
   ];
 
   const calculatePercentage = (achieved: number, target: number) => {
@@ -128,7 +145,7 @@ export default function Staff() {
           const target = getTarget(val.stylist.trim());
           const targetPercentage = Math.round((val["service price"] * 100) / target);
           const targetNoDiscountPercentage = Math.round((val["service amount"] * 100) / target);
-          const tip = tips.find(
+          const tip = tips?.find(
             (v: { "staff name": string }) => v["staff name"].toLowerCase() === val.stylist.toLowerCase()
           );
           return (

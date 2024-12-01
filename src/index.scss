@@ -321,7 +321,8 @@ select {
 }
 
 // .form-switch .form-check-input:checked,
-.form-switch .form-check-input:focus {
+.form-switch .form-check-input:focus,
+.form-switch .form-check-input:checked {
   background-image: url("data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%27-4 -4 8 8%27%3e%3ccircle r=%273%27 fill=%27%23db7879%27/%3e%3c/svg%3e");
 }
 
@@ -334,6 +335,10 @@ select {
   background-repeat: none;
   background-size: contain;
   background-position: center;
+}
+
+.login-check input:checked {
+  background-color: $diwa-color !important;
 }
 
 .simple-check {

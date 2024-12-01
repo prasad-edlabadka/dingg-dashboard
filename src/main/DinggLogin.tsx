@@ -133,7 +133,7 @@ function DinggLogin() {
                     <Form.Check // prettier-ignore
                       type="checkbox"
                       id="auto-login-mode-switch"
-                      className={`form-control-lg pe-0`}
+                      className={`form-control-lg pe-0 login-check`}
                       checked={autoLogin}
                       onChange={toggleAutoLogin}
                     />

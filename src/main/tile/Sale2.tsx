@@ -575,7 +575,7 @@ export default function Sale2() {
           <p></p>
           <DiwaPaginationButton previous={previous} current={current} next={next} />
 
-          <Bar data={rawData} options={chartOptions} style={{ borderWidth: 1, borderColor: "black" }} />
+          {/* <Bar data={rawData} options={chartOptions} style={{ borderWidth: 1, borderColor: "black" }} /> */}
         </DiwaCard>
       </Col>
 
