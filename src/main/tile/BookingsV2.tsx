@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Accordion, Button, Col, Form, Offcanvas, Row } from "react-bootstrap";
-import { currencyFormatter, formatDate, formatMobileNumber, formatTime } from "./Utility";
+import { currencyFormatter, formatDate, formatDisplayDate, formatMobileNumber, formatTime } from "./Utility";
 import * as Icon from "react-bootstrap-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpa, faTicket, faMoneyBill1, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
@@ -23,6 +23,24 @@ export default function BookingsV2() {
     { id: 0, user_histories: [{ amount_spend: 0, total_visit: 0 }] },
   ] as Array<any>);
   const [show, setShow] = useState(false);
+  const [summaryShow, setSummaryShow] = useState(false);
+  const [customerSummary, setCustomerSummary] = useState([
+    {
+      createdAt: "",
+      services: "",
+      status: -1,
+      token_number: -1,
+      employee: {
+        id: "",
+        name: " ",
+      },
+      bill: {
+        id: -1,
+        total: -1,
+        bill_number: "",
+      },
+    },
+  ]);
 
   const firstName = useRef<HTMLInputElement>(null);
   const lastName = useRef<HTMLInputElement>(null);
@@ -32,6 +50,7 @@ export default function BookingsV2() {
   const [errorMessage, setErrorMessage] = useState("");
   const [clicked, setClicked] = useState(false);
   const handleClose = () => setShow(false);
+  const handleSummaryClose = () => setSummaryShow(false);
 
   const [bookingData, setBookingData] = useState([
     {
@@ -521,6 +540,12 @@ export default function BookingsV2() {
     });
   };
 
+  const loadSummary = async () => {
+    const apiURL = `${API_BASE_URL}/vendor/customer/history?id=${customerId}&page=1&limit=100&multiLocation=true`;
+    const summary = await callAPIPromise(apiURL);
+    setCustomerSummary(summary.data);
+  };
+
   // eslint-disable-next-line no-sequences
   const groupBy = (
     x: any[],
@@ -557,8 +582,15 @@ export default function BookingsV2() {
                       ) : (
                         ""
                       )}
-                      {`${booking.user.fname || ""} ${booking.user.lname || ""}`.trim()} (
-                      {currencyFormatter.format(booking.payments.total)})
+                      <span
+                        onClick={() => {
+                          setCustomerId(booking.user.id);
+                          setSummaryShow(true);
+                        }}
+                      >
+                        {`${booking.user.fname || ""} ${booking.user.lname || ""}`.trim()} (
+                        {currencyFormatter.format(booking.payments.total)})
+                      </span>
                       <p className="d-inline float-end small">
                         <FontAwesomeIcon
                           icon={faPenToSquare}
@@ -825,6 +857,46 @@ export default function BookingsV2() {
               <br />
             </Row>
           </Form>
+        </Offcanvas.Body>
+      </Offcanvas>
+
+      {/* Customer Summary */}
+      <Offcanvas
+        show={summaryShow}
+        className="h-auto text-color"
+        placement="bottom"
+        backdrop={true}
+        scroll={false}
+        keyboard={false}
+        id="offcanvasBottom"
+        onHide={handleSummaryClose}
+        onShow={() => loadSummary()}
+      >
+        <Offcanvas.Header closeButton closeVariant="white">
+          <h5>Customer Summary</h5>
+        </Offcanvas.Header>
+        <Offcanvas.Body className="pt-0">
+          <ul className="list-group list-group-flush">
+            {customerSummary.map((val, index) => {
+              return (
+                <li className="list-group-item bg-transparent text-color border-color ps-0" key={val + "item" + index}>
+                  <div className="w-100 pe-2 pb-2">
+                    {val.services.split(",").map((service: string, index2: number) => {
+                      return <div className="text-start d-block">{service}</div>;
+                    })}
+                    <div className="text-start d-inline small align-top text-color-50">
+                      <div className="text-start d-inline float-start">
+                        By {val.employee.name} On {formatDisplayDate(new Date(val.createdAt))}
+                      </div>
+                      <div className="text-end d-inline float-end">
+                        Total Bill: {currencyFormatter.format(val.bill?.total)}
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
         </Offcanvas.Body>
       </Offcanvas>
     </div>
