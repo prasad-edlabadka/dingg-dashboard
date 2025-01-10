@@ -1,0 +1,92 @@
+[
+  {
+    "name": "DEEPA",
+    "actualStart": "10:30",
+    "lateMark": "10:45",
+    "halfDay": "12:00",
+    "actualEnd": "20:30",
+    "overTimeStart": "21:00",
+    "salary": 16500
+  },
+  {
+    "name": "ASHWINI",
+    "actualStart": "11:00",
+    "lateMark": "11:15",
+    "halfDay": "11:30",
+    "actualEnd": "21:00",
+    "overTimeStart": "21:30",
+    "salary": 18000
+  },
+  {
+    "name": "JASSI",
+    "actualStart": "11:00",
+    "lateMark": "11:15",
+    "halfDay": "11:30",
+    "actualEnd": "21:00",
+    "overTimeStart": "21:30",
+    "salary": 38000
+  },
+  {
+    "name": "AFSHAR2",
+    "actualStart": "10:00",
+    "lateMark": "10:15",
+    "halfDay": "10:30",
+    "actualEnd": "20:00",
+    "overTimeStart": "20:30",
+    "salary": 25000
+  },
+  {
+    "name": "AKANKSHA",
+    "actualStart": "10:00",
+    "lateMark": "10:15",
+    "halfDay": "10:30",
+    "actualEnd": "20:00",
+    "overTimeStart": "20:30",
+    "salary": 20000
+  },
+  {
+    "name": "NEHA",
+    "actualStart": "11:00",
+    "lateMark": "11:15",
+    "halfDay": "11:30",
+    "actualEnd": "21:00",
+    "overTimeStart": "21:30",
+    "salary": 10000
+  },
+  {
+    "name": "RIZWAN",
+    "actualStart": "10:00",
+    "lateMark": "10:15",
+    "halfDay": "10:30",
+    "actualEnd": "20:00",
+    "overTimeStart": "20:30",
+    "salary": 19000
+  },
+  {
+    "name": "SOBIYA HK",
+    "actualStart": "10:00",
+    "lateMark": "10:15",
+    "halfDay": "10:30",
+    "actualEnd": "20:00",
+    "overTimeStart": "20:30",
+    "salary": 13000
+  },
+  {
+    "name": "ASHWINI HK",
+    "actualStart": "10:00",
+    "lateMark": "10:15",
+    "halfDay": "10:30",
+    "actualEnd": "18:00",
+    "overTimeStart": "18:30",
+    "salary": 13000
+  },
+  {
+    "name": "VAISHALI",
+    "actualStart": "10:00",
+    "lateMark": "10:15",
+    "halfDay": "10:30",
+    "actualEnd": "20:00",
+    "overTimeStart": "20:30",
+    "salary": 12000
+  }
+]

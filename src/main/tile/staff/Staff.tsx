@@ -10,12 +10,14 @@ import { addMonths } from "date-fns";
 
 export default function Staff() {
   const { callAPI } = useContext(TokenContext);
-  const [reportData, setReportData] = useState({ data: [{ "service price": 0, stylist: "" }] });
+  const [reportData, setReportData] = useState({ data: [{ "service price": 0, "service amount": 0, stylist: "" }] });
+  const [membershipsSold, setMembershipsSold] = useState([{ "membership count": 0, total: 0, stylist: "" }]);
   const buttonState = useState(0);
   const [, setActiveButtonIndex] = buttonState;
   const [endDate, setEndDate] = useState(new Date());
   const [startDate, setStartDate] = useState(new Date(endDate.getFullYear(), endDate.getMonth(), 1));
   const [loading, setLoading] = useState(false);
+
   const [staffTargets, setStaffTargets] = useState([
     {
       total_sales: "0",
@@ -33,7 +35,7 @@ export default function Staff() {
       "settled tip": 0,
     },
   ]);
-  const [calculatedTarget, setCalculatedTarget] = useState({});
+  const [calculatedTarget, setCalculatedTarget] = useState<any>({});
 
   const defaultTarget = 100000;
 
@@ -74,6 +76,14 @@ export default function Staff() {
     )}&end_date=${formatDate(endDate)}&app_type=web`;
     callAPI(tipURL, (data: any) => {
       setTips(data.data);
+    });
+
+    //https://api.dingg.app/api/v1/vendor/report/sales?start_date=2024-11-01&report_type=staff_by_membership&end_date=2024-11-30&locations=null&app_type=web&range_type=month
+    const membershipSoldURL = `${API_BASE_URL}/vendor/report/sales?report_type=staff_by_membership&start_date=${formatDate(
+      startDate
+    )}&end_date=${formatDate(endDate)}&app_type=web&range_type=month`;
+    callAPI(membershipSoldURL, (data: any) => {
+      setMembershipsSold(data.data);
     });
 
     const getTargets = (targetData: any) => {
@@ -148,6 +158,7 @@ export default function Staff() {
           const tip = tips?.find(
             (v: { "staff name": string }) => v["staff name"].toLowerCase() === val.stylist.toLowerCase()
           );
+          const membership = membershipsSold?.find((v) => v.stylist.toLowerCase() === val.stylist.toLowerCase());
           return (
             <Col xs={12} md={4} key={"staff" + index} className="">
               <div className="mt-3 pt-2 pb-2 rounded black-bg">
@@ -183,6 +194,15 @@ export default function Staff() {
                   target={tip?.["received tip"] || 0}
                   percentAchieved={calculatePercentage(tip?.["settled tip"] || 0, tip?.["received tip"] || 0)}
                   percentAchievedSuffix="Paid"
+                />
+                <TargetProgress
+                  label="Memberships Sold"
+                  value={`${membership?.["membership count"] || 0} (${currencyFormatter.format(
+                    membership?.total || 0
+                  )})`}
+                  target={membership?.["membership count"] || 0}
+                  percentAchieved={100}
+                  type="number"
                 />
               </div>
             </Col>

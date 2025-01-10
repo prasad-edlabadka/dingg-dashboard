@@ -15,6 +15,7 @@ import JustHeading from "./booking/JustHeading";
 export default function BookingsV2() {
   const [loading, setLoading] = useState(true);
   const [reload, setReload] = useState(false);
+  const [appointmentDate, setAppointmentDate] = useState(new Date());
   const todayFlag = useState(true);
   const [today] = todayFlag;
   const { callAPI, callPUTAPI, callAPIPromise } = useContext(TokenContext);
@@ -68,6 +69,7 @@ export default function BookingsV2() {
         fname: "",
         lname: "",
         display_name: "",
+        mobile: "",
         is_member: false,
       },
       products: [
@@ -352,11 +354,11 @@ export default function BookingsV2() {
   }, []);
 
   const loadAppointments = useCallback(async () => {
-    const bookingDate = today ? new Date() : new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
-    const apiURL = `${API_BASE_URL}/calender/booking?date=${formatDate(bookingDate)}`;
+    // const bookingDate = appointmentDate;
+    const apiURL = `${API_BASE_URL}/calender/booking?date=${formatDate(appointmentDate)}`;
     const appointments = await callAPIPromise(apiURL);
     return appointments;
-  }, [today]);
+  }, [appointmentDate]);
 
   const mapBookingData = useCallback((v: any, index: number, groupedData: any) => {
     const data = groupedData[v];
@@ -399,7 +401,7 @@ export default function BookingsV2() {
   useEffect(() => {
     const doIt = async () => {
       const a = await testAPI();
-      const bookingDate = today ? new Date() : subDays(new Date(), 1);
+      // const bookingDate = today ? new Date() : subDays(new Date(), 1);
       const appointments = await loadAppointments();
 
       const groupedAppointments = JSON.parse(
@@ -463,14 +465,14 @@ export default function BookingsV2() {
           })
       );
 
-      await loadBillingData(members, bookingDate);
+      await loadBillingData(members, appointmentDate);
     };
 
     setLoading(true);
     Promise.all([doIt()]).then(() => {
       setLoading(false);
     });
-  }, [reload, today]);
+  }, [reload, appointmentDate]);
 
   const extractAmount = (txt: string): number => {
     const indexOfSymbol = txt.indexOf("₹");
@@ -530,11 +532,9 @@ export default function BookingsV2() {
   return (
     <div>
       <HeadingWithRefresh
-        todayFlag={todayFlag}
-        title1="Today's"
-        title2="Yesterday's"
-        title3=" Customers"
+        date={appointmentDate}
         onRefresh={() => refresh()}
+        onDateChange={(date: Date) => setAppointmentDate(date)}
       />
 
       <Row>
@@ -569,7 +569,14 @@ export default function BookingsV2() {
                         Spent {currencyFormatter.format(cust?.amount_spend)} in {cust?.total_visit} visits with average
                         of {currencyFormatter.format(cust?.amount_spend / cust?.total_visit)} per visit
                       </p>
+                      <p className="d-block small mb-0 text-color-50">
+                        Mobile:{" "}
+                        <a href={`tel:${formatMobileNumber(booking.user.mobile)}`} className="text-color-50">
+                          {formatMobileNumber(booking.user.mobile)}
+                        </a>
+                      </p>
                     </h3>
+
                     <div className="small"></div>
                     <ul className="list-group list-group-flush">
                       {booking.services.map((service, index) => (
@@ -676,7 +683,7 @@ export default function BookingsV2() {
         {bookingData.map((booking) => {
           const varient = (statusColor[booking.status] || "dark") as Varient;
           return (
-            <Col xl={4} xs={12} className="gy-2" key={booking.customerName}>
+            <Col md={12} xs={12} className="gy-2" key={booking.customerName}>
               <DiwaCard varient={varient} loadingTracker={loading}>
                 <div className="text-color">
                   <h3>

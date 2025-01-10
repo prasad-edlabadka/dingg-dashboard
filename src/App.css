@@ -28,6 +28,12 @@
   color: #61dafb;
 }
 
+.today .btn:hover,
+.today .btn:focus,
+.today .btn:active {
+  border: none;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
