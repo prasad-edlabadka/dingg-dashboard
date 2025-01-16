@@ -361,3 +361,12 @@ select {
 .separator {
   background-color: rgba(var(--card-bg-diwa-color), var(--diwa-border-top-alpha));
 }
+
+.datepicker-modal {
+  position: fixed !important;
+  z-index: 1040 !important;
+}
+.datepicker {
+  position: fixed !important;
+  font-family: unset !important;
+}

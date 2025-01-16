@@ -30,7 +30,8 @@
 
 .today .btn:hover,
 .today .btn:focus,
-.today .btn:active {
+.today .btn:active,
+.today .btn {
   border: none;
 }
 

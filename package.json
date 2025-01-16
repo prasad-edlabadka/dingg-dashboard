@@ -35,6 +35,8 @@
     "react-chartjs-2": "^5.2.0",
     "react-datepicker": "^7.6.0",
     "react-dom": "^18.2.0",
+    "react-mobile-datepicker": "^4.0.2",
+    "react-mobile-datepicker-ts": "^1.0.9",
     "react-redux": "^9.1.0",
     "react-scripts": "^5.0.1",
     "react-swipeable": "^7.0.0",
