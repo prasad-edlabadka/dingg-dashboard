@@ -9,15 +9,13 @@ import { TokenContext, API_BASE_URL } from "../../App";
 import DiwaCard from "../../components/card/DiwaCard";
 import BillItem from "./booking/BillItem";
 import HeadingWithRefresh from "./booking/HeadingWithRefresh";
-import { differenceInMonths, formatDistanceToNow, parse, subDays } from "date-fns";
+import { differenceInMonths, formatDistanceToNow, parse } from "date-fns";
 import JustHeading from "./booking/JustHeading";
 
 export default function BookingsV2() {
   const [loading, setLoading] = useState(true);
   const [reload, setReload] = useState(false);
   const [appointmentDate, setAppointmentDate] = useState(new Date());
-  const todayFlag = useState(true);
-  const [today] = todayFlag;
   const { callAPI, callPUTAPI, callAPIPromise } = useContext(TokenContext);
   const [customerDetails, setCustomerDetails] = useState([
     { id: 0, user_histories: [{ amount_spend: 0, total_visit: 0 }] },
@@ -419,7 +417,6 @@ export default function BookingsV2() {
 
   useEffect(() => {
     const doIt = async () => {
-      const a = await testAPI();
       // const bookingDate = today ? new Date() : subDays(new Date(), 1);
       const appointments = await loadAppointments();
 
@@ -773,7 +770,12 @@ export default function BookingsV2() {
                         key={item.user.fname + "inactive" + index2}
                       >
                         <div className="d-flex justify-content-between">
-                          <div>
+                          <div
+                            onClick={() => {
+                              setCustomerId(item.user.id);
+                              setSummaryShow(true);
+                            }}
+                          >
                             {item.user.fname} {item.user.lname}
                           </div>
                           <div>
@@ -888,9 +890,11 @@ export default function BookingsV2() {
                       <div className="text-start d-inline float-start">
                         By {val.employee.name} On {formatDisplayDate(new Date(val.createdAt))}
                       </div>
-                      <div className="text-end d-inline float-end">
-                        Total Bill: {currencyFormatter.format(val.bill?.total)}
-                      </div>
+                      {val.bill?.total && (
+                        <div className="text-end d-inline float-end">
+                          Total Bill: {currencyFormatter.format(val.bill?.total)}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </li>
