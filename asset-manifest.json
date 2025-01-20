@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/dingg-dashboard/static/css/main.6197110e.css",
-    "main.js": "/dingg-dashboard/static/js/main.0ee4fc8b.js",
+    "main.css": "/dingg-dashboard/static/css/main.f128ff02.css",
+    "main.js": "/dingg-dashboard/static/js/main.d88f5dc1.js",
     "static/media/Evergreen.otf": "/dingg-dashboard/static/media/Evergreen.9ef5bb67aa47b6292aee.otf",
     "static/media/Flama-Medium.woff": "/dingg-dashboard/static/media/Flama-Medium.452b931a2479a1236c3a.woff",
     "static/media/Flama-Bold.woff": "/dingg-dashboard/static/media/Flama-Bold.c1768bf65f5676e2fb66.woff",
@@ -10,11 +10,11 @@
     "static/media/Flama Italic.woff": "/dingg-dashboard/static/media/Flama Italic.4aadab2cb9af0d4ffd54.woff",
     "static/media/Flama Regular.woff": "/dingg-dashboard/static/media/Flama Regular.3a52dfa689fd2e0559f4.woff",
     "index.html": "/dingg-dashboard/index.html",
-    "main.6197110e.css.map": "/dingg-dashboard/static/css/main.6197110e.css.map",
-    "main.0ee4fc8b.js.map": "/dingg-dashboard/static/js/main.0ee4fc8b.js.map"
+    "main.f128ff02.css.map": "/dingg-dashboard/static/css/main.f128ff02.css.map",
+    "main.d88f5dc1.js.map": "/dingg-dashboard/static/js/main.d88f5dc1.js.map"
   },
   "entrypoints": [
-    "static/css/main.6197110e.css",
-    "static/js/main.0ee4fc8b.js"
+    "static/css/main.f128ff02.css",
+    "static/js/main.d88f5dc1.js"
   ]
 }
