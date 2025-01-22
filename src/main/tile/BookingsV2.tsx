@@ -55,6 +55,7 @@ export default function BookingsV2() {
       customerName: "",
       start: "",
       end: "",
+      desc: "",
       status: -1,
       services: [
         {
@@ -64,6 +65,7 @@ export default function BookingsV2() {
       ],
       billAmount: 0,
       customer: {
+        id: 0,
         totalBusiness: 0,
       },
     },
@@ -307,7 +309,7 @@ export default function BookingsV2() {
   const statusDesc = [
     "Unknown",
     "Service Started",
-    "Booking Cancelled",
+    "Cancelled",
     "Completed - Bill not generated",
     "Unknown",
     "Upcoming",
@@ -410,6 +412,7 @@ export default function BookingsV2() {
       services: services,
       billAmount: billAmount,
       customer: {
+        id: data[0].extendedProps.user.id,
         totalBusiness: 0,
       },
     };
@@ -471,10 +474,12 @@ export default function BookingsV2() {
               customerName: v,
               start: startDate,
               end: endDate,
+              desc: data[0].desc && " Because " + data[0].desc.split("reason : ")[1],
               status: data[0].extendedProps.book.status,
               services: services,
               billAmount: billAmount,
               customer: {
+                id: data[0].extendedProps.user.id,
                 totalBusiness: 0,
               },
             };
@@ -715,7 +720,12 @@ export default function BookingsV2() {
             <Col md={12} xs={12} className="gy-2" key={booking.customerName}>
               <DiwaCard varient={varient} loadingTracker={loading}>
                 <div className="text-color">
-                  <h3>
+                  <h3
+                    onClick={() => {
+                      setCustomerId(booking.customer.id);
+                      setSummaryShow(true);
+                    }}
+                  >
                     {booking.customerName} ({currencyFormatter.format(booking.billAmount)})
                   </h3>
                   <ul className="list-group list-group-flush">
@@ -736,7 +746,10 @@ export default function BookingsV2() {
                 </div>
                 <hr className="mt-1 mb-1 border-color" />
                 <div className="w-100 text-color">
-                  <div className="text-start d-inline small align-top">{statusDesc[booking.status] || "Unknown"}</div>
+                  <div className="text-start d-inline small align-top">
+                    {statusDesc[booking.status] || "Unknown"}
+                    {booking.desc}
+                  </div>
                   <div className="text-end d-inline small float-end align-top">
                     {formatTime(new Date(booking.start))} - {formatTime(new Date(booking.end))}
                   </div>
