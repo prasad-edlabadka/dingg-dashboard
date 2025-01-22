@@ -1,13 +1,6 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Accordion, Button, ButtonGroup, Col, Form, Offcanvas, Row } from "react-bootstrap";
-import {
-  currencyFormatter,
-  formatDate,
-  formatDisplayDate,
-  getFirstDayOfWeek,
-  getStartOfFinanceMonthDate,
-  getStartOfMonthDate,
-} from "./Utility";
+import { currencyFormatter, formatDate, formatDisplayDate, getFirstDayOfWeek } from "./Utility";
 import { addDays, addMonths, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
 import * as Icon from "react-bootstrap-icons";
 import { TokenContext } from "../../App";
@@ -36,6 +29,7 @@ export default function Expenses() {
   const givenTo = useRef<HTMLInputElement>(null);
   const amount = useRef<HTMLInputElement>(null);
   const description = useRef<HTMLTextAreaElement>(null);
+  const expenseAccount = useRef<HTMLSelectElement>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [clicked, setClicked] = useState(false);
   const [accounts, setAccounts] = useState<any[]>([]);
@@ -53,19 +47,23 @@ export default function Expenses() {
       expenseDate.current?.value === "" ||
       givenTo.current?.value === "" ||
       amount.current?.value === "" ||
-      description.current?.value === ""
+      description.current?.value === "" ||
+      expenseAccount.current?.value === ""
     ) {
       setErrorMessage("Please fill all the fields");
+      setClicked(false);
       return;
     }
     const data = {
       date: expenseDate.current?.value,
       type: expenseType.current?.value,
-      mode: `${paymentModes[activeButtonIndex]}`,
+      mode: paymentModes[activeButtonIndex].value,
       given_to: givenTo.current?.value,
       amount: Number.parseFloat(`${amount.current?.value}`),
+      net: Number.parseFloat(`${amount.current?.value}`),
+      tax: 0,
       desc: description.current?.value,
-      vendor_account_id: `${accounts[activeButtonIndex]}`,
+      vendor_account_id: expenseAccount.current?.value,
     };
 
     callPOSTAPI(`${API_BASE_URL}/vendor/expense`, data, (response: any) => {
@@ -111,15 +109,18 @@ export default function Expenses() {
 
     callAPI(`${API_BASE_URL}/payment_mode`, (data: any) => {
       const pm = [];
-      pm.push(data.data.find((v: any) => v.name === "ONLINE").value);
-      pm.push(data.data.find((v: any) => v.name === "CASH").value);
+      pm.push({ name: "Bank Transfer", value: data.data.find((v: any) => v.name === "ONLINE").value });
+      pm.push({ name: "Cash", value: data.data.find((v: any) => v.name === "CASH").value });
+      pm.push({ name: "UPI", value: data.data.find((v: any) => v.name === "UPI").value });
       setPaymentModes(pm);
     });
 
     callAPI(`${API_BASE_URL}/vendor/account/list`, (data: any) => {
-      const acc = [];
-      acc.push(data.data.find((v: any) => v.name === "ICICI").id);
-      acc.push(data.data.find((v: any) => v.name === "Petty cash").id);
+      const acc = data.data.map((v: { id: string; name: string }) => {
+        return { id: v.id, name: v.name };
+      });
+      // acc.push(data.data.find((v: any) => v.name === "ICICI").id);
+      // acc.push(data.data.find((v: any) => v.name === "Petty cash").id);
       setAccounts(acc);
     });
   }, [startDate, endDate, expensesToIgnore, callAPI]);
@@ -241,11 +242,23 @@ export default function Expenses() {
           <Offcanvas.Body className="pt-0">
             <Form className="mt-0 text-color" onSubmit={createExpense}>
               <Row className="align-items-center mb-2">
-                <Col xs={12}>
+                <Col xs={6}>
                   <Form.Group>
                     <Form.Label className="mb-1">Expense Type</Form.Label>
                     <Form.Select ref={expenseType}>
                       {expenseTypes.map((v: { id: string; name: string }) => (
+                        <option value={v.id} key={v.id}>
+                          {v.name}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+                <Col xs={6}>
+                  <Form.Group>
+                    <Form.Label className="mb-1">From Account</Form.Label>
+                    <Form.Select ref={expenseAccount}>
+                      {accounts.map((v: { id: string; name: string }) => (
                         <option value={v.id} key={v.id}>
                           {v.name}
                         </option>
@@ -278,18 +291,16 @@ export default function Expenses() {
                 <Col xs={6}>
                   <Form.Group>
                     <ButtonGroup size="sm">
-                      <Button
-                        variant={activeButtonIndex === 0 ? "primary" : "light"}
-                        onClick={() => setActiveButtonIndex(0)}
-                      >
-                        Bank Transfer
-                      </Button>
-                      <Button
-                        variant={activeButtonIndex === 1 ? "primary" : "light"}
-                        onClick={() => setActiveButtonIndex(1)}
-                      >
-                        Cash
-                      </Button>
+                      {paymentModes.map((v, i) => {
+                        return (
+                          <Button
+                            variant={activeButtonIndex === i ? "primary" : "light"}
+                            onClick={() => setActiveButtonIndex(i)}
+                          >
+                            {v.name}
+                          </Button>
+                        );
+                      })}
                     </ButtonGroup>
                   </Form.Group>
                 </Col>

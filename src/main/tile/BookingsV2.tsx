@@ -306,7 +306,7 @@ export default function BookingsV2() {
   const statusColor = ["dark", "primary", "danger", "success", "dark", "primary", "dark", "warning", "warning"];
   const statusDesc = [
     "Unknown",
-    "Start Serving",
+    "Service Started",
     "Booking Cancelled",
     "Completed - Bill not generated",
     "Unknown",

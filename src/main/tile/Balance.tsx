@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { callPOSTAPI, currencyFormatter, formatDate } from "./Utility";
 import { TokenContext, API_BASE_URL } from "../../App";
 import DiwaCard from "../../components/card/DiwaCard";
@@ -23,6 +23,7 @@ export default function Balance() {
   const [accounts, setAccounts] = useState<any[]>([]);
   const [fromAccountBalance, setFromAccountBalance] = useState(0);
   const [toAccountBalance, setToAccountBalance] = useState(0);
+  const [totalBalance, setTotalBalance] = useState(0);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -39,10 +40,10 @@ export default function Balance() {
         setErrorMessage("To account is required.");
         return false;
       }
-      if (fromAccount.current?.value === toAccount.current?.value) {
-        setErrorMessage("From and To accounts cannot be same.");
-        return false;
-      }
+      // if (fromAccount.current?.value === toAccount.current?.value) {
+      //   setErrorMessage("From and To accounts cannot be same.");
+      //   return false;
+      // }
       if (amount.current?.value === "") {
         setErrorMessage("Amount is required.");
         return false;
@@ -64,15 +65,26 @@ export default function Balance() {
       setClicked(false);
       return false;
     }
+    const isTransfer = fromAccount.current?.value !== toAccount.current?.value;
     const apiURL = `${API_BASE_URL}/vendor/account/transaction`;
-    const data = {
-      transaction_type: "internal transfer",
-      in_vendor_account_id: toAccount.current?.value,
-      out_vendor_account_id: fromAccount.current?.value,
-      amount: amount.current?.value,
-      date: transferDate.current?.value,
-      notes: description.current?.value,
-    };
+    const amt = Number.parseFloat(amount.current?.value || "0");
+    const data = isTransfer
+      ? {
+          transaction_type: "internal transfer",
+          in_vendor_account_id: toAccount.current?.value,
+          out_vendor_account_id: fromAccount.current?.value,
+          amount: amount.current?.value,
+          date: transferDate.current?.value,
+          notes: description.current?.value,
+        }
+      : {
+          transaction_type: "direct",
+          vendor_account_id: toAccount.current?.value,
+          is_credit: amt > 0 ? true : false,
+          amount: Math.abs(amt),
+          date: transferDate.current?.value,
+          notes: description.current?.value,
+        };
     callPOSTAPI(apiURL, data, token, updateToken, (response: any) => {
       if (response.code === 200) {
         setErrorMessage("");
@@ -92,7 +104,7 @@ export default function Balance() {
     callAPI(apiURL, (data: any) => {
       setLoading(false);
       if (!data) return;
-      setPnl(
+      const pnl =
         data.data.length === 0
           ? []
           : data.data
@@ -103,8 +115,9 @@ export default function Balance() {
                   value: v.current_balance,
                   previous: v.current_balance,
                 };
-              })
-      );
+              });
+      setPnl(pnl);
+      setTotalBalance(pnl.reduce((acc: number, v: any) => acc + v.value, 0));
     });
 
     const accountListAPI = `${API_BASE_URL}/vendor/account/list`;
@@ -114,27 +127,27 @@ export default function Balance() {
       setFromAccountBalance(data.data[0].current_balance);
       setToAccountBalance(data.data[0].current_balance);
     });
-  }, [reload]);
+  }, [reload, callAPI]);
 
   const [accountChange, setAccountChange] = useState(false);
 
   useEffect(() => {
     console.log(
       accounts,
-      accounts.filter((v) => v.id == fromAccount.current?.value)
+      accounts.filter((v) => v.id === fromAccount.current?.value)
     );
-    console.log(accounts.filter((v) => v.id == toAccount.current?.value));
+    console.log(accounts.filter((v) => v.id === toAccount.current?.value));
     if (fromAccount.current?.value) {
-      setFromAccountBalance(accounts.filter((v) => v.id == fromAccount.current?.value)[0]?.current_balance);
+      setFromAccountBalance(accounts.filter((v) => v.id === fromAccount.current?.value)[0]?.current_balance);
     } else {
       setFromAccountBalance(0);
     }
     if (toAccount.current?.value) {
-      setToAccountBalance(accounts.filter((v) => v.id == toAccount.current?.value)[0]?.current_balance);
+      setToAccountBalance(accounts.filter((v) => v.id === toAccount.current?.value)[0]?.current_balance);
     } else {
       setToAccountBalance(0);
     }
-  }, [accountChange]);
+  }, [accountChange, accounts]);
 
   return (
     <>
@@ -142,7 +155,12 @@ export default function Balance() {
         <Col xs={12}>
           <DiwaCard varient="primary" loadingTracker={loading}>
             <div className="position-relative text-color mb-2">
-              <h2>Account Balance</h2>
+              <h2>
+                Account Balance
+                <p className="small text-color-danger-50 mb-1">
+                  Total money available: {currencyFormatter.format(totalBalance)}
+                </p>
+              </h2>
               <div className="position-absolute top-0 end-0" style={{ marginTop: -6 }}>
                 <Button variant="indigo" className="text-color" size="lg" onClick={() => handleShow()}>
                   <Icon.PlusLg />
