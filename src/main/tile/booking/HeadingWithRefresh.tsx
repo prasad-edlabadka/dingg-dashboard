@@ -19,9 +19,7 @@ function HeadingWithRefresh({
 }) {
   const [displayDate, setDisplayDate] = useState("Today");
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const selectDate = () => {
-    if (onDateChange) onDateChange(new Date());
-  };
+
   const calculateDisplayDate = (date: Date) => {
     const today = new Date();
     const yesterday = new Date(today);

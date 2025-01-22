@@ -8,9 +8,22 @@ import DiwaButtonGroup from "../../components/button/DiwaButtonGroup";
 import DiwaCard from "../../components/card/DiwaCard";
 import DiwaPaginationButton from "../../components/button/DiwaPaginationButton";
 
+interface Expense {
+  date: string;
+  "expense type": string;
+  Net: number;
+  Tax: number;
+  amount: number;
+  "given to": string;
+  description: string;
+  "Payment mode": string;
+  location: string;
+  branch: string;
+}
+
 export default function Expenses() {
   const { callAPI, callPOSTAPI } = useContext(TokenContext);
-  const [expenseData, setExpenseData] = useState({});
+  const [expenseData, setExpenseData] = useState<Partial<Record<string, Expense[]>>>({});
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(-1);
   const [show, setShow] = useState(false);
@@ -62,7 +75,10 @@ export default function Expenses() {
       amount: Number.parseFloat(`${amount.current?.value}`),
       net: Number.parseFloat(`${amount.current?.value}`),
       tax: 0,
-      desc: description.current?.value,
+      desc:
+        description.current?.value +
+        ". Paid using " +
+        findAccountName(Number.parseInt(expenseAccount.current?.value || "")),
       vendor_account_id: expenseAccount.current?.value,
     };
 
@@ -77,9 +93,6 @@ export default function Expenses() {
       setClicked(false);
     });
   };
-  // eslint-disable-next-line no-sequences
-  const groupBy = (x: any[], f: { (v: string): any; (arg0: any, arg1: any, arg2: any): string | number }) =>
-    x.reduce((a, b, i) => ((a[f(b, i, x)] ||= []).push(b), a), {});
 
   useEffect(() => {
     setLoading(true);
@@ -87,7 +100,7 @@ export default function Expenses() {
       startDate
     )}&report_type=by_expense&end_date=${formatDate(endDate)}&locations=null&app_type=web`;
     callAPI(apiURL, (data: any) => {
-      setExpenseData(groupBy(data.data, (v) => v["expense type"]));
+      setExpenseData(Object.groupBy(data.data, (v: Expense) => v["expense type"]));
       let total = 0;
       for (let i in data.data) {
         if (expensesToIgnore.indexOf(data.data[i]["expense type"]) === -1) {
@@ -206,6 +219,12 @@ export default function Expenses() {
     { title: "Weekly", onClick: () => setDuration("week") },
     { title: "Monthly", onClick: () => setDuration("month") },
   ];
+
+  const findAccountName = (id: number) => {
+    console.log(id, accounts);
+    const account = accounts.find((v) => v.id === id);
+    return account ? account.name : "";
+  };
 
   return (
     <DiwaCard varient="danger" loadingTracker={loading}>
@@ -341,7 +360,7 @@ export default function Expenses() {
         </div>
       ) : (
         Object.keys(expenseData).map((keyName, index) => {
-          const val = expenseData[keyName];
+          const val = expenseData[keyName as keyof typeof expenseData];
           return expensesToIgnore.indexOf(keyName) !== -1 ? null : (
             <Accordion flush key={"expense" + index}>
               <Accordion.Header className="w-100">
@@ -354,7 +373,7 @@ export default function Expenses() {
               </Accordion.Header>
               <Accordion.Body>
                 <ul className="list-group list-group-flush">
-                  {val.map((item: { [x: string]: string }, index2: number) => {
+                  {val?.map((item, index2) => {
                     return (
                       <li
                         className="list-group-item bg-transparent text-color border-color ps-0"
@@ -370,7 +389,8 @@ export default function Expenses() {
                           {item["description"]}
                         </p>
                         <p className="small text-color-50 mb-0" style={{ marginTop: -4 }}>
-                          Given to {item["given to"]} by {item["Payment mode"]}
+                          Given to {item["given to"]} by {item["Payment mode"]} by{" "}
+                          {/* {findAccountName(item["vendor_account_id"])} */}
                         </p>
                       </li>
                     );
@@ -386,7 +406,8 @@ export default function Expenses() {
     </DiwaCard>
   );
 
-  function getTotal(arr: any[]) {
-    return arr.reduce((v: any, current: { amount: any }) => v + current.amount, 0);
+  function getTotal(arr: Expense[] | undefined) {
+    if (!arr) return 0;
+    return arr.reduce((v, current) => v + current.amount, 0);
   }
 }

@@ -10,7 +10,6 @@ import {
   addMonths,
   subDays,
   format,
-  parse,
   isBefore,
 } from "date-fns";
 import { TokenContext, API_BASE_URL } from "../../App";
@@ -22,16 +21,21 @@ import DataPoint from "./sale/DataPoint";
 import MultiRowDataPoint from "./sale/MultiRowDataPoint";
 import { Col, Row } from "react-bootstrap";
 import DiwaPaginationButton from "../../components/button/DiwaPaginationButton";
-import { Chart as ChartJS } from "chart.js/auto";
-import { Bar } from "react-chartjs-2";
-// ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement);
-ChartJS.defaults.elements.line.borderColor = "#fff";
-ChartJS.defaults.elements.point.borderColor = "#fff";
-ChartJS.defaults.elements.point.hoverRadius = 6;
+
+interface DataStructure {
+  price: number;
+  discount: number;
+  tax: number;
+  woTax: number;
+  total: number;
+  tip: number;
+  start: string;
+  end: string;
+}
 
 export default function Sale2() {
   const { callAPI } = useContext(TokenContext);
-  const dataStructure = {
+  const initialData: DataStructure = {
     price: -1,
     discount: -1,
     tax: -1,
@@ -44,39 +48,10 @@ export default function Sale2() {
   const [reload, setReload] = useState(false);
   const [loading, setLoading] = useState(true);
   const [statsLoading, setStatsLoading] = useState(true);
-  const [displaySale, setDisplaySale] = useState(dataStructure);
-  const [displayPreviousSale, setDisplayPreviousSale] = useState(dataStructure);
-  const [displayVariation, setDisplayVariation] = useState(dataStructure);
+  const [displaySale, setDisplaySale] = useState<DataStructure>(initialData);
+  const [displayPreviousSale, setDisplayPreviousSale] = useState<DataStructure>(initialData);
+  const [displayVariation, setDisplayVariation] = useState<DataStructure>(initialData);
   const [displaySubDuration, setDisplaySubDuration] = useState(new Date().toLocaleDateString());
-  const [rawData, setRawData] = useState({ datasets: [] });
-  const [chartOptions] = useState({
-    responsive: true,
-    plugins: {
-      legend: {
-        display: false,
-      },
-      title: {
-        display: false,
-        align: "start" as any,
-        position: "top" as any,
-        text: "Analysis",
-      },
-    },
-    scales: {
-      y: {
-        display: false,
-        ticks: {
-          display: false,
-        },
-      },
-      x: {
-        display: true,
-        ticks: {
-          display: true,
-        },
-      },
-    },
-  });
 
   const [today, setToday] = useState(new Date());
   const [weekStart, setWeekStart] = useState(getFirstDayOfWeek(today));
@@ -157,32 +132,35 @@ export default function Sale2() {
     };
   }, [finMonthStart]);
 
-  const getStatsReport = useCallback((start1: Date, end1: Date, start2: Date, end2: Date) => {
-    setStatsLoading(true);
-    const apiURL = `${API_BASE_URL}/vendor/report/consolidated?time_one_start=${formatDate(
-      start1
-    )}&time_one_end=${formatDate(end1)}&time_two_start=${formatDate(start2)}&time_two_end=${formatDate(end2)}`;
-    callAPI(apiURL, (data: any) => {
-      if (!data) return;
-      setStatsLoading(false);
-      setReportData(data.data.length === 0 ? [] : data.data);
-    });
-    const cashAPIURL = `${API_BASE_URL}/vendor/report/sales?start_date=${formatDate(
-      start1
-    )}&report_type=by_expense_type&end_date=${formatDate(end1)}&locations=null&app_type=web`;
-    callAPI(cashAPIURL, (data: any) => {
-      if (!data) return;
-      setCashExpenses(data.data.find((d: any) => d["expense type"] === "Cash transfer to hub")?.total || 0);
-    });
+  const getStatsReport = useCallback(
+    (start1: Date, end1: Date, start2: Date, end2: Date) => {
+      setStatsLoading(true);
+      const apiURL = `${API_BASE_URL}/vendor/report/consolidated?time_one_start=${formatDate(
+        start1
+      )}&time_one_end=${formatDate(end1)}&time_two_start=${formatDate(start2)}&time_two_end=${formatDate(end2)}`;
+      callAPI(apiURL, (data: any) => {
+        if (!data) return;
+        setStatsLoading(false);
+        setReportData(data.data.length === 0 ? [] : data.data);
+      });
+      const cashAPIURL = `${API_BASE_URL}/vendor/report/sales?start_date=${formatDate(
+        start1
+      )}&report_type=by_expense_type&end_date=${formatDate(end1)}&locations=null&app_type=web`;
+      callAPI(cashAPIURL, (data: any) => {
+        if (!data) return;
+        setCashExpenses(data.data.find((d: any) => d["expense type"] === "Cash transfer to hub")?.total || 0);
+      });
 
-    const prevCashAPIURL = `${API_BASE_URL}/vendor/report/sales?start_date=${formatDate(
-      start2
-    )}&report_type=by_expense_type&end_date=${formatDate(end2)}&locations=null&app_type=web`;
-    callAPI(prevCashAPIURL, (data: any) => {
-      if (!data) return;
-      setPrevCashExpenses(data.data.find((d: any) => d["expense type"] === "Cash transfer to hub")?.total || 0);
-    });
-  }, []);
+      const prevCashAPIURL = `${API_BASE_URL}/vendor/report/sales?start_date=${formatDate(
+        start2
+      )}&report_type=by_expense_type&end_date=${formatDate(end2)}&locations=null&app_type=web`;
+      callAPI(prevCashAPIURL, (data: any) => {
+        if (!data) return;
+        setPrevCashExpenses(data.data.find((d: any) => d["expense type"] === "Cash transfer to hub")?.total || 0);
+      });
+    },
+    [callAPI]
+  );
 
   const getReportForDateRange = useCallback(
     (
@@ -225,7 +203,7 @@ export default function Sale2() {
         cb(values);
       });
     },
-    []
+    [callAPI]
   );
 
   const getVariation = useCallback(
@@ -288,22 +266,17 @@ export default function Sale2() {
     console.log(`Load data called with button index ${activeButtonState}`);
     const dt = new Date();
     let dates = { start: dt, end: dt, prevStart: dt, prevEnd: dt };
-    var chartType = "";
     switch (activeButtonState) {
       case 0:
-        chartType = "hour";
         dates = calculateYesterday;
         break;
       case 1:
-        chartType = "day";
         dates = calculateWeekDates;
         break;
       case 2:
-        chartType = "day";
         dates = calculateFinMonthDates;
         break;
       case 3:
-        chartType = "day";
         dates = calculateMonthDates;
         break;
     }
@@ -334,57 +307,43 @@ export default function Sale2() {
           new Date(previousData.end)
         );
         setDisplay(currentData, previousData, activeButtonState);
-        const apiURL =
-          activeButtonState === 0
-            ? `${API_BASE_URL}/vendor/report/sales?start_date=${formatDate(
-                start
-              )}&report_type=hour_of_day_by_all&app_type=web&range_type=day`
-            : `${API_BASE_URL}/vendor/report/trend?type=${chartType}&report_type=by_all&start=${formatDate(
-                start
-              )}&end=${formatDate(end)}&app_type=web`;
-        callAPI(apiURL, (data: any) => {
-          const values: number[] = labels.map((v: string) => {
-            let found = null;
-            if (activeButtonState === 0) {
-              found = data.data.find(
-                (d: any) => `${Number.parseInt(d.hour) % 12 || 12} ${Number.parseInt(d.hour) < 12 ? "AM" : "PM"}` === v
-              );
-            } else if (activeButtonState === 1) {
-              found = data.data.find((d: any) => format(parse(d.range, "yyyy-MM-dd", new Date()), "EEEE") === v);
-            } else {
-              found = data.data.find((d: any) => format(parse(d.range, "yyyy-MM-dd", new Date()), "dd-MMM") === v);
-            }
-            return Number((found && found["total amount"]) || found?.total || "0");
-          });
-
-          const chartData = {
-            labels: labels,
-
-            datasets: [
-              {
-                type: "bar",
-                label: "Total Amount",
-                data: values,
-
-                backgroundColor:
-                  currentData.total > previousData.total ? "rgba(25, 135, 84, 1)" : "rgba(192, 40, 38, 1)",
-              },
-              {
-                type: "line",
-                label: "Total Amount",
-                data: values,
-
-                backgroundColor:
-                  currentData.total > previousData.total ? "rgba(25, 135, 84, 1)" : "rgba(192, 40, 38, 1)",
-              },
-            ],
-          };
-          setRawData(chartData as any);
-        });
+        // const apiURL =
+        //   activeButtonState === 0
+        //     ? `${API_BASE_URL}/vendor/report/sales?start_date=${formatDate(
+        //         start
+        //       )}&report_type=hour_of_day_by_all&app_type=web&range_type=day`
+        //     : `${API_BASE_URL}/vendor/report/trend?type=${chartType}&report_type=by_all&start=${formatDate(
+        //         start
+        //       )}&end=${formatDate(end)}&app_type=web`;
+        // callAPI(apiURL, (data: any) => {
+        //   const values: number[] = labels.map((v: string) => {
+        //     let found = null;
+        //     if (activeButtonState === 0) {
+        //       found = data.data.find(
+        //         (d: any) => `${Number.parseInt(d.hour) % 12 || 12} ${Number.parseInt(d.hour) < 12 ? "AM" : "PM"}` === v
+        //       );
+        //     } else if (activeButtonState === 1) {
+        //       found = data.data.find((d: any) => format(parse(d.range, "yyyy-MM-dd", new Date()), "EEEE") === v);
+        //     } else {
+        //       found = data.data.find((d: any) => format(parse(d.range, "yyyy-MM-dd", new Date()), "dd-MMM") === v);
+        //     }
+        //     return Number((found && found["total amount"]) || found?.total || "0");
+        //   });
+        // });
         setLoading(false);
       });
     });
-  }, [activeButtonState, reload]);
+  }, [
+    activeButtonState,
+    reload,
+    calculateFinMonthDates,
+    calculateMonthDates,
+    calculateWeekDates,
+    calculateYesterday,
+    getReportForDateRange,
+    getStatsReport,
+    setDisplay,
+  ]);
 
   const refresh = () => {
     setReload(!reload);

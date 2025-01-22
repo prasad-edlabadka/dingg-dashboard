@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState, useCallback } from "react";
 import { Alert, Button, Col, Container, Form, Image, Row } from "react-bootstrap";
 import { TokenContext } from "../App";
 import DiwaCard from "../components/card/DiwaCard";
@@ -15,47 +15,51 @@ function DinggLogin() {
   const [error, setError] = useState("");
   const [initialUserId, setInitialUserId] = useState(localStorage.getItem("userId") || "");
   const [initialPassword, setInitialPassword] = useState(localStorage.getItem("password") || "");
-  const handleClick = () => {
-    setLoading(true);
-    const userid = phoneRef.current?.value || "";
-    const password = passwordRef.current?.value || "";
-    login(userid, password);
-  };
 
-  const login = (userId: string, password: string) => {
-    setLoading(true);
-    const requestMetadata = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ isWeb: false, password: password, fcm_token: "", mobile: "91" + userId }),
-    };
-    fetch(apiURL, requestMetadata)
-      .then((res) => res.json())
-      .then((resp) => {
+  const login = useCallback(
+    async (userId: string, password: string) => {
+      setLoading(true);
+      try {
+        const response = await fetch(apiURL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ isWeb: false, password, fcm_token: "", mobile: "91" + userId }),
+        });
+        const resp = await response.json();
         if (resp.success) {
           updateToken(resp.token);
           setEmployeeName(resp.data.employee.name);
           setLocation(`${resp.data.vendor_locations[0].business_name} - ${resp.data.vendor_locations[0].locality}`);
-          setLoading(false);
-          localStorage.setItem("userId", userId || "");
-          localStorage.setItem("password", password || "");
+          localStorage.setItem("userId", userId);
+          localStorage.setItem("password", password);
         } else {
           setError(resp.message);
-          setLoading(false);
-          localStorage.setItem("userId", "");
-          localStorage.setItem("password", "");
+          localStorage.removeItem("userId");
+          localStorage.removeItem("password");
         }
-      })
-      .catch((err) => {
-        console.log(err);
-        setError(err.message);
+      } catch (err) {
+        console.error(err);
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("An unknown error occurred");
+        }
+        localStorage.removeItem("userId");
+        localStorage.removeItem("password");
+      } finally {
         setLoading(false);
-        localStorage.setItem("userId", "");
-        localStorage.setItem("password", "");
-      });
-  };
+      }
+    },
+    [updateToken, setEmployeeName, setLocation]
+  );
+
+  const handleClick = useCallback(() => {
+    const userId = phoneRef.current?.value || "";
+    const password = passwordRef.current?.value || "";
+    login(userId, password);
+  }, [login]);
 
   const localDarkMode = localStorage.getItem("darkMode");
   const localAutoLogin = localStorage.getItem("autoLogin");
@@ -63,33 +67,42 @@ function DinggLogin() {
     localDarkMode ? localDarkMode.toLowerCase() === "true" : window.matchMedia("(prefers-color-scheme: dark)").matches
   );
   const [autoLogin, setAutoLogin] = useState(localAutoLogin ? localAutoLogin.toLowerCase() === "true" : false);
-  const [neverChange] = useState(0);
-  const darkModeHandler = (e: MediaQueryListEvent) => {
-    console.log("Dark mode is " + (e.matches ? "on" : "off"));
+
+  const darkModeHandler = useCallback((e: MediaQueryListEvent) => {
     setDarkMode(e.matches);
-  };
+  }, []);
 
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    localStorage.setItem("darkMode", (!darkMode).toString());
-  };
+  const toggleDarkMode = useCallback(() => {
+    setDarkMode((prevMode) => {
+      const newMode = !prevMode;
+      localStorage.setItem("darkMode", newMode.toString());
+      return newMode;
+    });
+  }, []);
 
-  const toggleAutoLogin = () => {
-    setAutoLogin(!autoLogin);
-    localStorage.setItem("autoLogin", (!autoLogin).toString());
-  };
+  const toggleAutoLogin = useCallback(() => {
+    setAutoLogin((prevAutoLogin) => {
+      const newAutoLogin = !prevAutoLogin;
+      localStorage.setItem("autoLogin", newAutoLogin.toString());
+      return newAutoLogin;
+    });
+  }, []);
 
   useEffect(() => {
-    console.log("Setting color mode in Login...");
     darkMode ? document.body.classList.add("dark") : document.body.classList.remove("dark");
   }, [darkMode]);
 
   useEffect(() => {
-    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", darkModeHandler);
-    if (autoLogin && initialUserId !== "" && initialPassword !== "") {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    mediaQuery.addEventListener("change", darkModeHandler);
+    if (autoLogin && initialUserId && initialPassword) {
       handleClick();
     }
-  }, [neverChange]);
+    return () => {
+      mediaQuery.removeEventListener("change", darkModeHandler);
+    };
+  }, [autoLogin, initialUserId, initialPassword, handleClick, darkModeHandler]);
+
   return (
     <Container fluid>
       <Row>
@@ -158,28 +171,12 @@ function DinggLogin() {
                   </span>
                 </Col>
               </Row>
-              {/* <Row>
-                                <Col xs="8" className="d-flex justify-content-start align-items-center">
-                                    <span className="d-inline">
-                                        <Form.Check // prettier-ignore
-                                            type="checkbox"
-                                            id="auto-login-mode-switch"
-                                            className="form-control-lg pe-0"
-                                            checked={autoLogin}
-                                            onChange={toggleAutoLogin}
-                                        />
-                                    </span>
-                                    <span className="d-inline text-color ps-2">Auto login?</span>
-                                </Col>
 
-                            </Row> */}
-
-              {error !== "" && (
+              {error && (
                 <Alert variant="danger" className="mt-3">
                   {error}
                 </Alert>
               )}
-              {/* <p className="text-danger">{error}</p>} */}
             </Form>
           </DiwaCard>
         </Col>
@@ -192,22 +189,17 @@ function DinggLogin() {
             minWidth: 1,
             borderWidth: 1,
             padding: 0,
-            // marginLeft: 50,
-            // marginRight: 50,
           }}
         ></Col>
         <Col sm={12} md={6} className="mt-xs-4">
           <Image src={logo} fluid className="mt-4 d-block mx-auto" style={{ maxWidth: "60%" }} />
           <p className="small text-color text-center mt-1 mx-auto" style={{ maxWidth: "60%" }}>
-            &copy; 2023, All Rights Reserverd.
+            &copy; 2023, All Rights Reserved.
           </p>
         </Col>
       </Row>
-      {/* <Row xs={12} md={8}>
-        <Row className="mt-4"></Row>
-        <Row className="mt-4"></Row>
-      </Row> */}
     </Container>
   );
 }
+
 export default DinggLogin;

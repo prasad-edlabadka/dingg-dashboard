@@ -148,12 +148,12 @@ export default function PaymentMethods() {
     setTodaysButtonIndex(0);
   };
 
-  const methods = {
+  const methods: { [key: string]: string } = {
     marideal: "Payal's QR",
     defideal: "Mrunalini's QR",
     "deal.mu": "Renuka's QR",
   };
-  const getPaymentMethodName = (n: string) => {
+  const getPaymentMethodName = (n: string): string => {
     return methods[n.toLowerCase()] || titleCase(n);
   };
 
@@ -176,7 +176,6 @@ export default function PaymentMethods() {
       setStartDate(new Date(date.getFullYear(), date.getMonth() - 1, 1));
       setEndDate(new Date(lastMonthDate.getTime() - 1));
     }
-    // setTimeout(()=> refresh(), 1);
   };
 
   const setSingleDateDuration = (type: string) => {

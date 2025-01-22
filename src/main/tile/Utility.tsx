@@ -1,5 +1,4 @@
 import moment from "moment";
-import { getStubbedResponse } from "../../api/stub/Stub";
 export default function callAPI(url: string, token: string | null, setToken: any, cb: any) {
   const requestMetadata = {
     method: "GET",

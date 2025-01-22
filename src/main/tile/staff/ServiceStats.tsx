@@ -27,13 +27,13 @@ export default function ServiceStats() {
   const [weeklyData, setWeeklyData] = useState<any[]>([]);
   const [monthlyData, setMonthlyData] = useState<any[]>([]);
   const [yearlyData, setYearlyData] = useState<any[]>([]);
-
-  const buttons = [
+  const [buttons] = useState([
     { title: "Daily", onClick: () => setDuration("day"), api: "day" },
     { title: "Weekly", onClick: () => setDuration("week"), api: "week" },
     { title: "Monthly", onClick: () => setDuration("month"), api: "month" },
     { title: "Yearly", onClick: () => setDuration("year"), api: "year" },
-  ];
+  ]);
+
   const setDuration = (duration: string) => {
     if (duration === "day") {
       setStartDate(new Date());
@@ -173,7 +173,7 @@ export default function ServiceStats() {
     setLoading(true);
     callAPI(apiURL, async (data: any) => {
       const checkedServices =
-        selectedServices.length == 0 ? JSON.parse(localStorage.getItem("servicesToTrack") || "{}") : selectedServices;
+        selectedServices.length === 0 ? JSON.parse(localStorage.getItem("servicesToTrack") || "{}") : selectedServices;
       const filteredServices = data?.data?.filter((service: any) => checkedServices.includes(service.service));
       //group filteredServices by service
       const groupedServices: any = {};
@@ -210,7 +210,18 @@ export default function ServiceStats() {
       }
       setLoading(false);
     });
-  }, [startDate, endDate]);
+  }, [
+    startDate,
+    endDate,
+    buttonIndex,
+    buttons,
+    callAPI,
+    dailyData,
+    monthlyData,
+    selectedServices,
+    weeklyData,
+    yearlyData,
+  ]);
 
   const saveServiceSelection = (name: string, status: boolean) => {
     const trackedServices = [...selectedServices];

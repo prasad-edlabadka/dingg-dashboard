@@ -12,6 +12,44 @@ import HeadingWithRefresh from "./booking/HeadingWithRefresh";
 import { differenceInMonths, formatDistanceToNow, parse } from "date-fns";
 import JustHeading from "./booking/JustHeading";
 
+interface UserDetails {
+  id: number;
+  email: string;
+  fname: string;
+  lname: string;
+  gender: string;
+  mobile: string;
+  profile_pic: string | null;
+  display_name: string;
+  customer_uuid: string;
+  is_mobile_verify: boolean;
+}
+
+interface User {
+  user: UserDetails;
+  user_id: number;
+  registration_no: string;
+  id: number;
+  type_id: number;
+  vendor_location_id: number;
+  is_member: boolean;
+  updatedAt: string;
+  amount_spend: number;
+  total_visit: number;
+  no_show: number | null;
+  wallet: number;
+  amount_due: number;
+  last_visit: string;
+  dial_code: number;
+  fname: string;
+  lname: string;
+  email: string;
+  mobile: string;
+  gender: string;
+  profile_pic: string | null;
+  rn: string;
+}
+
 export default function BookingsV2() {
   const [loading, setLoading] = useState(true);
   const [reload, setReload] = useState(false);
@@ -303,7 +341,7 @@ export default function BookingsV2() {
       ],
     },
   ]);
-  const [groupedMembers, setGroupedMembers] = useState({});
+  const [groupedMembers, setGroupedMembers] = useState<Partial<Record<string, User[]>>>({});
 
   const statusColor = ["dark", "primary", "danger", "success", "dark", "primary", "dark", "warning", "warning"];
   const statusDesc = [
@@ -319,104 +357,71 @@ export default function BookingsV2() {
   ];
   const inactiveDurationInMonths = 2;
 
-  const loadMembers = useCallback(async (groupedData: any) => {
+  const loadMembers = useCallback(async () => {
     const memberURL = `${API_BASE_URL}/vendor/customer_list?page=1&limit=500&amount_start=0&membership_type=0&amount_start=0&is_multi_location=false`;
     const members = await callAPIPromise(memberURL);
-    const inactiveMembers = members.data.filter(
-      (v: { last_visit: string }) =>
+    const inactiveMembers: User[] = members.data.filter(
+      (v: User) =>
         differenceInMonths(new Date(), parse(v.last_visit, "yyyy-MM-dd", new Date())) > inactiveDurationInMonths
     );
     setGroupedMembers(
-      groupBy(
+      Object.groupBy(
         inactiveMembers,
-        (v: { last_visit: string }) =>
-          `${formatDistanceToNow(parse(v.last_visit, "yyyy-MM-dd", new Date()), { addSuffix: true })}`
+        (v) => `${formatDistanceToNow(parse(v.last_visit, "yyyy-MM-dd", new Date()), { addSuffix: true })}`
       )
     );
     return members;
-  }, []);
+  }, [callAPIPromise]);
 
-  const testAPI = useCallback(async () => {
-    const apiURL = `https://api.dingg.app/api/v1/vendor/account/types`;
-    const data = await callAPIPromise(apiURL);
-    console.log(data);
-  }, []);
-
-  const loadBillingData = useCallback(async (members: any, bookingDate: Date) => {
-    const billURL = `${API_BASE_URL}/vendor/bills?web=true&page=1&limit=1000&start=${formatDate(
-      bookingDate
-    )}&end=${formatDate(bookingDate)}&term=&is_product_only=`;
-    const bills = await callAPIPromise(billURL);
-    if (!bills || bills.data.length === 0) {
-      setBillingData([]);
-    } else {
-      const updatedBills = await Promise.all(
-        bills.data.map(async (bill: any) => {
-          const billDetailsURL = `${API_BASE_URL}/bill?bill_id=${bill.id}`;
-          const billDetails = await callAPIPromise(billDetailsURL);
-          const { billSItems, billPItems, billmitem, billpkitem, billvitems, bill_tips, price, discount, tax, total } =
-            billDetails.data;
-          bill.services = billSItems || [];
-          bill.products = billPItems || [];
-          bill.memberships = billmitem;
-          bill.packages = billpkitem;
-          bill.vouchers = billvitems;
-          bill.tips = bill_tips || [];
-          bill.payments = { price, discount, tax, total };
-          //Check if user is a member
-          bill.user.is_member = members.data.some((m: { user_id: any }) => m.user_id === bill.user.id);
-          return bill;
-        })
-      );
-      setBillingData(updatedBills);
-    }
-  }, []);
+  const loadBillingData = useCallback(
+    async (members: any, bookingDate: Date) => {
+      const billURL = `${API_BASE_URL}/vendor/bills?web=true&page=1&limit=1000&start=${formatDate(
+        bookingDate
+      )}&end=${formatDate(bookingDate)}&term=&is_product_only=`;
+      const bills = await callAPIPromise(billURL);
+      if (!bills || bills.data.length === 0) {
+        setBillingData([]);
+      } else {
+        const updatedBills = await Promise.all(
+          bills.data.map(async (bill: any) => {
+            const billDetailsURL = `${API_BASE_URL}/bill?bill_id=${bill.id}`;
+            const billDetails = await callAPIPromise(billDetailsURL);
+            const {
+              billSItems,
+              billPItems,
+              billmitem,
+              billpkitem,
+              billvitems,
+              bill_tips,
+              price,
+              discount,
+              tax,
+              total,
+            } = billDetails.data;
+            bill.services = billSItems || [];
+            bill.products = billPItems || [];
+            bill.memberships = billmitem;
+            bill.packages = billpkitem;
+            bill.vouchers = billvitems;
+            bill.tips = bill_tips || [];
+            bill.payments = { price, discount, tax, total };
+            //Check if user is a member
+            bill.user.is_member = members.data.some((m: { user_id: any }) => m.user_id === bill.user.id);
+            return bill;
+          })
+        );
+        setBillingData(updatedBills);
+      }
+    },
+    [callAPIPromise]
+  );
 
   const loadAppointments = useCallback(async () => {
     // const bookingDate = appointmentDate;
     const apiURL = `${API_BASE_URL}/calender/booking?date=${formatDate(appointmentDate)}`;
     const appointments = await callAPIPromise(apiURL);
     return appointments;
-  }, [appointmentDate]);
-
-  const mapBookingData = useCallback((v: any, index: number, groupedData: any) => {
-    const data = groupedData[v];
-    console.log(groupedData, v, data);
-    const startDate = data
-      .map((m: { start: any }) => m.start)
-      .sort(function (a: string, b: string) {
-        return Date.parse(a) > Date.parse(b);
-      })[0];
-    const endDate = data
-      .map((m: { end: any }) => m.end)
-      .sort(function (a: string, b: string) {
-        return Date.parse(a) < Date.parse(b);
-      })[0];
-    const services: { name: any; employee: any }[] = [];
-    let billAmount = 0;
-    data.forEach((d: { extendedProps: { book: { services: string; employee_name: any } } }) => {
-      d.extendedProps.book.services.split(",").map((a: any) => {
-        billAmount += extractAmount(a);
-        services.push({
-          name: a,
-          employee: d.extendedProps.book.employee_name,
-        });
-        return null;
-      });
-    });
-    return {
-      customerName: v,
-      start: startDate,
-      end: endDate,
-      status: data[0].extendedProps.book.status,
-      services: services,
-      billAmount: billAmount,
-      customer: {
-        id: data[0].extendedProps.user.id,
-        totalBusiness: 0,
-      },
-    };
-  }, []);
+  }, [appointmentDate, callAPIPromise]);
 
   useEffect(() => {
     const doIt = async () => {
@@ -441,7 +446,7 @@ export default function BookingsV2() {
 
       setCustomerDetails(customers);
 
-      const members = await loadMembers(groupedAppointments);
+      const members = await loadMembers();
 
       setBookingData(
         Object.keys(groupedAppointments)
@@ -493,7 +498,7 @@ export default function BookingsV2() {
     Promise.all([doIt()]).then(() => {
       setLoading(false);
     });
-  }, [reload, appointmentDate]);
+  }, [reload, appointmentDate, loadMembers, loadBillingData, loadAppointments, callAPIPromise]);
 
   const extractAmount = (txt: string): number => {
     const indexOfSymbol = txt.indexOf("₹");
@@ -547,12 +552,6 @@ export default function BookingsV2() {
     const summary = await callAPIPromise(apiURL);
     setCustomerSummary(summary.data);
   };
-
-  // eslint-disable-next-line no-sequences
-  const groupBy = (
-    x: any[],
-    f: { (v: { last_visit: string }): any; (arg0: any, arg1: any, arg2: any): string | number }
-  ) => x.reduce((a, b, i) => ((a[f(b, i, x)] ||= []).push(b), a), {});
 
   type Varient = "danger" | "success" | "primary" | "warning" | "dark" | "indigo" | "purple";
 
@@ -764,19 +763,19 @@ export default function BookingsV2() {
       </Row>
       <JustHeading title1="Inactive Members" />
       <DiwaCard varient="primary" loadingTracker={loading}>
-        {Object.keys(groupedMembers).map((keyName: string, index: number) => {
+        {Object.keys(groupedMembers).map((keyName, index) => {
           const val = groupedMembers[keyName];
           return (
             <Accordion flush key={"stockitem" + index}>
               <Accordion.Header className="w-100">
                 <div className="w-100 pe-2 pb-2">
                   <div className="text-start d-inline h5 text-color">Visited {keyName}</div>
-                  <div className="text-end d-inline float-end text-color">{val.length} members</div>
+                  <div className="text-end d-inline float-end text-color">{val?.length} members</div>
                 </div>
               </Accordion.Header>
               <Accordion.Body>
                 <ul className="list-group list-group-flush">
-                  {val.map((item: any, index2: number) => {
+                  {val?.map((item: any, index2: number) => {
                     return (
                       <li
                         className="list-group-item bg-transparent text-color border-color ps-0"
