@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState, useCallback } from "react";
 import { Alert, Button, Col, Container, Form, Image, Row } from "react-bootstrap";
-import { TokenContext } from "../App";
+import { TokenContext, API_BASE_URL } from "../App";
 import DiwaCard from "../components/card/DiwaCard";
 import { faSun, faMoon } from "@fortawesome/free-regular-svg-icons";
 import logo from "./logo.png";
@@ -10,7 +10,7 @@ function DinggLogin() {
   const apiURL = "https://api.dingg.app/api/v1/vendor/login";
   const phoneRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
-  const { updateToken, setEmployeeName, setLocation } = useContext(TokenContext);
+  const { updateToken, setEmployeeName, setLocation, callAPIPromiseWithToken } = useContext(TokenContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [initialUserId, setInitialUserId] = useState(localStorage.getItem("userId") || "");
@@ -29,11 +29,26 @@ function DinggLogin() {
         });
         const resp = await response.json();
         if (resp.success) {
-          updateToken(resp.token);
-          setEmployeeName(resp.data.employee.name);
-          setLocation(`${resp.data.vendor_locations[0].business_name} - ${resp.data.vendor_locations[0].locality}`);
-          localStorage.setItem("userId", userId);
-          localStorage.setItem("password", password);
+          const userProfile = (
+            await callAPIPromiseWithToken(`${API_BASE_URL}/employee/get/${resp.data.employee.id}`, resp.token)
+          ).data;
+
+          console.log(userProfile);
+          if (
+            userProfile.title === "Owner" ||
+            userProfile.title === "Administrator" ||
+            userProfile.title === "Manager"
+          ) {
+            setEmployeeName(resp.data.employee.name);
+            setLocation(`${resp.data.vendor_locations[0].business_name} - ${resp.data.vendor_locations[0].locality}`);
+            localStorage.setItem("userId", userId);
+            localStorage.setItem("password", password);
+            updateToken(resp.token);
+          } else {
+            setError("You are not authorized to access this application.");
+            localStorage.removeItem("userId");
+            localStorage.removeItem("password");
+          }
         } else {
           setError(resp.message);
           localStorage.removeItem("userId");
@@ -52,7 +67,7 @@ function DinggLogin() {
         setLoading(false);
       }
     },
-    [updateToken, setEmployeeName, setLocation]
+    [updateToken, setEmployeeName, setLocation, callAPIPromiseWithToken]
   );
 
   const handleClick = useCallback(() => {

@@ -4,7 +4,6 @@ import { formatDate } from "./Utility";
 import { TokenContext, API_BASE_URL } from "../../App";
 import DiwaCard from "../../components/card/DiwaCard";
 import DiwaRefreshButton from "../../components/button/DiwaRefreshButton";
-import { addDays } from "date-fns";
 
 interface ConsumptionData {
   Category: string;
@@ -33,7 +32,7 @@ export default function Consumption() {
   useEffect(() => {
     setLoading(true);
     const apiURL = `${API_BASE_URL}/vendor/report/sales?start_date=${formatDate(
-      addDays(new Date(), -60)
+      new Date()
     )}&report_type=product_consumption_log&app_type=web`;
     callAPI(apiURL, (data: any) => {
       const grouped = Object.groupBy(data.data, (v: ConsumptionData) => {
