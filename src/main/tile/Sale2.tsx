@@ -74,7 +74,7 @@ export default function Sale2() {
   const [activeButtonState, setActiveButtonState] = buttonState;
 
   const calculateYesterday = useMemo(() => {
-    console.log("Calculating yesterday");
+    // console.log("Calculating yesterday");
     const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
     return {
       start: today,
@@ -85,7 +85,7 @@ export default function Sale2() {
   }, [today]);
 
   const calculateWeekDates = useMemo(() => {
-    console.log("Calculating week");
+    // console.log("Calculating week");
     const startOfTheWeek = weekStart;
     const endOfTheWeek = isAfter(addDays(startOfTheWeek, 6), endOfDay(new Date()))
       ? endOfDay(new Date())
@@ -101,7 +101,7 @@ export default function Sale2() {
   }, [weekStart]);
 
   const calculateMonthDates = useMemo(() => {
-    console.log("Calculating month");
+    // console.log("Calculating month");
     const startOfTheMonth = monthStart;
     const endOfTheMonth = isAfter(endOfMonth(monthStart), endOfDay(new Date()))
       ? endOfDay(new Date())
@@ -117,7 +117,7 @@ export default function Sale2() {
   }, [monthStart]);
 
   const calculateFinMonthDates = useMemo(() => {
-    console.log("Calculating fin month");
+    // console.log("Calculating fin month");
     const startOfFinMonth = finMonthStart;
     const endOfFinMonth = isAfter(subDays(addMonths(finMonthStart, 1), 1), endOfDay(new Date()))
       ? endOfDay(new Date())
@@ -263,7 +263,7 @@ export default function Sale2() {
 
   useEffect(() => {
     setLoading(true);
-    console.log(`Load data called with button index ${activeButtonState}`);
+    // console.log(`Load data called with button index ${activeButtonState}`);
     const dt = new Date();
     let dates = { start: dt, end: dt, prevStart: dt, prevEnd: dt };
     switch (activeButtonState) {
@@ -296,7 +296,7 @@ export default function Sale2() {
         startDate = addDays(startDate, 1);
       }
     }
-    console.log(labels);
+    // console.log(labels);
 
     getReportForDateRange(start, end, (currentData) => {
       getReportForDateRange(prevStart, prevEnd, (previousData) => {
