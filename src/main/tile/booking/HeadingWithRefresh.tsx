@@ -1,12 +1,10 @@
 import { Button, Col, Row } from "react-bootstrap";
 import DiwaRefreshButton from "../../../components/button/DiwaRefreshButton";
 import * as Icon from "react-bootstrap-icons";
-// import DatePicker from "react-datepicker";
 import DatePicker, { DateConfig } from "react-mobile-datepicker-ts";
 import "../../../custom-datepicker.css";
 import { useEffect, useState } from "react";
 import { formatDate } from "date-fns";
-// import "react-mobile-datepicker-ts/dist/main.css";
 
 function HeadingWithRefresh({
   date,
@@ -99,7 +97,6 @@ function HeadingWithRefresh({
   }
 
   useEffect(() => {
-    console.log("showDatePicker", showDatePicker);
     const body = document.getElementsByTagName("body")[0];
     if (showDatePicker) {
       body.classList.add("modal-open");

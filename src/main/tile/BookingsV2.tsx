@@ -4,15 +4,14 @@ import { currencyFormatter, formatDate, formatDisplayDate, formatMobileNumber, f
 import * as Icon from "react-bootstrap-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpa, faTicket, faMoneyBill1, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
-import * as _ from "lodash";
 import { TokenContext, API_BASE_URL } from "../../App";
 import DiwaCard from "../../components/card/DiwaCard";
 import BillItem from "./booking/BillItem";
 import HeadingWithRefresh from "./booking/HeadingWithRefresh";
-import { differenceInMonths, formatDistanceToNow, parse } from "date-fns";
+import { compareAsc, compareDesc, differenceInMonths, formatDistanceToNow, parse } from "date-fns";
 import JustHeading from "./booking/JustHeading";
 
-interface UserDetails {
+interface CustomerDetails {
   id: number;
   email: string;
   fname: string;
@@ -25,29 +24,308 @@ interface UserDetails {
   is_mobile_verify: boolean;
 }
 
-interface User {
-  user: UserDetails;
-  user_id: number;
-  registration_no: string;
+interface Customer {
+  user?: CustomerDetails;
+  user_id?: number;
+  registration_no?: string;
   id: number;
-  type_id: number;
-  vendor_location_id: number;
-  is_member: boolean;
+  type_id?: number;
+  vendor_location_id?: number;
+  is_member?: boolean;
+  updatedAt?: string;
+  amount_spend?: number;
+  total_visit?: number;
+  no_show?: number | null;
+  wallet?: number;
+  amount_due?: number;
+  last_visit?: string;
+  dial_code?: number;
+  fname?: string;
+  lname?: string;
+  email?: string;
+  mobile?: string;
+  gender?: string;
+  profile_pic?: string | null;
+  rn?: string;
+  totalBusiness: number;
+}
+
+interface Employee {
+  id: string;
+  name: string;
+}
+
+interface Bill {
+  id: number;
+  total: number;
+  bill_number: string;
+}
+
+interface CustomerSummary {
+  createdAt: string;
+  services: string;
+  status: number;
+  token_number: number;
+  employee: Employee;
+  bill: Bill;
+}
+
+interface BookingData {
+  customerName: string;
+  start: string;
+  end: string;
+  desc: string;
+  status: number;
+  services: ServiceSummary[];
+  billAmount: number;
+  customer: Customer;
+}
+
+interface ServiceSummary {
+  name: string;
+  employee: string;
+}
+
+interface PaymentMode {
+  amount: number;
+  payment_mode: number;
+}
+
+interface Product {
+  id: string;
+  price: number;
+  qty: number;
+  discount: number;
+  product: ProductSummary;
+  employee: Employee;
+}
+
+interface ProductSummary {
+  id: string;
+  name: string;
+  sac_code: number;
+}
+
+interface Service {
+  id: number;
+  price: number;
+  qty: number;
+  discount: number;
+  tax: number;
+  total: number;
+  net: number;
+  paid: number;
+  redeem: number;
+  discount_id: string;
+  discount_type: string;
+  emp_share_on_redeem: number;
+  p_modes: PaymentMode[];
+  tax_percent: number;
+  tax_1_percent: number;
+  tax_2_percent: number;
+  employee: Employee;
+  vendor_service: {
+    id: number;
+    service: string;
+    service_time: string;
+    sub_category: {
+      sac_code: string;
+    };
+  };
+}
+
+interface Membership {
+  id: number;
+  price: number;
+  qty: number;
+  discount: number;
+  tax: number;
+  total: number;
+  net: number;
+  paid: number;
+  redeem: number;
+  discount_id: string;
+  discount_type: string;
+  emp_share_on_redeem: number;
+  p_modes: PaymentMode[];
+  tax_percent: number;
+  tax_1_percent: number;
+  tax_2_percent: number;
+  employee: Employee;
+  membership: {
+    id: number;
+    membership_type: {
+      id: number;
+      type: string;
+    };
+  };
+  bill_service_splits: any[];
+}
+
+interface Package {
+  id: number;
+  employee_id: number;
+  price: number;
+  qty: number;
+  discount: number;
+  tax: number;
+  total: number;
+  net: number;
+  paid: number;
+  redeem: number;
+  discount_id: string | null;
+  discount_type: string | null;
+  emp_share_on_redeem: number;
+  p_modes: PaymentMode[];
+  tax_percent: number;
+  tax_1_percent: number;
+  tax_2_percent: number;
+  package: {
+    id: number;
+    package_type: {
+      id: number;
+      package_name: string;
+    };
+  };
+  employee: Employee;
+}
+
+interface Voucher {
+  employee_id: number;
+  price: number;
+  qty: number;
+  discount: number;
+  tax: number;
+  total: number;
+  net: number;
+  paid: number;
+  redeem: number;
+  discount_id: string | null;
+  discount_type: string | null;
+  emp_share_on_redeem: number;
+  p_modes: PaymentMode[] | null;
+  tax_percent: number | null;
+  tax_1_percent: number | null;
+  tax_2_percent: number | null;
+  voucher: {
+    id: number;
+    voucher_type: {
+      id: number;
+      name: string;
+    };
+  };
+  employee: Employee;
+}
+
+interface Tip {
+  id: number;
+  bill_id: number;
+  employee_id: number;
+  suggested_amount: number;
+  received_amount: number;
+  is_settled: boolean;
+  createdAt: string;
   updatedAt: string;
-  amount_spend: number;
-  total_visit: number;
-  no_show: number | null;
-  wallet: number;
-  amount_due: number;
-  last_visit: string;
-  dial_code: number;
-  fname: string;
-  lname: string;
-  email: string;
-  mobile: string;
-  gender: string;
-  profile_pic: string | null;
-  rn: string;
+  employee: Employee;
+}
+
+interface BillPayment {
+  id: number;
+  bill_id: number;
+  payment_date: string;
+  payment_mode: number;
+  amount: number;
+  redemption: boolean;
+  note: string;
+  vendor_location_id: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface BillingData {
+  id: number;
+  selected_date: string;
+  bill_number: string;
+  total: number;
+  paid: number;
+  payment_status: string;
+  status: boolean;
+  cancel_reason: string;
+  net: number;
+  tax: number;
+  roundoff: number;
+  user: {
+    id: number;
+    fname: string;
+    lname: string;
+    display_name: string;
+    mobile: string;
+    is_member: boolean;
+  };
+  products: Product[];
+  services: Service[];
+  memberships: Membership;
+  packages: Package;
+  vouchers: Voucher[];
+  tips: Tip[];
+  payments: {
+    price: number;
+    discount: number;
+    tax: number;
+    total: number;
+  };
+  bill_payments: BillPayment[];
+}
+
+interface Appointment {
+  id: number;
+  status: string;
+  bill: {
+    id: number | null;
+  };
+}
+
+interface Bill {
+  id: number;
+}
+
+interface Book {
+  id: number;
+  status: number;
+  token_number: number;
+  createdAt: string;
+  start_time: string;
+  end_time: string;
+  employee_name: string;
+  employee_id: number;
+  services: string;
+  is_editable: boolean;
+  source: number;
+  bill: Bill;
+}
+
+interface ExtendedProps {
+  user: Customer;
+  req_employee: string | null;
+  book: Book;
+  appointment: Appointment;
+}
+
+interface Booking {
+  id: number;
+  resourceId: number;
+  start: string;
+  end: string;
+  p_start: string | null;
+  p_end: string | null;
+  orig_start: string;
+  orig_end: string;
+  desc: string;
+  createdAt: string;
+  is_active_queue: boolean;
+  show_separate_bill: boolean;
+  title: string;
+  extendedProps: ExtendedProps;
 }
 
 export default function BookingsV2() {
@@ -60,23 +338,7 @@ export default function BookingsV2() {
   ] as Array<any>);
   const [show, setShow] = useState(false);
   const [summaryShow, setSummaryShow] = useState(false);
-  const [customerSummary, setCustomerSummary] = useState([
-    {
-      createdAt: "",
-      services: "",
-      status: -1,
-      token_number: -1,
-      employee: {
-        id: "",
-        name: " ",
-      },
-      bill: {
-        id: -1,
-        total: -1,
-        bill_number: "",
-      },
-    },
-  ]);
+  const [customerSummary, setCustomerSummary] = useState<CustomerSummary[]>([]);
 
   const firstName = useRef<HTMLInputElement>(null);
   const lastName = useRef<HTMLInputElement>(null);
@@ -88,260 +350,9 @@ export default function BookingsV2() {
   const handleClose = () => setShow(false);
   const handleSummaryClose = () => setSummaryShow(false);
 
-  const [bookingData, setBookingData] = useState([
-    {
-      customerName: "",
-      start: "",
-      end: "",
-      desc: "",
-      status: -1,
-      services: [
-        {
-          name: "",
-          employee: "",
-        },
-      ],
-      billAmount: 0,
-      customer: {
-        id: 0,
-        totalBusiness: 0,
-      },
-    },
-  ]);
-  const [billingData, setBillingData] = useState([
-    {
-      id: 0,
-      selected_date: "",
-      bill_number: "",
-      total: 0,
-      paid: 0,
-      payment_status: "",
-      status: true,
-      cancel_reason: "",
-      net: 0,
-      tax: 0,
-      roundoff: 0,
-      user: {
-        id: 0,
-        fname: "",
-        lname: "",
-        display_name: "",
-        mobile: "",
-        is_member: false,
-      },
-      products: [
-        {
-          employee_id: 0,
-          price: 0,
-          qty: 0,
-          discount: 0,
-          tax: 0,
-          total: 0,
-          net: 0,
-          paid: 0,
-          redeem: 0,
-          discount_id: "",
-          discount_type: "",
-          emp_share_on_redeem: 0,
-          p_modes: [
-            {
-              amount: 0,
-              payment_mode: 0,
-            },
-          ],
-          product_lot_id: "",
-          tax_percent: 0,
-          tax_1_percent: 0,
-          tax_2_percent: 0,
-          product: {
-            id: "",
-            name: "",
-            sac_code: 0,
-          },
-          employee: {
-            id: 0,
-            name: "",
-          },
-          product_lot: null,
-        },
-      ],
-      services: [
-        {
-          id: 0,
-          price: 0,
-          qty: 0,
-          discount: 0,
-          tax: 0,
-          total: 0,
-          net: 0,
-          paid: 0,
-          redeem: 0,
-          discount_id: "",
-          discount_type: "",
-          emp_share_on_redeem: 0,
-          p_modes: [
-            {
-              amount: 0,
-              payment_mode: 0,
-            },
-          ],
-          tax_percent: 0,
-          tax_1_percent: 0,
-          tax_2_percent: 0,
-          employee: {
-            id: 0,
-            name: "",
-          },
-          vendor_service: {
-            id: 0,
-            service: "",
-            service_time: "",
-            sub_category: {
-              sac_code: "",
-            },
-          },
-        },
-      ],
-      memberships: {
-        id: 0,
-        price: 0,
-        qty: 0,
-        discount: 0,
-        tax: 0,
-        total: 0,
-        net: 0,
-        paid: 0,
-        redeem: 0,
-        discount_id: "",
-        discount_type: "",
-        emp_share_on_redeem: 0,
-        p_modes: [
-          {
-            amount: 0,
-            payment_mode: 0,
-          },
-        ],
-        tax_percent: 0,
-        tax_1_percent: 0,
-        tax_2_percent: 0,
-        employee: {
-          id: 0,
-          name: "",
-        },
-        membership: {
-          id: 0,
-          membership_type: {
-            id: 0,
-            type: "",
-          },
-        },
-        bill_service_splits: [],
-      },
-      packages: {
-        id: 0,
-        employee_id: 0,
-        price: 0,
-        qty: 0,
-        discount: 0,
-        tax: 0,
-        total: 0,
-        net: 0,
-        paid: 0,
-        redeem: 0,
-        discount_id: null,
-        discount_type: null,
-        emp_share_on_redeem: 0,
-        p_modes: [
-          {
-            amount: 0,
-            payment_mode: 0,
-          },
-        ],
-        tax_percent: 0,
-        tax_1_percent: 0,
-        tax_2_percent: 0,
-        package: {
-          id: 0,
-          package_type: {
-            id: 0,
-            package_name: "",
-          },
-        },
-        employee: {
-          id: 0,
-          name: "",
-        },
-      },
-      vouchers: [
-        {
-          employee_id: 0,
-          price: 0,
-          qty: 0,
-          discount: 0,
-          tax: 0,
-          total: 0,
-          net: 0,
-          paid: 0,
-          redeem: 0,
-          discount_id: null,
-          discount_type: null,
-          emp_share_on_redeem: 0,
-          p_modes: null,
-          tax_percent: null,
-          tax_1_percent: null,
-          tax_2_percent: null,
-          voucher: {
-            id: 89218,
-            voucher_type: {
-              id: 0,
-              name: "",
-            },
-          },
-          employee: {
-            id: 0,
-            name: "",
-          },
-        },
-      ],
-      tips: [
-        {
-          id: 0,
-          bill_id: 0,
-          employee_id: 0,
-          suggested_amount: 0,
-          received_amount: 0,
-          is_settled: false,
-          createdAt: "2023-05-15T07:52:43.523Z",
-          updatedAt: "2023-05-15T07:52:43.523Z",
-          employee: {
-            id: 13350,
-            name: "Jassi",
-          },
-        },
-      ],
-      payments: {
-        price: 0,
-        discount: 0,
-        tax: 0,
-        total: 0,
-      },
-      bill_payments: [
-        {
-          id: 0,
-          bill_id: 0,
-          payment_date: "",
-          payment_mode: 0,
-          amount: 0,
-          redemption: false,
-          note: "",
-          vendor_location_id: "",
-          createdAt: "",
-          updatedAt: "",
-        },
-      ],
-    },
-  ]);
-  const [groupedMembers, setGroupedMembers] = useState<Partial<Record<string, User[]>>>({});
+  const [bookingData, setBookingData] = useState<BookingData[]>([]);
+  const [billingData, setBillingData] = useState<BillingData[]>([]);
+  const [groupedMembers, setGroupedMembers] = useState<Partial<Record<string, Customer[]>>>({});
 
   const statusColor = ["dark", "primary", "danger", "success", "dark", "primary", "dark", "warning", "warning"];
   const statusDesc = [
@@ -360,14 +371,14 @@ export default function BookingsV2() {
   const loadMembers = useCallback(async () => {
     const memberURL = `${API_BASE_URL}/vendor/customer_list?page=1&limit=500&amount_start=0&membership_type=0&amount_start=0&is_multi_location=false`;
     const members = await callAPIPromise(memberURL);
-    const inactiveMembers: User[] = members.data.filter(
-      (v: User) =>
-        differenceInMonths(new Date(), parse(v.last_visit, "yyyy-MM-dd", new Date())) > inactiveDurationInMonths
+    const inactiveMembers: Customer[] = members.data.filter(
+      (v: Customer) =>
+        differenceInMonths(new Date(), parse(v.last_visit || "", "yyyy-MM-dd", new Date())) > inactiveDurationInMonths
     );
     setGroupedMembers(
       Object.groupBy(
         inactiveMembers,
-        (v) => `${formatDistanceToNow(parse(v.last_visit, "yyyy-MM-dd", new Date()), { addSuffix: true })}`
+        (v) => `${formatDistanceToNow(parse(v.last_visit || "", "yyyy-MM-dd", new Date()), { addSuffix: true })}`
       )
     );
     return members;
@@ -420,24 +431,19 @@ export default function BookingsV2() {
     // const bookingDate = appointmentDate;
     const apiURL = `${API_BASE_URL}/calender/booking?date=${formatDate(appointmentDate)}`;
     const appointments = await callAPIPromise(apiURL);
-    return appointments;
+    return appointments.data;
   }, [appointmentDate, callAPIPromise]);
 
   useEffect(() => {
     const doIt = async () => {
-      // const bookingDate = today ? new Date() : subDays(new Date(), 1);
-      const appointments = await loadAppointments();
-
-      const groupedAppointments = JSON.parse(
-        JSON.stringify(
-          _.groupBy(appointments.data, (b: { extendedProps: { user: { fname: any; lname: any } } }) => {
-            return `${b.extendedProps.user.fname || ""} ${b.extendedProps.user.lname || ""}`.trim();
-          })
-        )
-      ) as Array<any>;
+      const appointments: Booking[] = await loadAppointments();
+      const groupedAppointments =
+        Object.groupBy(appointments, (b) => {
+          return ((b.extendedProps.user.fname || "") + (b.extendedProps.user.lname || "")).trim();
+        }) || [];
 
       const customers = await Promise.all(
-        appointments.data.map(async (appointment: any) => {
+        appointments.map(async (appointment: any) => {
           const customerURL = `${API_BASE_URL}/vendor/customer/detail?id=${appointment.extendedProps.user.id}&is_multi_location=false`;
           const customerData = await callAPIPromise(customerURL);
           return customerData.data;
@@ -448,48 +454,50 @@ export default function BookingsV2() {
 
       const members = await loadMembers();
 
-      setBookingData(
-        Object.keys(groupedAppointments)
-          .filter((v: any) => !groupedAppointments[v][0].extendedProps.book.bill)
-          .map((v: any) => {
-            const data = groupedAppointments[v];
-            const startDate = data
-              .map((m: { start: any }) => m.start)
-              .sort(function (a: string, b: string) {
-                return Date.parse(a) > Date.parse(b);
-              })[0];
-            const endDate = data
-              .map((m: { end: any }) => m.end)
-              .sort(function (a: string, b: string) {
-                return Date.parse(a) < Date.parse(b);
-              })[0];
-            const services: { name: any; employee: any }[] = [];
-            let billAmount = 0;
-            data.forEach((d: { extendedProps: { book: { services: string; employee_name: any } } }) => {
-              d.extendedProps.book.services.split(",").map((a: any) => {
-                billAmount += extractAmount(a);
-                services.push({
-                  name: a,
-                  employee: d.extendedProps.book.employee_name,
-                });
-                return null;
+      const bookings = Object.keys(groupedAppointments)
+        .filter((v) => {
+          const a = groupedAppointments[v] || [];
+          return a[0].extendedProps.book.bill ? false : true;
+        })
+        .map((v) => {
+          const data = groupedAppointments[v] || [];
+          const startDate = data
+            .map((m: { start: any }) => m.start)
+            .sort((a, b) => {
+              return compareAsc(a, b);
+            })[0];
+          const endDate = data
+            .map((m: { end: any }) => m.end)
+            .sort((a, b) => {
+              return compareDesc(a, b);
+            })[0];
+          const services: { name: any; employee: any }[] = [];
+          let billAmount = 0;
+          data.forEach((d: { extendedProps: { book: { services: string; employee_name: any } } }) => {
+            d.extendedProps.book.services.split(",").map((a: any) => {
+              billAmount += extractAmount(a);
+              services.push({
+                name: a,
+                employee: d.extendedProps.book.employee_name,
               });
+              return null;
             });
-            return {
-              customerName: v,
-              start: startDate,
-              end: endDate,
-              desc: data[0].desc && " Because " + data[0].desc.split("reason : ")[1],
-              status: data[0].extendedProps.book.status,
-              services: services,
-              billAmount: billAmount,
-              customer: {
-                id: data[0].extendedProps.user.id,
-                totalBusiness: 0,
-              },
-            };
-          })
-      );
+          });
+          return {
+            customerName: v,
+            start: startDate,
+            end: endDate,
+            desc: data[0].desc && " Because " + data[0].desc.split("reason : ")[1],
+            status: data[0].extendedProps.book.status,
+            services: services,
+            billAmount: billAmount,
+            customer: {
+              id: data[0].extendedProps.user.id,
+              totalBusiness: 0,
+            },
+          };
+        });
+      setBookingData(bookings);
 
       await loadBillingData(members, appointmentDate);
     };
