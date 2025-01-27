@@ -114,8 +114,8 @@ export default function Expenses() {
     const expenseTypesURL = `${API_BASE_URL}/vendor/expense/type`;
     callAPI(expenseTypesURL, (data: any) => {
       setExpenseTypes(
-        data.data.map((v: { value: string; name: string }) => {
-          return { id: v.value, name: v.name };
+        data.data.map((v: { id: string; name: string }) => {
+          return { id: v.id, name: v.name };
         })
       );
     });
@@ -255,7 +255,7 @@ export default function Expenses() {
           id="offcanvasBottom"
           onHide={handleClose}
         >
-          <Offcanvas.Header closeButton closeVariant="color">
+          <Offcanvas.Header closeButton closeVariant="white">
             <h5>Add New Expense</h5>
           </Offcanvas.Header>
           <Offcanvas.Body className="pt-0">

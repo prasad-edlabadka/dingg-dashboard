@@ -7,7 +7,7 @@ import SimpleDataPoint from "./sale/SimpleDataPoint";
 import * as Icon from "react-bootstrap-icons";
 
 export default function Balance() {
-  const { callAPI, token, updateToken } = useContext(TokenContext);
+  const { token, updateToken, callAPIPromise } = useContext(TokenContext);
 
   const [reload, setReload] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -99,16 +99,14 @@ export default function Balance() {
 
   useEffect(() => {
     setLoading(true);
-    const apiURL = `${API_BASE_URL}/vendor/account/list`;
-
-    callAPI(apiURL, (data: any) => {
-      setLoading(false);
-      if (!data) return;
+    const fetchData = async () => {
+      const apiURL = `${API_BASE_URL}/vendor/account/list`;
+      const accountList = await callAPIPromise(apiURL);
       const pnl =
-        data.data.length === 0
+        accountList.data.length === 0
           ? []
-          : data.data
-              .sort((a: { id: number }, b: { id: number }) => a.id < b.id)
+          : accountList.data
+              .sort((a: { id: number }, b: { id: number }) => a.id >= b.id)
               .map((v: any) => {
                 return {
                   title: v.name,
@@ -118,35 +116,35 @@ export default function Balance() {
               });
       setPnl(pnl);
       setTotalBalance(pnl.reduce((acc: number, v: any) => acc + v.value, 0));
-    });
-
-    const accountListAPI = `${API_BASE_URL}/vendor/account/list`;
-    callAPI(accountListAPI, (data: any) => {
-      if (!data) return;
-      setAccounts(data.data);
-      setFromAccountBalance(data.data[0].current_balance);
-      setToAccountBalance(data.data[0].current_balance);
-    });
-  }, [reload, callAPI]);
+      setFromAccountBalance(accountList.data[0].current_balance);
+      setToAccountBalance(accountList.data[0].current_balance);
+      console.log("Setting from account balance to: " + accountList.data[0].current_balance);
+      console.log("Setting to account balance to: " + accountList.data[0].current_balance);
+      setAccounts(accountList.data);
+      setLoading(false);
+    };
+    fetchData();
+  }, [reload, callAPIPromise]);
 
   const [accountChange, setAccountChange] = useState(false);
 
   useEffect(() => {
     console.log(
+      fromAccount.current?.value,
       accounts,
       accounts.filter((v) => v.id === fromAccount.current?.value)
     );
-    console.log(accounts.filter((v) => v.id === toAccount.current?.value));
-    if (fromAccount.current?.value) {
-      setFromAccountBalance(accounts.filter((v) => v.id === fromAccount.current?.value)[0]?.current_balance);
-    } else {
-      setFromAccountBalance(0);
-    }
-    if (toAccount.current?.value) {
-      setToAccountBalance(accounts.filter((v) => v.id === toAccount.current?.value)[0]?.current_balance);
-    } else {
-      setToAccountBalance(0);
-    }
+    console.log("Selected account is: " + fromAccount.current?.value);
+
+    fromAccount.current?.value &&
+      setFromAccountBalance(
+        accounts.filter((v) => v.id === Number.parseInt(fromAccount.current?.value || "0"))[0]?.current_balance
+      );
+
+    toAccount.current?.value &&
+      setToAccountBalance(
+        accounts.filter((v) => v.id === Number.parseInt(toAccount.current?.value || "0"))[0]?.current_balance
+      );
   }, [accountChange, accounts]);
 
   return (
