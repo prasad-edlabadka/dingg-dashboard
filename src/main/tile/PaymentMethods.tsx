@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from "react";
 import { Col, OverlayTrigger, ProgressBar, Row, Tooltip, Offcanvas } from "react-bootstrap";
-import { currencyFormatter, formatDate, getLastMonth } from "./Utility";
+import { currencyFormatter, formatDate, getLastMonth, titleCase } from "./Utility";
 import { subDays, format } from "date-fns";
 import { TokenContext, API_BASE_URL } from "../../App";
 import DiwaButtonGroup from "../../components/button/DiwaButtonGroup";
@@ -156,13 +156,6 @@ export default function PaymentMethods() {
   const getPaymentMethodName = (n: string): string => {
     return methods[n.toLowerCase()] || titleCase(n);
   };
-
-  function titleCase(st: string) {
-    return st
-      .toLowerCase()
-      .split(" ")
-      .reduce((s, c) => s + "" + (c.charAt(0).toUpperCase() + c.slice(1) + " "), "");
-  }
 
   const setDuration = (type: string) => {
     if (type === "current") {

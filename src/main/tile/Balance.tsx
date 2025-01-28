@@ -1,10 +1,32 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { callPOSTAPI, currencyFormatter, formatDate } from "./Utility";
+import { callPOSTAPI, currencyFormatter, formatDate, formatDisplayDate, titleCase } from "./Utility";
 import { TokenContext, API_BASE_URL } from "../../App";
 import DiwaCard from "../../components/card/DiwaCard";
 import { Button, Col, Form, Offcanvas, Row } from "react-bootstrap";
 import SimpleDataPoint from "./sale/SimpleDataPoint";
 import * as Icon from "react-bootstrap-icons";
+import { addDays, parse } from "date-fns";
+
+interface Transaction {
+  id: number;
+  date: string;
+  account_name: string;
+  transaction_type: string;
+  credit_type: string;
+  type: string;
+  befor_balance: number;
+  after_balance: number;
+  amount: number;
+  transfer_account: string | null;
+  type_id: number;
+  notes: string;
+  expense_desc?: string;
+}
+
+interface TransactionExpense {
+  id: number;
+  description: string;
+}
 
 export default function Balance() {
   const { token, updateToken, callAPIPromise } = useContext(TokenContext);
@@ -24,9 +46,14 @@ export default function Balance() {
   const [fromAccountBalance, setFromAccountBalance] = useState(0);
   const [toAccountBalance, setToAccountBalance] = useState(0);
   const [totalBalance, setTotalBalance] = useState(0);
+  const [selectedAccount, setSelectedAccount] = useState(0);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [showTransactions, setShowTransactions] = useState(false);
+  const [expenseDescriptions, setExpenseDescriptions] = useState<TransactionExpense[]>([]);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+  const handleTransactionsClose = () => setShowTransactions(false);
 
   const createTransfer = (e: any) => {
     e.preventDefault();
@@ -109,12 +136,14 @@ export default function Balance() {
               .sort((a: { id: number }, b: { id: number }) => a.id >= b.id)
               .map((v: any) => {
                 return {
+                  id: v.id,
                   title: v.name,
                   value: v.current_balance,
                   previous: v.current_balance,
                 };
               });
       setPnl(pnl);
+
       setTotalBalance(pnl.reduce((acc: number, v: any) => acc + v.value, 0));
       setFromAccountBalance(accountList.data[0].current_balance);
       setToAccountBalance(accountList.data[0].current_balance);
@@ -125,6 +154,21 @@ export default function Balance() {
     };
     fetchData();
   }, [reload, callAPIPromise]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const endDate = new Date();
+      const startDate = addDays(endDate, -7);
+      const apiURL = `${API_BASE_URL}/vendor/account/transactions?account_ids=${selectedAccount}&start_date=${formatDate(
+        startDate
+      )}&end_date=${formatDate(endDate)}&limit=100&page=1`;
+      const transactions = await callAPIPromise(apiURL);
+      console.log(transactions.data);
+      console.log(JSON.stringify(transactions.data[0]));
+      setTransactions(transactions.data);
+    };
+    fetchData();
+  }, [selectedAccount, callAPIPromise]);
 
   const [accountChange, setAccountChange] = useState(false);
 
@@ -146,6 +190,22 @@ export default function Balance() {
         accounts.filter((v) => v.id === Number.parseInt(toAccount.current?.value || "0"))[0]?.current_balance
       );
   }, [accountChange, accounts]);
+
+  const loadExpenseInfo = async (val: Transaction) => {
+    if (!expenseDescriptions.find((v) => v.id === val.id)) {
+      const apiURL = `${API_BASE_URL}/vendor/expenses?date=${val.date}`;
+      const expenseInfo = await callAPIPromise(apiURL);
+      const expense = expenseInfo.data.find((v: { id: number }) => v.id === val.type_id);
+      setExpenseDescriptions([
+        ...expenseDescriptions,
+        {
+          id: val.id,
+          description: expense ? `Given to ${expense?.given_to} for ${expense?.desc}` : "No information available",
+        },
+      ]);
+      console.log(expenseDescriptions);
+    }
+  };
 
   return (
     <>
@@ -263,10 +323,71 @@ export default function Balance() {
                 </Offcanvas.Body>
               </Offcanvas>
             </div>
-            <SimpleDataPoint data={pnl} />
+            <SimpleDataPoint
+              data={pnl}
+              onClick={(id: number) => {
+                setSelectedAccount(id);
+                setShowTransactions(true);
+              }}
+            />
           </DiwaCard>
         </Col>
       </Row>
+
+      <Offcanvas
+        show={showTransactions}
+        className="h-auto text-color"
+        placement="bottom"
+        backdrop={true}
+        scroll={false}
+        keyboard={false}
+        id="offcanvasBottom"
+        onHide={handleTransactionsClose}
+      >
+        <Offcanvas.Header closeButton closeVariant="close">
+          <h5>{transactions[0]?.account_name} Account transactions</h5>
+        </Offcanvas.Header>
+        <Offcanvas.Body className="pt-0">
+          <ul className="list-group list-group-flush">
+            {transactions.map((val) => {
+              return (
+                <li className="list-group-item bg-transparent text-color border-color ps-0" key={val.id}>
+                  <div className="w-100 pe-2 pb-2">
+                    <div className="text-start d-inline">
+                      {titleCase(val.transaction_type || val.type)}
+                      {val.type === "expense" && (
+                        <Icon.InfoCircle
+                          className="ms-1"
+                          style={{ marginTop: -4 }}
+                          onClick={() => loadExpenseInfo(val)}
+                        />
+                      )}
+                    </div>
+                    <div
+                      className={`text-end d-inline float-end fw-bold ${
+                        val.credit_type === "CREDIT" ? "text-success" : "text-danger"
+                      }`}
+                    >
+                      {currencyFormatter.format(val.amount * (val.credit_type === "CREDIT" ? 1 : -1))}
+                    </div>
+
+                    <div>
+                      <div className={`small text-color-50 text-end d-inline float-end`}>
+                        {formatDisplayDate(parse(val.date, "yyyy-MM-dd", new Date()))}
+                      </div>
+                      <div className={`small text-color-50 text-start d-inline float-start`}>
+                        {val.notes}
+                        {expenseDescriptions.find((v) => v.id === val.id)?.description}
+                      </div>
+                    </div>
+                    {/* <p className="small text-color-50 mb-0" style={{ marginTop: -4 }}></p> */}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </Offcanvas.Body>
+      </Offcanvas>
     </>
   );
 }
