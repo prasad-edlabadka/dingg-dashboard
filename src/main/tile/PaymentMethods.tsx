@@ -13,7 +13,7 @@ export default function PaymentMethods() {
   const { callAPI, callAPIPromise } = useContext(TokenContext);
   const [reportData, setReportData] = useState([{ total: 0, "payment mode": "" }]);
   const [total, setTotal] = useState(-1);
-  const [dayReportData, setDayReportData] = useState([{ total: 0, "payment mode": "", count: 0 }]);
+  const [dayReportData, setDayReportData] = useState([{ total: 0, "payment mode": "", count: 0, tip: 0 }]);
   const [dayTotal, setDayTotal] = useState(-1);
   const buttonState = useState(0);
   const todayButtonState = useState(0);
@@ -205,14 +205,18 @@ export default function PaymentMethods() {
   const openDetails = (mode: string) => {
     setSelectedPaymentMode(mode);
     const id = getPaymentModeId(mode);
+    console.log(todaysBills);
     const bills = todaysBills.filter((v: { bill_payments: { payment_mode: number }[] }) =>
       v.bill_payments.find((v2: { payment_mode: number }) => v2.payment_mode === id)
     );
     const displayBills = bills.map(
       (v: { user: { fname: string; lname: string }; bill_payments: { payment_mode: number; amount: number }[] }) => {
+        console.log(v);
         return {
           name: (v.user.fname || "") + " " + (v.user.lname || ""),
-          amount: v.bill_payments.find((v2: { payment_mode: number }) => v2.payment_mode === id)?.amount || 0,
+          amount: v.bill_payments.reduce((a: number, b: { payment_mode: number; amount: number }) => {
+            return b.payment_mode === id ? a + b.amount : a;
+          }, 0),
         };
       }
     );
@@ -259,6 +263,14 @@ export default function PaymentMethods() {
                 </li>
               );
             })}
+            <li className="list-group-item bg-transparent text-color border-color ps-0" key="total">
+              <div className="w-100 pe-2 pb-2 fw-bold">
+                <div className="text-start d-inline">Total</div>
+                <div className="text-end d-inline float-end">
+                  {currencyFormatter.format(bills.reduce((a: number, b: { amount: number }) => a + b.amount, 0))}
+                </div>
+              </div>
+            </li>
           </ul>
         </Offcanvas.Body>
       </Offcanvas>
@@ -368,7 +380,7 @@ export default function PaymentMethods() {
                 </OverlayTrigger>
               </Col>
               <Col lg={4} className="d-none d-lg-block">
-                {currencyFormatter.format(val.total)}
+                {currencyFormatter.format(val.total + val.tip)}
               </Col>
             </Row>
           );

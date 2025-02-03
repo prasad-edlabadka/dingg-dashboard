@@ -105,7 +105,9 @@ export default function Staff() {
         const tip = data.reduce((acc, val) => acc + val.tip, 0);
         const membership = data.reduce((acc, val) => acc + val.membership, 0);
         const membershipTotal = data.reduce((acc, val) => acc + val.membershipTotal, 0);
-        Object.assign(managerData, {
+        const storeData = structuredClone(managerData);
+        Object.assign(storeData, {
+          name: "Store",
           dinggCalculatedTarget,
           withoutDiscount,
           withDiscount,
@@ -113,6 +115,7 @@ export default function Staff() {
           membership,
           membershipTotal,
         });
+        data.push(storeData);
       }
 
       data.sort((a, b) => (a.completionPercentage >= b.completionPercentage ? -1 : 1));
@@ -176,7 +179,7 @@ export default function Staff() {
       <Row className="gx-3">
         {employees.map((val, index) => (
           <Col xs={12} md={4} key={"staff" + index} className="">
-            <div className="mt-3 pt-2 pb-2 rounded black-bg">
+            <div className={`mt-3 pt-2 pb-2 rounded ${val.name === "Store" ? "store-bg" : "black-bg"}`}>
               <Row className="ps-2 pe-2 align-bottom">
                 <Col xs={7} className="align-bottom pe-0 text-color">
                   <h4>{val.name}</h4>

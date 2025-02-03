@@ -153,6 +153,7 @@ export default function ServiceStats() {
   }, [callAPI]);
 
   useEffect(() => {
+    console.log("Calling useeffect 2");
     if (buttonIndex === 0 && Object.keys(dailyData).length > 0) {
       setDisplayServices(dailyData);
       return;
@@ -172,9 +173,15 @@ export default function ServiceStats() {
     )}&app_type=web&report_type=staff_by_service&range_type=${buttons[buttonIndex].api}`;
     setLoading(true);
     callAPI(apiURL, async (data: any) => {
+      if (!data) {
+        setLoading(false);
+        return;
+      }
       const checkedServices =
-        selectedServices.length === 0 ? JSON.parse(localStorage.getItem("servicesToTrack") || "{}") : selectedServices;
-      const filteredServices = data?.data?.filter((service: any) => checkedServices.includes(service.service));
+        selectedServices.length === 0 ? JSON.parse(localStorage.getItem("servicesToTrack") || "[]") : selectedServices;
+      console.log("Checked services are ", checkedServices);
+      const filteredServices =
+        data?.data?.filter((service: any) => checkedServices && checkedServices.includes(service.service)) || [];
       //group filteredServices by service
       const groupedServices: any = {};
 
@@ -190,7 +197,7 @@ export default function ServiceStats() {
         })
       );
 
-      console.log("Grouped services are ", groupedServices, data.data);
+      console.log("Grouped services are ", groupedServices, data?.data);
       setDisplayServices(groupedServices);
       switch (buttonIndex) {
         case 0:
@@ -210,18 +217,7 @@ export default function ServiceStats() {
       }
       setLoading(false);
     });
-  }, [
-    startDate,
-    endDate,
-    buttonIndex,
-    buttons,
-    callAPI,
-    dailyData,
-    monthlyData,
-    selectedServices,
-    weeklyData,
-    yearlyData,
-  ]);
+  }, [startDate, endDate, buttonIndex, buttons, callAPI]);
 
   const saveServiceSelection = (name: string, status: boolean) => {
     const trackedServices = [...selectedServices];
