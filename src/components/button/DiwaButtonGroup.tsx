@@ -4,7 +4,7 @@ function DiwaButtonGroup({
   buttons,
   state,
 }: {
-  buttons: { title: string; onClick: any; onClickParams?: any[] }[];
+  buttons: { title: string; onClick: any; onClickParams?: any[]; disabled?: boolean }[];
   state: any;
 }) {
   const [activeButtonIndex, setActiveButtonIndex] = state;
@@ -24,6 +24,7 @@ function DiwaButtonGroup({
               onClick={() => handleButtonClick(index, button.onClick, button.onClickParams)}
               key={`button-${button.title}-${index}`}
               data-testid="button"
+              disabled={button.disabled || false}
             >
               {button.title}
             </Button>

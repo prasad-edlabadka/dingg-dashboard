@@ -423,7 +423,7 @@ export default function Sale2() {
   const buttons = [
     { title: "Today", onClick: () => setDuration("day") },
     { title: "Week", onClick: () => setDuration("week") },
-    { title: "Finance Month", onClick: () => setDuration("fin_month") },
+    { title: "Finance Month", onClick: () => setDuration("fin_month"), disabled: true },
     { title: "Calendar Month", onClick: () => setDuration("cal_month") },
   ];
 

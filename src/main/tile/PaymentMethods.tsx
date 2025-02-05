@@ -1,7 +1,7 @@
 import { useCallback, useContext, useEffect, useState } from "react";
 import { Col, OverlayTrigger, ProgressBar, Row, Tooltip, Offcanvas } from "react-bootstrap";
 import { currencyFormatter, formatDate, getLastMonth, titleCase } from "./Utility";
-import { subDays, format } from "date-fns";
+import { subDays, format, addDays } from "date-fns";
 import { TokenContext, API_BASE_URL } from "../../App";
 import DiwaButtonGroup from "../../components/button/DiwaButtonGroup";
 import DiwaCard from "../../components/card/DiwaCard";
@@ -171,8 +171,9 @@ export default function PaymentMethods() {
     }
   };
 
-  const setSingleDateDuration = (type: string) => {
-    type === "today" ? setSingleDate(new Date()) : setSingleDate(subDays(new Date(), 1));
+  const setSingleDateDuration = (type: number) => {
+    setSingleDate(addDays(new Date(), type));
+    //type === "today" ? setSingleDate(new Date()) : setSingleDate(subDays(new Date(), 1));
   };
 
   const buttons = [
@@ -181,8 +182,9 @@ export default function PaymentMethods() {
   ];
 
   const todayButtons = [
-    { title: "Today", onClick: () => setSingleDateDuration("today") },
-    { title: "Yesterday", onClick: () => setSingleDateDuration("yesterday") },
+    { title: "Today", onClick: () => setSingleDateDuration(0) },
+    { title: "Yesterday", onClick: () => setSingleDateDuration(-1) },
+    { title: format(addDays(new Date(), -2), "EEEE"), onClick: () => setSingleDateDuration(-2) },
   ];
 
   const handleClose = () => setShow(false);
