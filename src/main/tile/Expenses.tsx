@@ -389,7 +389,7 @@ export default function Expenses() {
                           {item["description"]}
                         </p>
                         <p className="small text-color-50 mb-0" style={{ marginTop: -4 }}>
-                          Given to {item["given to"]} by {item["Payment mode"]} by{" "}
+                          Given to {item["given to"]} by {item["Payment mode"]}
                           {/* {findAccountName(item["vendor_account_id"])} */}
                         </p>
                       </li>

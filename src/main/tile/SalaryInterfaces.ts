@@ -41,10 +41,15 @@ export interface AttendanceRecord {
 
 export interface StaffTiming {
   name: string;
+  schedule: Schedule[];
+  salary: number;
+}
+
+export interface Schedule {
   actualStart: string | Moment;
   lateMark: string | Moment;
   halfDay: string | Moment;
   actualEnd: string | Moment;
   overTimeStart: string | Moment;
-  salary: number;
+  date: string;
 }

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Accordion, Form, Row, Col } from "react-bootstrap";
-import { currencyFormatter, formatMinutes, nth } from "./Utility";
+import { currencyFormatter, formatDate, formatMinutes, nth } from "./Utility";
 import { read, utils } from "xlsx";
 import moment, { Moment } from "moment";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -14,14 +14,18 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import DiwaCard from "../../components/card/DiwaCard";
 // import jsonData from "./example.json";
-import staffTimings from "../../StaffTiming.json";
+import nameMapping from "../../NameMapping.json";
 import { AttendanceRecord, EmployeeSalary, ReportInfo, StaffTiming } from "./SalaryInterfaces";
+import { TokenContext, API_BASE_URL } from "../../App";
+import { addDays, addMinutes, endOfMonth, isBefore, startOfMonth } from "date-fns";
 
 export default function Salary() {
+  const { callAPIPromise } = useContext(TokenContext);
   const [reportData, setReportData] = useState<EmployeeSalary[]>([]);
 
   const [reportInfo, setReportInfo] = useState<ReportInfo>({ month: "", year: "", days: 0 });
   const [loading, setLoading] = useState(true);
+  const [staffShiftData, setStaffShiftData] = useState<any[]>([]);
 
   const allowedOffDays = 4;
   const freeLateDays = 3;
@@ -89,7 +93,7 @@ export default function Salary() {
                   const outTime = availableTimes.length > 1 ? availableTimes[availableTimes.length - 1] : "";
 
                   attendanceRecords.push({
-                    employee_name: employeeName,
+                    employee_name: nameMapping[employeeName as keyof typeof nameMapping],
                     date: fullDate,
                     in_time: inTime !== "" ? convertExcelTime(inTime) : "",
                     out_time: outTime !== "" ? convertExcelTime(outTime) : "",
@@ -108,7 +112,56 @@ export default function Salary() {
     }
   };
 
-  const populateRecords = (attendanceRecords: AttendanceRecord[]) => {
+  const processData = (data: any, salaryData: any) => {
+    const shiftData = data;
+    const outputData: any[] = [];
+    shiftData.forEach((shift: any) => {
+      if (outputData.find((v: any) => v.name === shift.name)) {
+        const index = outputData.findIndex((v: any) => v.name === shift.name);
+        outputData[index].schedule.push(...getSchedule(shift.schedule));
+      } else {
+        outputData.push({
+          name: shift.name,
+          salary: salaryData.find((v: any) => v.employee.name === shift.name)?.base_salary || 100000,
+          schedule: [...getSchedule(shift.schedule)],
+        });
+      }
+    });
+
+    setStaffShiftData(outputData);
+    console.log(outputData);
+    return outputData;
+  };
+
+  const getSchedule = (shedule: any) => {
+    const schedule = shedule.map((v: any) => {
+      const start =
+        v?.schedule_shifts && v.schedule_shifts[0]?.start_hour && minutesToTimeString(v.schedule_shifts[0].start_hour);
+      const end =
+        v?.schedule_shifts && v.schedule_shifts[0]?.end_hour && minutesToTimeString(v.schedule_shifts[0].end_hour);
+      const actualStart = moment(start, "HH:mm");
+      const actualEnd = moment(end, "HH:mm");
+      return {
+        date: v.date,
+        actualStart: actualStart,
+        actualEnd: actualEnd,
+        halfDay: moment(addMinutes(actualStart.toDate(), 30), "HH:mm"),
+        lateMark: moment(addMinutes(actualStart.toDate(), 15), "HH:mm"),
+        overTimeStart: moment(addMinutes(actualEnd.toDate(), 30), "HH:mm"),
+      };
+    });
+    return schedule;
+  };
+
+  const minutesToTimeString = (minutes: number): string => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    const formattedHours = hours < 10 ? `0${hours}` : hours;
+    const formattedMinutes = mins < 10 ? `0${mins}` : mins;
+    return `${formattedHours}:${formattedMinutes}`;
+  };
+
+  const populateRecords = async (attendanceRecords: AttendanceRecord[]) => {
     attendanceRecords = attendanceRecords.map((v) => {
       return {
         ...v,
@@ -117,18 +170,39 @@ export default function Salary() {
       };
     });
 
-    const staffTimingData: StaffTiming[] = staffTimings.map((v) => {
-      return {
-        ...v,
-        actualStart: moment(v.actualStart, "HH:mm"),
-        actualEnd: moment(v.actualEnd, "HH:mm"),
-        halfDay: moment(v.halfDay, "HH:mm"),
-        lateMark: moment(v.lateMark, "HH:mm"),
-        overTimeStart: moment(v.overTimeStart, "HH:mm"),
-      };
-    });
+    let startDate = startOfMonth(moment(attendanceRecords[0].date, "YYYY-MM-DD").toDate());
+    let endOfMonthDate = endOfMonth(startDate);
+
+    let staffShifs: any[] = [];
+
+    while (isBefore(startDate, endOfMonthDate)) {
+      const shiftAPIURL = `${API_BASE_URL}/employee/roaster?start_date=${formatDate(startDate)}`;
+      const shiftDetails = await callAPIPromise(shiftAPIURL);
+      shiftDetails.data.forEach((v: any) => {
+        staffShifs.push(v);
+      });
+      console.log(shiftDetails, startDate);
+      startDate = addDays(startDate, 7);
+    }
+
+    const employeeSalaryURL = `${API_BASE_URL}/employees/salary?date=${formatDate(startOfMonth(endOfMonthDate))}`;
+    const salaryDetails = await callAPIPromise(employeeSalaryURL);
+    const staffShiftData = processData(staffShifs, salaryDetails.data);
+
+    // const staffTimingData: StaffTiming[] = staffTimings.map((v) => {
+    //   return {
+    //     ...v,
+    //     actualStart: moment(v.actualStart, "HH:mm"),
+    //     actualEnd: moment(v.actualEnd, "HH:mm"),
+    //     halfDay: moment(v.halfDay, "HH:mm"),
+    //     lateMark: moment(v.lateMark, "HH:mm"),
+    //     overTimeStart: moment(v.overTimeStart, "HH:mm"),
+    //   };
+    // });
+
     const records: EmployeeSalary[] = [];
-    staffTimingData.forEach((staff) => {
+    staffShiftData.forEach((staff: StaffTiming) => {
+      console.log("Calculating for ", staff.name);
       const record = calculate(attendanceRecords, staff);
       if (record != null) {
         records.push(record);
@@ -153,36 +227,43 @@ export default function Salary() {
 
     //If employee data doesn't exist, return. No salary calculation can be done.
     if (employeeData.length === 0) {
+      console.log("No data found for ", staff.name, data);
       return null;
     }
 
     for (const empRecord of employeeData) {
       const day = moment(empRecord.date, "YYYY-MM-DD").date();
+      //Let's extract shift timings for this date
+      const shift = staff.schedule.find((v) => v.date === empRecord.date);
+      if (!shift) {
+        console.log("No shift found for ", staff.name, " on ", empRecord.date);
+        continue;
+      }
       //Let's calculate half days.
-      if (empRecord.in_time !== "" && (empRecord.in_time as Moment).isAfter(staff.halfDay)) {
+      if (empRecord.in_time !== "" && (empRecord.in_time as Moment).isAfter(shift.halfDay)) {
         // console.log(`Found half day for ${emp.employee_name} as ${emp.in_time} on ${emp.date}`);
         halfDays.push({
           day: day,
-          by: (empRecord.in_time as Moment).diff(staff.halfDay, "minutes"),
+          by: (empRecord.in_time as Moment).diff(shift.halfDay, "minutes"),
           time: formatTime(empRecord.in_time),
           ignored: false,
         });
       }
 
       //Let's calculate late marks.
-      if (empRecord.in_time !== "" && (empRecord.in_time as Moment).isAfter(staff.lateMark)) {
+      if (empRecord.in_time !== "" && (empRecord.in_time as Moment).isAfter(shift.lateMark)) {
         // console.log(`Found late mark for ${emp.employee_name} as ${emp.in_time} on ${emp.date}`);
         lateMark++;
         lateDays.push({
           day: day,
-          by: (empRecord.in_time as Moment).diff(staff.lateMark, "minutes"),
+          by: (empRecord.in_time as Moment).diff(shift.lateMark, "minutes"),
           time: formatTime(empRecord.in_time),
           ignored: lateMark <= freeLateDays,
         });
       }
 
       //Let's calculate overtime.
-      if (empRecord.out_time !== "" && (empRecord.out_time as Moment).isAfter(staff.overTimeStart)) {
+      if (empRecord.out_time !== "" && (empRecord.out_time as Moment).isAfter(shift.overTimeStart)) {
         //12 hours work means direct 200 payment.
         console.log(
           "Long day calculation for ",
@@ -201,7 +282,7 @@ export default function Salary() {
           // console.log(`Found overtime for ${emp.employee_name} as ${emp.out_time} on ${emp.date}`);
           overTimeDays.push({
             day: day,
-            by: (empRecord.out_time as Moment).diff(staff.overTimeStart, "minutes"),
+            by: (empRecord.out_time as Moment).diff(shift.overTimeStart, "minutes"),
             time: formatTime(empRecord.out_time),
             ignored: false,
           });
@@ -209,12 +290,12 @@ export default function Salary() {
       }
 
       //Let's calculate early exit.
-      if (empRecord.out_time !== "" && (empRecord.out_time as Moment).isBefore(staff.actualEnd)) {
+      if (empRecord.out_time !== "" && (empRecord.out_time as Moment).isBefore(shift.actualEnd)) {
         //Check if in time was early as well. This is due to change of shift on certain days.
-        if (empRecord.in_time !== "" && !(empRecord.in_time as Moment).isBefore(staff.actualStart)) {
+        if (empRecord.in_time !== "" && !(empRecord.in_time as Moment).isBefore(shift.actualStart)) {
           earlyExitDays.push({
             day: day,
-            by: (staff.actualEnd as Moment).diff(empRecord.out_time, "minutes"),
+            by: (shift.actualEnd as Moment).diff(empRecord.out_time, "minutes"),
             time: formatTime(empRecord.out_time),
             ignored: false,
           });
@@ -343,7 +424,7 @@ export default function Salary() {
             </p>
           </h3>
           {reportData.map((val) => {
-            const staff = staffTimings.filter((v) => v.name === val.name)[0];
+            const staff = staffShiftData.filter((v) => v.name === val.name)[0];
             return (
               <Accordion flush key={val.name}>
                 <Accordion.Header className="w-100 text-color">
