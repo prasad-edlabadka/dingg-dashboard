@@ -5,7 +5,7 @@ import DiwaCard from "../../components/card/DiwaCard";
 import { Button, Col, Form, Offcanvas, Row } from "react-bootstrap";
 import SimpleDataPoint from "./sale/SimpleDataPoint";
 import * as Icon from "react-bootstrap-icons";
-import { addDays, parse } from "date-fns";
+import { addDays, format, parse } from "date-fns";
 
 interface Transaction {
   id: number;
@@ -29,7 +29,7 @@ interface TransactionExpense {
 }
 
 export default function Balance() {
-  const { token, updateToken, callAPIPromise } = useContext(TokenContext);
+  const { token, updateToken, callAPIPromise, employeeName } = useContext(TokenContext);
 
   const [reload, setReload] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -102,7 +102,7 @@ export default function Balance() {
           out_vendor_account_id: fromAccount.current?.value,
           amount: amount.current?.value,
           date: transferDate.current?.value,
-          notes: description.current?.value,
+          notes: `${description.current?.value}. Added by ${employeeName} on ${format(new Date(), "dd-MMM-yyyy")}`,
         }
       : {
           transaction_type: "direct",
@@ -110,7 +110,7 @@ export default function Balance() {
           is_credit: amt > 0 ? true : false,
           amount: Math.abs(amt),
           date: transferDate.current?.value,
-          notes: description.current?.value,
+          notes: `${description.current?.value}. Added by ${employeeName} on ${format(new Date(), "dd-MMM-yyyy")}`,
         };
     callPOSTAPI(apiURL, data, token, updateToken, (response: any) => {
       if (response.code === 200) {

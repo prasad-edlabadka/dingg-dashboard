@@ -1,7 +1,7 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Accordion, Button, ButtonGroup, Col, Form, Offcanvas, Row } from "react-bootstrap";
 import { currencyFormatter, formatDate, formatDisplayDate, getFirstDayOfWeek } from "./Utility";
-import { addDays, addMonths, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
+import { addDays, addMonths, endOfWeek, startOfMonth, endOfMonth, format } from "date-fns";
 import * as Icon from "react-bootstrap-icons";
 import { TokenContext } from "../../App";
 import DiwaButtonGroup from "../../components/button/DiwaButtonGroup";
@@ -22,7 +22,7 @@ interface Expense {
 }
 
 export default function Expenses() {
-  const { callAPI, callPOSTAPI } = useContext(TokenContext);
+  const { callAPI, callPOSTAPI, employeeName } = useContext(TokenContext);
   const [expenseData, setExpenseData] = useState<Partial<Record<string, Expense[]>>>({});
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(-1);
@@ -75,10 +75,9 @@ export default function Expenses() {
       amount: Number.parseFloat(`${amount.current?.value}`),
       net: Number.parseFloat(`${amount.current?.value}`),
       tax: 0,
-      desc:
-        description.current?.value +
-        ". Paid using " +
-        findAccountName(Number.parseInt(expenseAccount.current?.value || "")),
+      desc: `${description.current?.value}. Paid using ${findAccountName(
+        Number.parseInt(expenseAccount.current?.value || "")
+      )}. Added by ${employeeName} on ${format(new Date(), "dd-MMM-yyyy")}`,
       vendor_account_id: expenseAccount.current?.value,
     };
 

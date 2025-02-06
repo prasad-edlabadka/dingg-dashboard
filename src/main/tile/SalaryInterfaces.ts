@@ -24,6 +24,7 @@ export interface EmployeeSalary {
   workdays: number;
   pay: number;
   ot: number;
+  incentive: number;
 }
 
 export interface ReportInfo {
@@ -41,6 +42,8 @@ export interface AttendanceRecord {
 
 export interface StaffTiming {
   name: string;
+  paidLeaves: number;
+  incentive: number;
   schedule: Schedule[];
   salary: number;
 }

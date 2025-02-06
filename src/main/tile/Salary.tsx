@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { Accordion, Form, Row, Col } from "react-bootstrap";
+import { Accordion, Form, Row, Col, Spinner } from "react-bootstrap";
 import { currencyFormatter, formatDate, formatMinutes, nth } from "./Utility";
 import { read, utils } from "xlsx";
 import moment, { Moment } from "moment";
@@ -24,7 +24,7 @@ export default function Salary() {
   const [reportData, setReportData] = useState<EmployeeSalary[]>([]);
 
   const [reportInfo, setReportInfo] = useState<ReportInfo>({ month: "", year: "", days: 0 });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [staffShiftData, setStaffShiftData] = useState<any[]>([]);
 
   const allowedOffDays = 4;
@@ -32,6 +32,7 @@ export default function Salary() {
   const lateMarkPenalty = 50;
   const overtimePaymentRate = 50;
   const longDayPayment = 200;
+  const defaultSalary = 100000;
 
   // Function to convert Excel time to HH:MM format
   function convertExcelTime(excelTime: number): string {
@@ -52,6 +53,7 @@ export default function Salary() {
   const loadFile = (files: FileList | null) => {
     if (files !== null) {
       console.log(files);
+      setLoading(true);
       const file: File = files[0];
       const fileReader = new FileReader();
       fileReader.onloadend = (e: ProgressEvent<FileReader>) => {
@@ -107,6 +109,7 @@ export default function Salary() {
         // Convert the list to JSON
         console.log(attendanceRecords);
         populateRecords(attendanceRecords);
+        setLoading(false);
       };
       fileReader.readAsArrayBuffer(file);
     }
@@ -120,9 +123,12 @@ export default function Salary() {
         const index = outputData.findIndex((v: any) => v.name === shift.name);
         outputData[index].schedule.push(...getSchedule(shift.schedule));
       } else {
+        const salaryInfo = salaryData.find((v: any) => v.name === shift.name);
         outputData.push({
           name: shift.name,
-          salary: salaryData.find((v: any) => v.employee.name === shift.name)?.base_salary || 100000,
+          paidLeaves: salaryInfo?.paid_leaves || allowedOffDays,
+          salary: salaryInfo?.base_salary || defaultSalary,
+          incentive: salaryInfo?.incentiveBase * 0.1 || 0,
           schedule: [...getSchedule(shift.schedule)],
         });
       }
@@ -185,20 +191,55 @@ export default function Salary() {
       startDate = addDays(startDate, 7);
     }
 
-    const employeeSalaryURL = `${API_BASE_URL}/employees/salary?date=${formatDate(startOfMonth(endOfMonthDate))}`;
-    const salaryDetails = await callAPIPromise(employeeSalaryURL);
-    const staffShiftData = processData(staffShifs, salaryDetails.data);
+    const employeeListURL = `${API_BASE_URL}/employees/get`;
+    const employees = await callAPIPromise(employeeListURL);
+    const employeeSalaryDetails = await Promise.all(
+      employees.data.map(async (employee: any) => {
+        const employeeSalaryURL = `${API_BASE_URL}/employee/setting?employee_id=${employee.id}`;
+        const employeeSalary = await callAPIPromise(employeeSalaryURL);
+        if (employeeSalary.message === "No data found.") {
+          return null;
+        }
+        employeeSalary.data.name = employee.name;
+        return employeeSalary.data;
+      })
+    );
 
-    // const staffTimingData: StaffTiming[] = staffTimings.map((v) => {
-    //   return {
-    //     ...v,
-    //     actualStart: moment(v.actualStart, "HH:mm"),
-    //     actualEnd: moment(v.actualEnd, "HH:mm"),
-    //     halfDay: moment(v.halfDay, "HH:mm"),
-    //     lateMark: moment(v.lateMark, "HH:mm"),
-    //     overTimeStart: moment(v.overTimeStart, "HH:mm"),
-    //   };
-    // });
+    let filteredEmployeeSalaryDetails = employeeSalaryDetails.filter((v) => v != null);
+
+    startDate = startOfMonth(endOfMonthDate);
+
+    const empList = filteredEmployeeSalaryDetails.map((v) => v.employee_id).join(",");
+    const dinggCalculatedAPIURL = `${API_BASE_URL}/vendor/target/all?employee_ids=${empList}&time_type=monthly&start_date=${formatDate(
+      startDate
+    )}&end_date=${formatDate(endOfMonthDate)}`;
+
+    const staffTargets = await callAPIPromise(dinggCalculatedAPIURL);
+    console.log("Filtered emp", filteredEmployeeSalaryDetails);
+    filteredEmployeeSalaryDetails = filteredEmployeeSalaryDetails.map((v) => {
+      const selectedStaff = staffTargets.data.find((s: any) => s.employee_id === v.employee_id);
+      if (selectedStaff) {
+        console.log(
+          "Selected staff",
+          selectedStaff,
+          "v is",
+          v,
+          "incentive",
+          selectedStaff.service_sales_achieved - selectedStaff.total_sales
+        );
+        const sales = Number.parseFloat(selectedStaff.service_sales_achieved);
+        const target = Number.parseFloat(selectedStaff.total_sales);
+        v.incentiveBase = sales - target > 0 ? sales - target : 0;
+      } else {
+        v.incetiveBase = 0;
+      }
+
+      return v;
+    });
+
+    console.log("Enriched llist", filteredEmployeeSalaryDetails);
+
+    const staffShiftData = processData(staffShifs, filteredEmployeeSalaryDetails);
 
     const records: EmployeeSalary[] = [];
     staffShiftData.forEach((staff: StaffTiming) => {
@@ -328,7 +369,7 @@ export default function Salary() {
       let found = employeeData.find((v) => moment(v.date, "YYYY-MM-DD").date() === i) ? true : false;
       if (!found) {
         dayOffCount++;
-        dayOff.push({ day: i, by: 0, time: "", ignored: dayOffCount <= allowedOffDays });
+        dayOff.push({ day: i, by: 0, time: "", ignored: dayOffCount <= staff.paidLeaves });
       }
     }
 
@@ -370,6 +411,16 @@ export default function Salary() {
       longDays.length * longDayPayment
     );
 
+    //Calculate Incentive
+    pay += staff.incentive;
+    console.log(
+      "Total payable for ",
+      staff.name,
+      " after incentive is ",
+      pay,
+      ". incentive payment is ",
+      staff.incentive
+    );
     console.log(
       `${staff} should be paid ${currencyFormatter.format(pay)} including overtime of ${currencyFormatter.format(
         otPay
@@ -388,6 +439,7 @@ export default function Salary() {
       workdays: presentDays,
       pay: pay,
       ot: otPay,
+      incentive: staff.incentive,
     };
 
     setReportInfo({
@@ -414,15 +466,19 @@ export default function Salary() {
         />
       </Form.Group>
       {loading ? (
-        ""
+        <Spinner animation="grow" className="text-color-50" />
       ) : (
         <>
-          <h3 className="text-color">
-            Salary Calculation for {reportInfo.month} {reportInfo.year}
-            <p className="small text-color-50 mt-1">
-              Total: {currencyFormatter.format(reportData.reduce((v: any, current) => v + current.pay, 0))}
-            </p>
-          </h3>
+          {reportInfo.month !== "" ? (
+            <h3 className="text-color">
+              Salary Calculation for {reportInfo.month} {reportInfo.year}
+              <p className="small text-color-50 mt-1">
+                Total: {currencyFormatter.format(reportData.reduce((v: any, current) => v + current.pay, 0))}
+              </p>
+            </h3>
+          ) : (
+            ""
+          )}
           {reportData.map((val) => {
             const staff = staffShiftData.filter((v) => v.name === val.name)[0];
             return (
@@ -549,6 +605,12 @@ export default function Salary() {
                           {currencyFormatter.format(
                             val.missedEntry.filter((v) => !v.ignored).length * getHalfDaySalary(staff.salary)
                           )}
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Col xs="9">Service Incentive</Col>
+                        <Col xs="3" className="text-end">
+                          + {currencyFormatter.format(val.incentive)}
                         </Col>
                       </Row>
                       <Row>
