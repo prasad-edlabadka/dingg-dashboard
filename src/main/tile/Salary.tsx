@@ -289,10 +289,8 @@ export default function Salary() {
           time: formatTime(empRecord.in_time),
           ignored: false,
         });
-      }
-
-      //Let's calculate late marks.
-      if (empRecord.in_time !== "" && (empRecord.in_time as Moment).isAfter(shift.lateMark)) {
+      } else if (empRecord.in_time !== "" && (empRecord.in_time as Moment).isAfter(shift.lateMark)) {
+        //Let's calculate late marks.
         // console.log(`Found late mark for ${emp.employee_name} as ${emp.in_time} on ${emp.date}`);
         lateMark++;
         lateDays.push({
