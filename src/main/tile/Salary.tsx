@@ -31,7 +31,7 @@ export default function Salary() {
   const freeLateDays = 3;
   const lateMarkPenalty = 50;
   const overtimePaymentRate = 50;
-  const longDayPayment = 200;
+  const longDayPayment = 50;
   const defaultSalary = 100000;
 
   // Function to convert Excel time to HH:MM format
@@ -229,7 +229,11 @@ export default function Salary() {
         );
         const sales = Number.parseFloat(selectedStaff.service_sales_achieved);
         const target = Number.parseFloat(selectedStaff.total_sales);
-        v.incentiveBase = sales - target > 0 ? sales - target : 0;
+        if (selectedStaff.employee.name === "Manager") {
+          v.incentiveBase = sales;
+        } else {
+          v.incentiveBase = sales - target > 0 ? sales - target : 0;
+        }
       } else {
         v.incetiveBase = 0;
       }
@@ -309,7 +313,7 @@ export default function Salary() {
           staff.name,
           (empRecord.out_time as Moment).diff(empRecord.in_time, "hours")
         );
-        if ((empRecord.out_time as Moment).diff(empRecord.in_time, "hours") >= 12) {
+        if ((empRecord.out_time as Moment).diff(shift.actualStart, "hours") >= 12) {
           console.log("Found long day for ", staff.name, " on ", empRecord.date);
           longDays.push({
             day: day,
@@ -317,13 +321,17 @@ export default function Salary() {
             time: `from ${formatTime(empRecord.in_time)} to ${formatTime(empRecord.out_time)}`,
             ignored: false,
           });
-        } else {
-          // console.log(`Found overtime for ${emp.employee_name} as ${emp.out_time} on ${emp.date}`);
+        }
+        const diff = (empRecord.out_time as Moment).diff(shift.overTimeStart, "minutes");
+        // console.log(`Found overtime for ${emp.employee_name} as ${emp.out_time} on ${emp.date}`);
+        if (diff >= 30) {
           overTimeDays.push({
             day: day,
-            by: (empRecord.out_time as Moment).diff(shift.overTimeStart, "minutes"),
+            by: diff,
+            blocks: Math.floor(diff / 30),
             time: formatTime(empRecord.out_time),
-            ignored: false,
+            actualTime: formatTime(shift.actualEnd),
+            ignored: diff >= 30 ? false : true,
           });
         }
       }
@@ -336,6 +344,9 @@ export default function Salary() {
             day: day,
             by: (shift.actualEnd as Moment).diff(empRecord.out_time, "minutes"),
             time: formatTime(empRecord.out_time),
+            blocks: Math.floor((shift.actualEnd as Moment).diff(empRecord.out_time, "minutes") / 30),
+            amount:
+              Math.floor((shift.actualEnd as Moment).diff(empRecord.out_time, "minutes") / 30) * overtimePaymentRate,
             ignored: false,
           });
         }
@@ -378,7 +389,10 @@ export default function Salary() {
     //deduct half days
     presentDaysWithLateDays -= halfDays.filter((v) => !v.ignored).length / 2;
     //deduct early exits
-    presentDaysWithLateDays -= earlyExitDays.filter((v) => !v.ignored).length / 2;
+    const actualEarlyExitDays = earlyExitDays.filter((v) => !v.ignored);
+    const earlyExitPay = actualEarlyExitDays.reduce((v, current) => v + current.blocks, 0) * overtimePaymentRate;
+    console.log("Early exit pay for ", staff.name, " is ", earlyExitPay);
+    //presentDaysWithLateDays -= earlyExitPay; //earlyExitDays.filter((v) => !v.ignored).length / 2;
     //deduct missed punches
     presentDaysWithLateDays -= missedEntry.filter((v) => !v.ignored).length / 2;
 
@@ -390,10 +404,14 @@ export default function Salary() {
     pay -= lateDays.filter((v) => !v.ignored).length * lateMarkPenalty;
     console.log("Total payable for ", staff.name, " after late marks is ", pay);
 
+    //deduct early exits
+    pay -= earlyExitPay;
+
     //Calculate overtime
     let otPay = 0;
     for (const element of overTimeDays) {
-      otPay += Math.ceil(element.by / 30) * overtimePaymentRate;
+      console.log("Overtime blocks for date ", element.day, " for ", staff.name, " is ", Math.floor(element.by / 30));
+      otPay += Math.floor(element.by / 30) * overtimePaymentRate;
     }
     pay += otPay;
     console.log("Total payable for ", staff.name, " after overtime is ", pay, ". Overtime is ", otPay);
@@ -579,6 +597,17 @@ export default function Salary() {
                         </Col>
                       </Row>
                       <Row>
+                        <Col xs="9">Early Exit</Col>
+                        <Col xs="3" className="text-end">
+                          -{" "}
+                          {currencyFormatter.format(
+                            val.earlyExitDays
+                              .filter((v) => !v.ignored)
+                              .reduce((v, current) => v + (current.amount || 0), 0)
+                          )}
+                        </Col>
+                      </Row>
+                      <Row>
                         <Col xs="9">Half Day - Late Arrival</Col>
                         <Col xs="3" className="text-end">
                           -{" "}
@@ -587,15 +616,7 @@ export default function Salary() {
                           )}
                         </Col>
                       </Row>
-                      <Row>
-                        <Col xs="9">Half Day - Early Exit</Col>
-                        <Col xs="3" className="text-end">
-                          -{" "}
-                          {currencyFormatter.format(
-                            val.earlyExitDays.filter((v) => !v.ignored).length * getHalfDaySalary(staff.salary)
-                          )}
-                        </Col>
-                      </Row>
+
                       <Row>
                         <Col xs="9">Half Day - Missed Entry</Col>
                         <Col xs="3" className="text-end">
@@ -716,9 +737,9 @@ export default function Salary() {
                         >
                           <FontAwesomeIcon icon={faFaceSmile} className="text-warning" />{" "}
                           {`Did overtime on ${item.day}`}
-                          <sup>{nth(item.day)}</sup> {`for ${formatMinutes(item.by)}`}
+                          <sup>{nth(item.day)}</sup> {`(${item.blocks} blocks) for ${formatMinutes(item.by)}`}
                           <p className="small text-color-50 mb-0" style={{ marginTop: -4 }}>
-                            Exit at {item.time}
+                            Exit at {item.time} instead of {item.actualTime}
                           </p>
                         </li>
                       );

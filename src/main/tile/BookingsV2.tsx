@@ -122,7 +122,7 @@ export default function BookingsV2() {
       const appointments: Booking[] = await loadAppointments();
       const groupedAppointments =
         Object.groupBy(appointments, (b) => {
-          return ((b.extendedProps.user.fname || "") + (b.extendedProps.user.lname || "")).trim();
+          return ((b.extendedProps.user.fname || "") + " " + (b.extendedProps.user.lname || "")).trim();
         }) || [];
 
       const customers = await Promise.all(
@@ -480,7 +480,7 @@ export default function BookingsV2() {
                               setSummaryShow(true);
                             }}
                           >
-                            {item.user.fname} {item.user.lname}
+                            {`${item.user.fname} ${item.user.lname}`}
                           </div>
                           <div>
                             <p className={`small text-color-50 mb-0`} style={{ marginTop: -4 }}>

@@ -64,9 +64,9 @@ const fetchEmployeeData = async (callAPIPromise: any, startDate: Date, endDate: 
   const membershipData = await callAPIPromise(membershipSoldURL);
 
   return employeeData.map((v) => {
-    const target = reportData.data.find((r: any) => r.employee.id === v.id)?.service_sales_achieved || 0;
+    const target = reportData.data?.find((r: any) => r.employee.id === v.id)?.service_sales_achieved || 0;
     const targetPercentage = Math.round((target * 100) / v.target);
-    const emp = salonReportData.data.find((r: any) => r.stylist === v.name) || {};
+    const emp = salonReportData.data?.find((r: any) => r.stylist === v.name) || {};
     const withDiscount = emp["service amount"] || 0;
     const withoutDiscount = emp["service price"] || 0;
     const tip = tipData.data.find((r: any) => r["staff name"] === v.name) || {};

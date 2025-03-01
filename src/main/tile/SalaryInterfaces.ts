@@ -3,6 +3,9 @@ import { Moment } from "moment";
 export interface DayDetail {
   day: number;
   by: number;
+  blocks?: number;
+  actualTime?: string;
+  amount?: number;
   time: string;
   ignored: boolean;
 }
