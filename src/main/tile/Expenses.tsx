@@ -13,7 +13,7 @@ interface Expense {
   "expense type": string;
   Net: number;
   Tax: number;
-  amount: number;
+  amount: string;
   "given to": string;
   description: string;
   "Payment mode": string;
@@ -103,7 +103,7 @@ export default function Expenses() {
       let total = 0;
       for (let i in data.data) {
         if (expensesToIgnore.indexOf(data.data[i]["expense type"]) === -1) {
-          total += data.data[i].amount;
+          total += Number.parseFloat(data.data[i].amount || "0");
         }
       }
       setTotal(total);
@@ -407,6 +407,6 @@ export default function Expenses() {
 
   function getTotal(arr: Expense[] | undefined) {
     if (!arr) return 0;
-    return arr.reduce((v, current) => v + current.amount, 0);
+    return arr.reduce((v, current) => v + Number.parseFloat(current.amount || "0"), 0);
   }
 }

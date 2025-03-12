@@ -188,13 +188,13 @@ export default function Sale2() {
         }
         const values = data.data.reduce(
           (acc: any, info: any) => {
-            acc.total += info.total;
-            acc.price += info.price;
-            acc.discount += info.discount;
-            acc.tax += info.tax;
-            acc.woTax += info["total w/o tax"];
+            acc.total += Number.parseFloat(info.total || "0");
+            acc.price += Number.parseFloat(info.price || "0");
+            acc.discount += Number.parseFloat(info.discount || "0");
+            acc.tax += Number.parseFloat(info.tax || "0");
+            acc.woTax += Number.parseFloat(info["total w/o tax"] || "0");
             if (info.type === "Tips") {
-              acc.tip += info.total;
+              acc.tip += Number.parseFloat(info.total || "0");
             }
             return acc;
           },

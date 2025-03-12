@@ -37,7 +37,7 @@ export default function PaymentMethods() {
     const len = data.length;
     let sum = 0;
     for (let i = 0; i < len; i++) {
-      sum += data[i].total;
+      sum += Number.parseFloat(data[i].total || "0");
     }
     return sum;
   }, []);
@@ -59,7 +59,7 @@ export default function PaymentMethods() {
         startDate
       )}&report_type=by_payment_mode&end_date=${formatDate(endDate)}&app_type=web`;
       const paymentSummary = (await callAPIPromise(apiURL)).data.sort((a: any, b: any) => {
-        return b.total - a.total;
+        return Number.parseFloat(b.total || "0") - Number.parseFloat(a.total || "0");
       });
       setReportData(paymentSummary);
       setTotal(calculateToday(paymentSummary));
@@ -67,7 +67,7 @@ export default function PaymentMethods() {
         singleDate
       )}&report_type=by_payment_mode&end_date=${formatDate(singleDate)}&app_type=web`;
       const dayData = (await callAPIPromise(dayApiURL)).data.sort((a: any, b: any) => {
-        return b.total - a.total;
+        return Number.parseFloat(b.total || "0") - Number.parseFloat(a.total || "0");
       });
       setDayReportData(dayData);
       setDayTotal(calculateToday(dayData));
@@ -86,7 +86,10 @@ export default function PaymentMethods() {
       for (let key in grouped) {
         const groupedByDate = _.groupBy(grouped[key], (v) => v.payment_date);
         for (let date in groupedByDate) {
-          const sum = groupedByDate[date].reduce((a: number, b: { amount: number }) => a + b.amount, 0);
+          const sum = groupedByDate[date].reduce(
+            (a: number, b: { amount: number }) => a + Number.parseFloat(b.amount || "0"),
+            0
+          );
           d.push({ key: getPaymentModeName(_paymentTypes, Number.parseInt(key)) || "", date, sum });
         }
       }
