@@ -67,8 +67,8 @@ const fetchEmployeeData = async (callAPIPromise: any, startDate: Date, endDate: 
     const target = reportData.data?.find((r: any) => r.employee.id === v.id)?.service_sales_achieved || 0;
     const targetPercentage = Math.round((target * 100) / v.target);
     const emp = salonReportData.data?.find((r: any) => r.stylist === v.name) || {};
-    const withDiscount = emp["service amount"] || 0;
-    const withoutDiscount = emp["service price"] || 0;
+    const withDiscount = Number.parseFloat(emp["service amount"] || "0");
+    const withoutDiscount = Number.parseFloat(emp["service price"] || "0");
     const tip = tipData.data.find((r: any) => r["staff name"] === v.name) || {};
     const membership = membershipData.data.find((r: any) => r.stylist === v.name) || {};
 
@@ -78,9 +78,9 @@ const fetchEmployeeData = async (callAPIPromise: any, startDate: Date, endDate: 
       completionPercentage: targetPercentage,
       withoutDiscount: withoutDiscount,
       withDiscount: withDiscount,
-      tip: tip["received tip"] || 0,
+      tip: Number.parseFloat(tip["received tip"] || "0"),
       membership: Number.parseFloat(membership["membership count"] || 0),
-      membershipTotal: membership.total || 0,
+      membershipTotal: Number.parseFloat(membership.total || "0"),
     };
   });
 };
