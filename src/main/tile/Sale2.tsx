@@ -33,8 +33,16 @@ interface DataStructure {
   end: string;
 }
 
+interface DataPointStructure {
+  title: string;
+  value: string;
+  previous?: number;
+  subTitle?: string;
+  span?: string;
+}
+
 export default function Sale2() {
-  const { callAPI } = useContext(TokenContext);
+  const { callAPI, callAPIPromise } = useContext(TokenContext);
   const initialData: DataStructure = {
     price: -1,
     discount: -1,
@@ -72,6 +80,8 @@ export default function Sale2() {
 
   const buttonState = useState(0);
   const [activeButtonState, setActiveButtonState] = buttonState;
+  const [rangeType, setRangeType] = useState("day");
+  const [categoryTotals, setCategoryTotals] = useState<DataPointStructure[]>([]);
 
   const calculateYesterday = useMemo(() => {
     // console.log("Calculating yesterday");
@@ -269,15 +279,19 @@ export default function Sale2() {
     switch (activeButtonState) {
       case 0:
         dates = calculateYesterday;
+        setRangeType("day");
         break;
       case 1:
         dates = calculateWeekDates;
+        setRangeType("week");
         break;
       case 2:
         dates = calculateFinMonthDates;
+        setRangeType("month");
         break;
       case 3:
         dates = calculateMonthDates;
+        setRangeType("month");
         break;
     }
     const { start, end, prevStart, prevEnd } = dates;
@@ -296,6 +310,40 @@ export default function Sale2() {
         startDate = addDays(startDate, 1);
       }
     }
+
+    const getCategoryReport = async (start: Date, end: Date) => {
+      const apiURL = `${API_BASE_URL}/vendor/report/sales?start_date=${formatDate(start)}&end_date=${formatDate(
+        end
+      )}&report_type=service_by_category&app_type=web&range_type=${rangeType}`;
+      const reportData = await callAPIPromise(apiURL);
+
+      const categoryAPIURL = `${API_BASE_URL}/subcategory`;
+      const categoryData = await callAPIPromise(categoryAPIURL);
+
+      const categoryReport = reportData.data.map((v: any) => {
+        const category = categoryData.data.find((c: any) => c.subcategory === v.subcategory);
+        return {
+          ...v,
+          category: category?.sac_code || "Unknown",
+        };
+      });
+
+      const hairTotal = categoryReport
+        .filter((v: any) => v.category === 2)
+        .reduce((acc: number, v: any) => acc + Number.parseFloat(v.price || "0"), 0);
+      const beautyTotal = categoryReport
+        .filter((v: any) => v.category === 1)
+        .reduce((acc: number, v: any) => acc + Number.parseFloat(v.price || "0"), 0);
+      const bothTotal = categoryReport
+        .filter((v: any) => v.category === 3)
+        .reduce((acc: number, v: any) => acc + Number.parseFloat(v.price || "0"), 0);
+
+      setCategoryTotals([
+        { title: "Hair", value: currencyFormatter.format(hairTotal), subTitle: "for " + rangeType, span: "6" },
+        { title: "Beauty", value: currencyFormatter.format(beautyTotal), subTitle: "for " + rangeType, span: "6" },
+        { title: "Both", value: currencyFormatter.format(bothTotal), subTitle: "for " + rangeType, span: "12" },
+      ]);
+    };
     // console.log(labels);
 
     getReportForDateRange(start, end, (currentData) => {
@@ -306,6 +354,7 @@ export default function Sale2() {
           new Date(previousData.start),
           new Date(previousData.end)
         );
+        getCategoryReport(start, end);
         setDisplay(currentData, previousData, activeButtonState);
         // const apiURL =
         //   activeButtonState === 0
@@ -343,6 +392,8 @@ export default function Sale2() {
     getReportForDateRange,
     getStatsReport,
     setDisplay,
+    callAPIPromise,
+    rangeType,
   ]);
 
   const refresh = () => {
@@ -554,6 +605,12 @@ export default function Sale2() {
         </DiwaCard>
         <DiwaCard varient="primary" loadingTracker={statsLoading}>
           <MultiRowDataPoint data={revenue} />
+        </DiwaCard>
+      </Col>
+
+      <Col xs={12}>
+        <DiwaCard varient="primary" loadingTracker={statsLoading}>
+          <DataPoint data={categoryTotals} />
         </DiwaCard>
       </Col>
     </Row>
