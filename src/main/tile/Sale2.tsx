@@ -330,13 +330,13 @@ export default function Sale2() {
 
       const hairTotal = categoryReport
         .filter((v: any) => v.category === 2)
-        .reduce((acc: number, v: any) => acc + Number.parseFloat(v.price || "0"), 0);
+        .reduce((acc: number, v: any) => acc + Number.parseFloat(v.total || "0"), 0);
       const beautyTotal = categoryReport
         .filter((v: any) => v.category === 1)
-        .reduce((acc: number, v: any) => acc + Number.parseFloat(v.price || "0"), 0);
+        .reduce((acc: number, v: any) => acc + Number.parseFloat(v.total || "0"), 0);
       const bothTotal = categoryReport
         .filter((v: any) => v.category === 3)
-        .reduce((acc: number, v: any) => acc + Number.parseFloat(v.price || "0"), 0);
+        .reduce((acc: number, v: any) => acc + Number.parseFloat(v.total || "0"), 0);
 
       setCategoryTotals([
         { title: "Hair", value: currencyFormatter.format(hairTotal), subTitle: "for " + rangeType, span: "6" },
