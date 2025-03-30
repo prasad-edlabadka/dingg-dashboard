@@ -379,3 +379,10 @@ select {
   position: fixed !important;
   font-family: unset !important;
 }
+
+.react-pattern-lock__point-inner {
+  background-color: var(--diwa-fg-color) !important;
+}
+.react-pattern-lock__connector {
+  background-color: var(--diwa-fg-color) !important;
+}
