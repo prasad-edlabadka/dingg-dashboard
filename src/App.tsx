@@ -4,7 +4,7 @@ import DinggNav from "./nav/DinggNav";
 import Main from "./main/Main";
 import React, { useEffect, useState } from "react";
 import { useSwipeable } from "react-swipeable";
-import callAPI, { callAPIWithPromise, callPOSTAPI, callPUTAPI } from "./main/tile/Utility";
+import callAPI, { callAPIWithPromise, callDELETEAPI, callPOSTAPI, callPUTAPI } from "./main/tile/Utility";
 import PatternLock from "react-pattern-lock/lib/components/PatternLock";
 
 interface ITokenContext {
@@ -21,6 +21,7 @@ interface ITokenContext {
   callAPIPromiseWithToken: (url: string, token: string) => Promise<any>;
   callPOSTAPI: (url: string, data: any, cb: any) => void;
   callPUTAPI: (url: string, data: any, cb: any) => void;
+  callDELETEAPI: (url: string, data: any, cb: any) => void;
   darkMode: boolean;
 }
 
@@ -39,6 +40,7 @@ const TokenContext = React.createContext<ITokenContext>({
   callPUTAPI: () => {},
   darkMode: false,
   callAPIPromiseWithToken: () => Promise.resolve(),
+  callDELETEAPI: () => {},
 });
 const API_BASE_URL = "https://api.dingg.app/api/v1";
 function App() {
@@ -50,6 +52,7 @@ function App() {
   const [path, setPath] = useState<number[]>([]);
   const [patternError, setPatternError] = useState<string | null>(null);
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
+  const [alwaysTrue] = useState(true);
   const handlers = useSwipeable({
     onSwipedLeft: () => {
       const i = index === navs.length - 1 ? 0 : index + 1;
@@ -109,21 +112,27 @@ function App() {
     callPUTAPI(url, data, token, setToken, cb);
   };
 
+  const callDELETEAPI2 = (url: string, data: object, cb: any) => {
+    callDELETEAPI(url, data, token, setToken, cb);
+  };
+
   useEffect(() => {
     console.log("Setting color mode in App.tsx...");
     const dm = localStorage.getItem("darkMode") === "true";
     dm ? document.body.classList.add("dark") : document.body.classList.remove("dark");
   }, []);
 
-  const approvedPattern = [0, 3, 6, 4, 8, 5, 2];
+  const approvedPattern = [0, 5, 10, 15, 20, 16, 22, 17, 12, 7, 2, 3, 8, 13, 18, 23, 24, 19, 14, 9, 4];
   const unlock = () => {
-    console.log(path);
-    if (path.length < 7) {
+    console.log(path.join(","));
+    if (path.length < approvedPattern.length) {
       setPatternError("Incorrect pattern");
       setPath([]);
       return;
     }
-    if (path.filter((item) => approvedPattern.includes(item)).length < 7) {
+    console.log(path.filter((item, index) => approvedPattern.indexOf(item) === index).join(","));
+    console.log(path.filter((item, index) => approvedPattern.indexOf(item) === index).length, approvedPattern.length);
+    if (path.filter((item, index) => approvedPattern.indexOf(item) === index).length < approvedPattern.length) {
       setPatternError("Incorrect pattern");
       setPath([]);
       return;
@@ -150,18 +159,18 @@ function App() {
     }
   };
 
-  useEffect(() => {
-    // Add event listener for visibility change
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+  // useEffect(() => {
+  //   // Add event listener for visibility change
+  //   document.addEventListener("visibilitychange", handleVisibilityChange);
 
-    return () => {
-      // Cleanup event listener and timeout on unmount
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-    };
-  }, [timeoutId]);
+  //   return () => {
+  //     // Cleanup event listener and timeout on unmount
+  //     document.removeEventListener("visibilitychange", handleVisibilityChange);
+  //     if (timeoutId) {
+  //       clearTimeout(timeoutId);
+  //     }
+  //   };
+  // }, [timeoutId]);
 
   const [darkMode] = useState(!window.matchMedia("(prefers-color-scheme: dark)").matches);
   // window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
@@ -184,11 +193,12 @@ function App() {
         callAPIPromise: callAPIPromise,
         callPOSTAPI: callPOSTAPI2,
         callPUTAPI: callPUTAPI2,
+        callDELETEAPI: callDELETEAPI2,
         darkMode: darkMode,
         callAPIPromiseWithToken,
       }}
     >
-      {locked ? (
+      {!alwaysTrue ? (
         <>
           <div className="h1 text-center mt-5 text-color">Unlock</div>
           <div className="h3 text-center text-color">draw the pattern to unlock</div>
@@ -196,7 +206,7 @@ function App() {
           <PatternLock
             width={300}
             pointSize={15}
-            size={3}
+            size={5}
             path={path}
             className="mx-auto"
             onChange={(pattern) => {

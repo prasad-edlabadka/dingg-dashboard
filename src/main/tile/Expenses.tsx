@@ -7,6 +7,7 @@ import { TokenContext } from "../../App";
 import DiwaButtonGroup from "../../components/button/DiwaButtonGroup";
 import DiwaCard from "../../components/card/DiwaCard";
 import DiwaPaginationButton from "../../components/button/DiwaPaginationButton";
+import { set } from "lodash";
 
 interface Expense {
   date: string;
@@ -19,10 +20,11 @@ interface Expense {
   "Payment mode": string;
   location: string;
   branch: string;
+  id?: number;
 }
 
 export default function Expenses() {
-  const { callAPI, callPOSTAPI, employeeName } = useContext(TokenContext);
+  const { callAPI, callPOSTAPI, employeeName, callAPIPromise, callDELETEAPI } = useContext(TokenContext);
   const [expenseData, setExpenseData] = useState<Partial<Record<string, Expense[]>>>({});
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(-1);
@@ -47,6 +49,8 @@ export default function Expenses() {
   const [clicked, setClicked] = useState(false);
   const [accounts, setAccounts] = useState<any[]>([]);
   const [paymentModes, setPaymentModes] = useState<any[]>([]);
+  const [isDayExpense, setIsDayExpense] = useState(false);
+  const [refreshMe, setRefreshMe] = useState(false);
 
   const expensesToIgnore = useMemo(() => ["Cash transfer to hub"], []);
   const API_BASE_URL = "https://api.dingg.app/api/v1";
@@ -94,48 +98,108 @@ export default function Expenses() {
   };
 
   useEffect(() => {
-    setLoading(true);
-    const apiURL = `${API_BASE_URL}/vendor/report/sales?start_date=${formatDate(
-      startDate
-    )}&report_type=by_expense&end_date=${formatDate(endDate)}&locations=null&app_type=web`;
-    callAPI(apiURL, (data: any) => {
-      setExpenseData(Object.groupBy(data.data, (v: Expense) => v["expense type"]));
+    const doIt = async () => {
+      setLoading(true);
+      const expenseTypesURL = `${API_BASE_URL}/vendor/expense/type`;
+      const expenseTypesData = await callAPIPromise(expenseTypesURL);
+      const mappedExpenseTypes = expenseTypesData.data.map((v: { id: string; name: string }) => {
+        return { id: v.id, name: v.name };
+      });
+      setExpenseTypes(mappedExpenseTypes);
+      // callAPI(expenseTypesURL, (data: any) => {
+      //   setExpenseTypes(
+      //     data.data.map((v: { id: string; name: string }) => {
+      //       return { id: v.id, name: v.name };
+      //     })
+      //   );
+      // });
+      let mappedExpenseData: any[] = [];
+      if (isDayExpense) {
+        const apiURL = `${API_BASE_URL}/vendor/expenses?date==${formatDate(startDate)}`;
+        const expenseData = await callAPIPromise(apiURL);
+        mappedExpenseData = expenseData.data.map((v: any) => {
+          return {
+            date: v.date,
+            "expense type": v.expense_type.name,
+            amount: v.amount,
+            Net: v.net,
+            Tax: v.tax,
+            "given to": v.given_to,
+            description: v.desc,
+            "Payment mode": mappedExpenseTypes.find((x: any) => x.id === v.mode)?.name,
+            location: "",
+            branch: "",
+            id: v.id,
+          };
+        });
+      } else {
+        const apiURL = `${API_BASE_URL}/vendor/report/sales?start_date=${formatDate(
+          startDate
+        )}&report_type=by_expense&end_date=${formatDate(endDate)}&locations=null&app_type=web`;
+        const expenseData = await callAPIPromise(apiURL);
+        mappedExpenseData = expenseData.data;
+      }
+
+      setExpenseData(Object.groupBy(mappedExpenseData, (v: Expense) => v["expense type"]));
       let total = 0;
-      for (let i in data.data) {
-        if (expensesToIgnore.indexOf(data.data[i]["expense type"]) === -1) {
-          total += Number.parseFloat(data.data[i].amount || "0");
+      for (let i in mappedExpenseData) {
+        if (expensesToIgnore.indexOf(mappedExpenseData[i]["expense type"]) === -1) {
+          total += Number.parseFloat(mappedExpenseData[i].amount || "0");
         }
       }
       setTotal(total);
       setLoading(false);
-    });
 
-    const expenseTypesURL = `${API_BASE_URL}/vendor/expense/type`;
-    callAPI(expenseTypesURL, (data: any) => {
-      setExpenseTypes(
-        data.data.map((v: { id: string; name: string }) => {
-          return { id: v.id, name: v.name };
-        })
-      );
-    });
+      // setExpenseData(Object.groupBy(mappedExpenseData, (v: Expense) => v["expense type"]));
+      // callAPI(apiURL, (data: any) => {
+      //   setExpenseData(Object.groupBy(data.data, (v: Expense) => v["expense type"]));
+      //   let total = 0;
+      //   for (let i in data.data) {
+      //     if (expensesToIgnore.indexOf(data.data[i]["expense type"]) === -1) {
+      //       total += Number.parseFloat(data.data[i].amount || "0");
+      //     }
+      //   }
+      //   setTotal(total);
 
-    callAPI(`${API_BASE_URL}/payment_mode`, (data: any) => {
-      const pm = [];
-      pm.push({ name: "Bank Transfer", value: data.data.find((v: any) => v.name === "ONLINE").value });
-      pm.push({ name: "Cash", value: data.data.find((v: any) => v.name === "CASH").value });
-      pm.push({ name: "UPI", value: data.data.find((v: any) => v.name === "UPI").value });
-      setPaymentModes(pm);
-    });
+      //   setLoading(false);
+      // });
+      // } else {
+      //   const apiURL = `${API_BASE_URL}/vendor/report/sales?start_date=${formatDate(
+      //     startDate
+      //   )}&report_type=by_expense&end_date=${formatDate(endDate)}&locations=null&app_type=web`;
+      //   callAPI(apiURL, (data: any) => {
+      //     setExpenseData(Object.groupBy(data.data, (v: Expense) => v["expense type"]));
+      //     let total = 0;
+      //     for (let i in data.data) {
+      //       if (expensesToIgnore.indexOf(data.data[i]["expense type"]) === -1) {
+      //         total += Number.parseFloat(data.data[i].amount || "0");
+      //       }
+      //     }
+      //     setTotal(total);
 
-    callAPI(`${API_BASE_URL}/vendor/account/list`, (data: any) => {
-      const acc = data.data.map((v: { id: string; name: string }) => {
-        return { id: v.id, name: v.name };
+      //     setLoading(false);
+      //   });
+      // }
+
+      callAPI(`${API_BASE_URL}/payment_mode`, (data: any) => {
+        const pm = [];
+        pm.push({ name: "Bank Transfer", value: data.data.find((v: any) => v.name === "ONLINE").value });
+        pm.push({ name: "Cash", value: data.data.find((v: any) => v.name === "CASH").value });
+        pm.push({ name: "UPI", value: data.data.find((v: any) => v.name === "UPI").value });
+        setPaymentModes(pm);
       });
-      // acc.push(data.data.find((v: any) => v.name === "ICICI").id);
-      // acc.push(data.data.find((v: any) => v.name === "Petty cash").id);
-      setAccounts(acc);
-    });
-  }, [startDate, endDate, expensesToIgnore, callAPI]);
+
+      callAPI(`${API_BASE_URL}/vendor/account/list`, (data: any) => {
+        const acc = data.data.map((v: { id: string; name: string }) => {
+          return { id: v.id, name: v.name };
+        });
+        // acc.push(data.data.find((v: any) => v.name === "ICICI").id);
+        // acc.push(data.data.find((v: any) => v.name === "Petty cash").id);
+        setAccounts(acc);
+      });
+    };
+    doIt();
+  }, [startDate, endDate, expensesToIgnore, callAPI, refreshMe]);
 
   const refresh = () => {
     setStartDate(startOfMonth(new Date()));
@@ -147,12 +211,15 @@ export default function Expenses() {
     if (duration === "day") {
       setStartDate(new Date());
       setEndDate(new Date());
+      setIsDayExpense(true);
     } else if (duration === "week") {
       setStartDate(getFirstDayOfWeek(new Date()));
       setEndDate(new Date());
+      setIsDayExpense(false);
     } else if (duration === "month") {
       setStartDate(startOfMonth(new Date()));
       setEndDate(new Date());
+      setIsDayExpense(false);
     }
   };
 
@@ -223,6 +290,19 @@ export default function Expenses() {
     console.log(id, accounts);
     const account = accounts.find((v) => v.id === id);
     return account ? account.name : "";
+  };
+
+  const handleDeleteExpense = (expense: Expense) => {
+    if (!window.confirm(`Are you sure you want to delete this expense?`)) return;
+
+    const apiURL = `${API_BASE_URL}/vendor/expense?id=${expense.id}&date=${expense.date}`;
+    callDELETEAPI(apiURL, {}, (response: any) => {
+      if (response.success) {
+        setRefreshMe(!refreshMe);
+      } else {
+        alert("Failed to delete expense: " + response.message);
+      }
+    });
   };
 
   return (
@@ -375,14 +455,26 @@ export default function Expenses() {
                   {val?.map((item, index2) => {
                     return (
                       <li
-                        className="list-group-item bg-transparent text-color border-color ps-0"
+                        className="list-group-item bg-transparent text-color border-color ps-0 pe-0"
                         key={keyName + "item" + index2}
                       >
-                        <div className="w-100 pe-2 pb-2">
+                        <div className="w-100 pe-0 pb-2">
                           <div className="text-start d-inline h5">
                             {currencyFormatter.format(Number(item["amount"]))}
                           </div>
-                          <div className="text-end d-inline float-end">{item["date"]}</div>
+                          <div className="text-end d-inline float-end">
+                            <span>{item["date"]}</span>
+                            {isDayExpense && (
+                              <Button
+                                variant="outline-danger"
+                                size="sm"
+                                className="ms-2 delete-button"
+                                onClick={() => handleDeleteExpense(item)}
+                              >
+                                <Icon.Trash />
+                              </Button>
+                            )}
+                          </div>
                         </div>
                         <p className="small text-color-50 mb-0" style={{ marginTop: -4 }}>
                           {item["description"]}

@@ -47,6 +47,10 @@ export function callPOSTAPI(url: string, data: object, token: string | null, set
   callDataAPI("POST", url, data, token, setToken, cb);
 }
 
+export function callDELETEAPI(url: string, data: object, token: string | null, setToken: any, cb: any) {
+  callDataAPI("DELETE", url, data, token, setToken, cb);
+}
+
 function callDataAPI(method: string, url: string, data: object, token: string | null, setToken: any, cb: any) {
   const requestMetadata = {
     method: method,

@@ -33,7 +33,7 @@ export default function Balance() {
 
   const [reload, setReload] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [pnl, setPnl] = useState([]);
+  const [pnl, setPnl] = useState<any[]>([]);
   const [show, setShow] = useState(false);
   const fromAccount = useRef<HTMLSelectElement>(null);
   const transferDate = useRef<HTMLInputElement>(null);
@@ -50,6 +50,7 @@ export default function Balance() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [showTransactions, setShowTransactions] = useState(false);
   const [expenseDescriptions, setExpenseDescriptions] = useState<TransactionExpense[]>([]);
+  const [selectedAccountName, setSelectedAccountName] = useState("");
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -164,8 +165,7 @@ export default function Balance() {
       )}&end_date=${formatDate(endDate)}&limit=100&page=1`;
       const transactions = await callAPIPromise(apiURL);
       console.log(transactions.data);
-      console.log(JSON.stringify(transactions.data[0]));
-      setTransactions(transactions.data);
+      setTransactions(transactions.data || []);
     };
     fetchData();
   }, [selectedAccount, callAPIPromise]);
@@ -327,6 +327,8 @@ export default function Balance() {
               data={pnl}
               onClick={(id: number) => {
                 setSelectedAccount(id);
+                setSelectedAccountName(pnl.find((v) => v.id === id)?.title);
+                setTransactions([]);
                 setShowTransactions(true);
               }}
             />
@@ -345,47 +347,55 @@ export default function Balance() {
         onHide={handleTransactionsClose}
       >
         <Offcanvas.Header closeButton closeVariant="close">
-          <h5>{transactions[0]?.account_name} Account transactions</h5>
+          <h5>{selectedAccountName} Account transactions</h5>
         </Offcanvas.Header>
         <Offcanvas.Body className="pt-0">
-          <ul className="list-group list-group-flush">
-            {transactions.map((val) => {
-              return (
-                <li className="list-group-item bg-transparent text-color border-color ps-0" key={val.id}>
-                  <div className="w-100 pe-2 pb-2">
-                    <div className="text-start d-inline">
-                      {titleCase(val.transaction_type || val.type)}
-                      {val.type === "expense" && (
-                        <Icon.InfoCircle
-                          className="ms-1"
-                          style={{ marginTop: -4 }}
-                          onClick={() => loadExpenseInfo(val)}
-                        />
-                      )}
-                    </div>
-                    <div
-                      className={`text-end d-inline float-end fw-bold ${
-                        val.credit_type === "CREDIT" ? "text-success" : "text-danger"
-                      }`}
-                    >
-                      {currencyFormatter.format(val.amount * (val.credit_type === "CREDIT" ? 1 : -1))}
-                    </div>
+          {transactions.length === 0 && (
+            <div className="text-center text-color-50">
+              <Icon.InfoCircle className="mb-2" size={40} />
+              <p className="small">No transactions in last 7 days</p>
+            </div>
+          )}
+          {transactions.length > 0 && (
+            <ul className="list-group list-group-flush">
+              {transactions.map((val) => {
+                return (
+                  <li className="list-group-item bg-transparent text-color border-color ps-0" key={val.id}>
+                    <div className="w-100 pe-2 pb-2">
+                      <div className="text-start d-inline">
+                        {titleCase(val.transaction_type || val.type)}
+                        {val.type === "expense" && (
+                          <Icon.InfoCircle
+                            className="ms-1"
+                            style={{ marginTop: -4 }}
+                            onClick={() => loadExpenseInfo(val)}
+                          />
+                        )}
+                      </div>
+                      <div
+                        className={`text-end d-inline float-end fw-bold ${
+                          val.credit_type === "CREDIT" ? "text-success" : "text-danger"
+                        }`}
+                      >
+                        {currencyFormatter.format(val.amount * (val.credit_type === "CREDIT" ? 1 : -1))}
+                      </div>
 
-                    <div>
-                      <div className={`small text-color-50 text-end d-inline float-end`}>
-                        {formatDisplayDate(parse(val.date, "yyyy-MM-dd", new Date()))}
+                      <div>
+                        <div className={`small text-color-50 text-end d-inline float-end`}>
+                          {formatDisplayDate(parse(val.date, "yyyy-MM-dd", new Date()))}
+                        </div>
+                        <div className={`small text-color-50 text-start d-inline float-start`}>
+                          {val.notes}
+                          {expenseDescriptions.find((v) => v.id === val.id)?.description}
+                        </div>
                       </div>
-                      <div className={`small text-color-50 text-start d-inline float-start`}>
-                        {val.notes}
-                        {expenseDescriptions.find((v) => v.id === val.id)?.description}
-                      </div>
+                      {/* <p className="small text-color-50 mb-0" style={{ marginTop: -4 }}></p> */}
                     </div>
-                    {/* <p className="small text-color-50 mb-0" style={{ marginTop: -4 }}></p> */}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </Offcanvas.Body>
       </Offcanvas>
     </>

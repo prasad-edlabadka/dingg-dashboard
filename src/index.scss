@@ -386,3 +386,8 @@ select {
 .react-pattern-lock__connector {
   background-color: var(--diwa-fg-color) !important;
 }
+
+.delete-button {
+  background-color: var(--bs-danger) !important;
+  color: var(--bs-light) !important;
+}
