@@ -46,7 +46,7 @@ const fetchEmployeeData = async (callAPIPromise: any, startDate: Date, endDate: 
   const dinggCalculatedAPIURL = `${API_BASE_URL}/vendor/target/all?employee_ids=${empList}&time_type=monthly&start_date=${formatDate(
     startDate
   )}&end_date=${formatDate(endDate)}`;
-  const reportData = await callAPIPromise(dinggCalculatedAPIURL);
+  const targetData = await callAPIPromise(dinggCalculatedAPIURL);
 
   const salonAPIURL = `${API_BASE_URL}/vendor/report/sales?start_date=${formatDate(
     startDate
@@ -64,7 +64,7 @@ const fetchEmployeeData = async (callAPIPromise: any, startDate: Date, endDate: 
   const membershipData = await callAPIPromise(membershipSoldURL);
 
   return employeeData.map((v) => {
-    const target = reportData.data?.find((r: any) => r.employee.id === v.id)?.service_sales_achieved || 0;
+    const target = targetData.data?.find((r: any) => r.employee.id === v.id)?.service_sales_achieved || 0;
     const targetPercentage = Math.round((target * 100) / v.target);
     const emp = salonReportData.data?.find((r: any) => r.stylist === v.name) || {};
     const withDiscount = Number.parseFloat(emp["service amount"] || "0");

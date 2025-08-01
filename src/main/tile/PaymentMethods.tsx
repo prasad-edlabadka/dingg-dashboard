@@ -59,7 +59,7 @@ export default function PaymentMethods() {
         startDate
       )}&report_type=by_payment_mode&end_date=${formatDate(endDate)}&app_type=web`;
       const paymentSummary = (await callAPIPromise(apiURL)).data.sort((a: any, b: any) => {
-        return Number.parseFloat(b.total || "0") - Number.parseFloat(a.total || "0");
+        return Number.parseFloat(b["grand total"] || "0") - Number.parseFloat(a["grand total"] || "0");
       });
       setReportData(paymentSummary);
       setTotal(calculateToday(paymentSummary));
@@ -67,7 +67,7 @@ export default function PaymentMethods() {
         singleDate
       )}&report_type=by_payment_mode&end_date=${formatDate(singleDate)}&app_type=web`;
       const dayData = (await callAPIPromise(dayApiURL)).data.sort((a: any, b: any) => {
-        return Number.parseFloat(b.total || "0") - Number.parseFloat(a.total || "0");
+        return Number.parseFloat(b["grand total"] || "0") - Number.parseFloat(a["grand total"] || "0");
       });
       setDayReportData(dayData);
       setDayTotal(calculateToday(dayData));

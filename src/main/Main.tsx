@@ -50,21 +50,14 @@ function Main() {
           Welcome {employeeName}
           <p className="small mb-0">To {location}</p>
         </h4>
-        {/* <Col xs="4" className="d-flex justify-content-end align-items-center">
-                <span className="d-inline pe-2 text-color"><FontAwesomeIcon icon={faSun} className="text-color" /></span>
-                <span className="d-inline">
-                    <Form.Check // prettier-ignore
-                        type="switch"
-                        id="dark-mode-switch"
-                        className="form-control-lg pe-0"
-                        checked={darkMode}
-                        onChange={toggleDarkMode}
-                    />
-                </span>
-                <span className="d-inline text-color"><FontAwesomeIcon icon={faMoon} className="text-color" /></span>
-
-            </Col> */}
       </DiwaCard>
+      {/* <DiwaCard varient="pink" loadingTracker={false}>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7257035382036921"
+          crossOrigin="anonymous"
+        ></script>
+      </DiwaCard> */}
       {<SelectedScreen />}
     </Container>
   );

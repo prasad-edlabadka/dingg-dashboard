@@ -5,7 +5,7 @@ import DiwaCard from "../../components/card/DiwaCard";
 import { Button, Col, Form, Offcanvas, Row } from "react-bootstrap";
 import SimpleDataPoint from "./sale/SimpleDataPoint";
 import * as Icon from "react-bootstrap-icons";
-import { addDays, format, parse } from "date-fns";
+import { addDays, endOfMonth, format, parse, startOfMonth } from "date-fns";
 
 interface Transaction {
   id: number;
@@ -151,8 +151,36 @@ export default function Balance() {
       console.log("Setting from account balance to: " + accountList.data[0].current_balance);
       console.log("Setting to account balance to: " + accountList.data[0].current_balance);
       setAccounts(accountList.data);
+
+      //Code to calcualte specific slots of sale
+      const startDate = startOfMonth(new Date());
+      const salaryDate = addDays(startDate, 9);
+      const profitDate = addDays(startDate, 14);
+      const endDate = endOfMonth(new Date());
+      const salaryTotal = await getTotal(startDate, salaryDate);
+      const profitTotal = await getTotal(addDays(salaryDate, 1), profitDate);
+      const expenseTotal = await getTotal(addDays(profitDate, 1), endDate);
+
+      console.log("Salary total: " + salaryTotal);
+      console.log("Profit total: " + profitTotal);
+      console.log("Expense total: " + expenseTotal);
+
       setLoading(false);
     };
+    const getTotal = async (startDate: Date, endDate: Date) => {
+      const apiURL = `${API_BASE_URL}/vendor/report/sales?start_date=${formatDate(startDate)}&end_date=${formatDate(
+        endDate
+      )}&report_type=by_type&app_type=web`;
+      const data = await callAPIPromise(apiURL);
+      console.log("Data for total: ", data);
+      if (!data) return;
+      const total = data.data.reduce(
+        (acc: any, info: any) => (acc += Number.parseFloat(info["grand total"] || "0")),
+        0
+      );
+      return total;
+    };
+
     fetchData();
   }, [reload, callAPIPromise]);
 

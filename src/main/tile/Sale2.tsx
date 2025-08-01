@@ -19,8 +19,10 @@ import TitleWithRefresh from "./sale/TitleWithRefresh";
 import SaleRow from "./sale/SaleRow";
 import DataPoint from "./sale/DataPoint";
 import MultiRowDataPoint from "./sale/MultiRowDataPoint";
-import { Col, Row } from "react-bootstrap";
+import { Button, Col, Offcanvas, Row } from "react-bootstrap";
 import DiwaPaginationButton from "../../components/button/DiwaPaginationButton";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faClock, faThumbsUp } from "@fortawesome/free-solid-svg-icons";
 
 interface DataStructure {
   price: number;
@@ -82,6 +84,7 @@ export default function Sale2() {
   const [activeButtonState, setActiveButtonState] = buttonState;
   const [rangeType, setRangeType] = useState("day");
   const [categoryTotals, setCategoryTotals] = useState<DataPointStructure[]>([]);
+  const [tempPopup, setTempPopup] = useState(true);
 
   const calculateYesterday = useMemo(() => {
     // console.log("Calculating yesterday");
@@ -198,14 +201,15 @@ export default function Sale2() {
         }
         const values = data.data.reduce(
           (acc: any, info: any) => {
-            acc.total += Number.parseFloat(info.total || "0");
+            acc.total += Number.parseFloat(info["grand total"] || "0");
             acc.price += Number.parseFloat(info.price || "0");
             acc.discount += Number.parseFloat(info.discount || "0");
             acc.tax += Number.parseFloat(info.tax || "0");
             acc.woTax += Number.parseFloat(info["total w/o tax"] || "0");
             if (info.type === "Tips") {
-              acc.tip += Number.parseFloat(info.total || "0");
+              acc.tip += Number.parseFloat(info["grand total"] || "0");
             }
+            //console.log(acc, info, Number.parseFloat(info["grand total"] || "0"));
             return acc;
           },
           { price: 0, discount: 0, tax: 0, woTax: 0, total: 0, tip: 0, start: start.toString(), end: end.toString() }
@@ -540,6 +544,10 @@ export default function Sale2() {
   ];
 
   useEffect(() => {}, [activeButtonState, reload]);
+
+  const handleClose = () => {
+    setTempPopup(false);
+  };
 
   return (
     <Row>
