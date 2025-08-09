@@ -13,7 +13,7 @@ export default function PaymentMethods() {
   const { callAPI, callAPIPromise } = useContext(TokenContext);
   const [reportData, setReportData] = useState([{ total: 0, "payment mode": "" }]);
   const [total, setTotal] = useState(-1);
-  const [dayReportData, setDayReportData] = useState([{ total: 0, "payment mode": "", count: 0, tip: 0 }]);
+  const [dayReportData, setDayReportData] = useState([{ total: 0, "payment mode": "", count: 0, tip: "0.00" }]);
   const [dayTotal, setDayTotal] = useState(-1);
   const buttonState = useState(0);
   const todayButtonState = useState(0);
@@ -366,6 +366,7 @@ export default function PaymentMethods() {
       ) : (
         dayReportData.map((val, index) => {
           const targetPercentage = Math.round((val.total * 100) / dayTotal);
+          console.log("tip", val.tip);
           return (
             <Row
               className="text-color"
@@ -385,7 +386,7 @@ export default function PaymentMethods() {
                 </OverlayTrigger>
               </Col>
               <Col lg={4} className="d-none d-lg-block">
-                {currencyFormatter.format(val.total + val.tip)}
+                {currencyFormatter.format(val.total + Number.parseFloat(val.tip || "0"))}
               </Col>
             </Row>
           );

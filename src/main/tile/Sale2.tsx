@@ -11,6 +11,7 @@ import {
   subDays,
   format,
   isBefore,
+  differenceInDays,
 } from "date-fns";
 import { TokenContext, API_BASE_URL } from "../../App";
 import DiwaButtonGroup from "../../components/button/DiwaButtonGroup";
@@ -19,10 +20,8 @@ import TitleWithRefresh from "./sale/TitleWithRefresh";
 import SaleRow from "./sale/SaleRow";
 import DataPoint from "./sale/DataPoint";
 import MultiRowDataPoint from "./sale/MultiRowDataPoint";
-import { Button, Col, Offcanvas, Row } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 import DiwaPaginationButton from "../../components/button/DiwaPaginationButton";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faClock, faThumbsUp } from "@fortawesome/free-solid-svg-icons";
 
 interface DataStructure {
   price: number;
@@ -263,13 +262,16 @@ export default function Sale2() {
       setDisplayPreviousSale(pd);
       setDisplayVariation(getVariation(cd, pd));
       const formatStr =
-        buttonState === 0
-          ? ["dd-MMM (EEEE)"]
-          : buttonState === 1
-          ? ["dd-MMM (EEE)", "dd-MMM (EEE)"]
-          : ["dd-MMM-yyyy", "dd-MMM-yyyy"];
+        buttonState === 0 ? ["dd-MMM (EEEE)"] : buttonState === 1 ? ["dd-MMM (EEE)", "dd-MMM (EEE)"] : ["MMMM yyyy"];
+      let suffix = "";
+      if (buttonState > 1) {
+        if (differenceInDays(cd.end, endOfMonth(cd.end)) !== 0) {
+          suffix = format(cd.end, "' <i>(till' do')</i'");
+          suffix = suffix.replace(/(\d+)(st|nd|rd|th)/, "$1<sup>$2</sup>");
+        }
+      }
       setDisplaySubDuration(
-        format(cd.start, formatStr[0]) + (formatStr[1] ? " to " + format(cd.end, formatStr[1]) : "")
+        format(cd.start, formatStr[0]) + (formatStr[1] ? " to " + format(cd.end, formatStr[1]) : "") + suffix
       );
     },
     [getVariation]
@@ -290,10 +292,6 @@ export default function Sale2() {
         setRangeType("week");
         break;
       case 2:
-        dates = calculateFinMonthDates;
-        setRangeType("month");
-        break;
-      case 3:
         dates = calculateMonthDates;
         setRangeType("month");
         break;
@@ -404,9 +402,11 @@ export default function Sale2() {
     setReload(!reload);
   };
 
-  const buttonSequence = ["day", "week", "fin_month", "cal_month"];
+  // Remove finance month and calendar month from button sequence
+  const buttonSequence = ["day", "week", "month"];
   const setDuration = (duration: string) => {
-    setActiveButtonState(buttonSequence.indexOf(duration));
+    const idx = buttonSequence.indexOf(duration);
+    if (idx !== -1) setActiveButtonState(idx);
   };
 
   const variation = (current: number, previous: number) => {
@@ -422,9 +422,6 @@ export default function Sale2() {
         setWeekStart(addDays(weekStart, -7));
         break;
       case 2:
-        setFinMonthStart(new Date(finMonthStart.getFullYear(), finMonthStart.getMonth() - 1, 10));
-        break;
-      case 3:
         setMonthStart(new Date(monthStart.getFullYear(), monthStart.getMonth() - 1, 1));
         break;
       default:
@@ -442,9 +439,6 @@ export default function Sale2() {
         setWeekStart(addDays(weekStart, 7));
         break;
       case 2:
-        setFinMonthStart(new Date(finMonthStart.getFullYear(), finMonthStart.getMonth() + 1, 10));
-        break;
-      case 3:
         setMonthStart(new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 1));
         break;
       default:
@@ -462,11 +456,6 @@ export default function Sale2() {
         setWeekStart(getFirstDayOfWeek(new Date()));
         break;
       case 2:
-        setFinMonthStart(
-          new Date(today.getFullYear(), today.getDate() > 9 ? today.getMonth() : today.getMonth() - 1, 10)
-        );
-        break;
-      case 3:
         setMonthStart(new Date(today.getFullYear(), today.getMonth(), 1));
         break;
       default:
@@ -475,11 +464,11 @@ export default function Sale2() {
     setReload(!reload);
   };
 
+  // Hide Finance Month and rename Calendar Month to Month
   const buttons = [
     { title: "Today", onClick: () => setDuration("day") },
     { title: "Week", onClick: () => setDuration("week") },
-    { title: "Finance Month", onClick: () => setDuration("fin_month"), disabled: true },
-    { title: "Calendar Month", onClick: () => setDuration("cal_month") },
+    { title: "Month", onClick: () => setDuration("month") },
   ];
 
   const pnl = [
