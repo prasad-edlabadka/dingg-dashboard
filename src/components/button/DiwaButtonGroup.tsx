@@ -1,4 +1,4 @@
-import { Button, ButtonGroup } from "react-bootstrap";
+// import { Button, ButtonGroup } from "react-bootstrap";
 
 function DiwaButtonGroup({
   buttons,
@@ -15,22 +15,36 @@ function DiwaButtonGroup({
     }
   };
   return (
-    <div className="position-relative mb-3 w-100">
-      <ButtonGroup size="sm" data-testid="button-parent">
-        {buttons.map((button, index) => {
-          return (
-            <Button
-              variant={activeButtonIndex === index ? "dark" : "light"}
-              onClick={() => handleButtonClick(index, button.onClick, button.onClickParams)}
-              key={`button-${button.title}-${index}`}
-              data-testid="button"
-              disabled={button.disabled || false}
-            >
-              {button.title}
-            </Button>
-          );
-        })}
-      </ButtonGroup>
+    // <div className="position-relative mb-3 w-100">
+    //   <ButtonGroup size="sm" data-testid="button-parent">
+    //     {buttons.map((button, index) => {
+    //       return (
+    //         <Button
+    //           variant={activeButtonIndex === index ? "dark" : "light"}
+    //           onClick={() => handleButtonClick(index, button.onClick, button.onClickParams)}
+    //           key={`button-${button.title}-${index}`}
+    //           data-testid="button"
+    //           disabled={button.disabled || false}
+    //         >
+    //           {button.title}
+    //         </Button>
+    //       );
+    //     })}
+    //   </ButtonGroup>
+    // </div>
+    <div className="segmented" role="tablist" aria-label="Range">
+      {buttons.map((button, index) => {
+        return (
+          <button
+            className="seg-btn"
+            role="tab"
+            aria-selected={activeButtonIndex === index}
+            onClick={() => handleButtonClick(index, button.onClick, button.onClickParams)}
+          >
+            {button.title}
+          </button>
+        );
+      })}
     </div>
   );
 }

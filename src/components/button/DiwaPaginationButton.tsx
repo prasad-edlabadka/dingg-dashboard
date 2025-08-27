@@ -1,22 +1,31 @@
-import { Button, ButtonGroup } from "react-bootstrap";
+// import { Button, ButtonGroup } from "react-bootstrap";
 
-function DiwaPaginationButton({ previous, current, next }: { previous: () => void, current: () => void, next: () => void }) {
+function DiwaPaginationButton({
+  previous,
+  current,
+  next,
+}: {
+  previous: () => void;
+  current: () => void;
+  next: () => void;
+}) {
+  const buttons = [
+    { title: "< Prev", onClick: () => previous() },
+    { title: "Reset", onClick: () => current() },
+    { title: "Next >", onClick: () => next() },
+  ];
 
-    const buttons = [
-        { title: "< Prev", onClick: () => previous() },
-        { title: "Reset", onClick: () => current() },
-        { title: "Next >", onClick: () => next() }
-    ];
-
-    return (<div className="position-relative mb-3">
-        <ButtonGroup size="sm" data-testid="button-parent">
-            {buttons.map((button, index) => {
-                return <Button variant={`outline-color`} onClick={() => button.onClick()}
-                    key={`button-${button.title}-${index}`} data-testid="button">{button.title}</Button>
-            })
-            }
-        </ButtonGroup>
-    </div>);
+  return (
+    <div className="segmented position-relative mt-3" role="tablist" aria-label="Range">
+      {buttons.map((button, index) => {
+        return (
+          <button className="seg-btn" role="tab" aria-selected={false} onClick={() => button.onClick()}>
+            {button.title}
+          </button>
+        );
+      })}
+    </div>
+  );
 }
 
 export default DiwaPaginationButton;

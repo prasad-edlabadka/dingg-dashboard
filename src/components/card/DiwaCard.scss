@@ -1,4 +1,4 @@
-$box-shadow: 0.5rem .5rem 1rem rgba(#000, .45);
+$box-shadow: 0.5rem 0.5rem 1rem rgba(#000, 0.45);
 
 @mixin card($bg-color, $text-color, $border-color, $border-width, $border-radius, $box-shadow) {
   background-color: $bg-color !important;
@@ -52,9 +52,9 @@ $box-shadow: 0.5rem .5rem 1rem rgba(#000, .45);
 }
 
 .card {
-  box-shadow: inset 0 0 2000px #dbdbdb80;
-  backdrop-filter: blur(1rem);
-  box-shadow: 0.5rem 0.5rem 1.3rem rgba($color: #000, $alpha: 0.5) !important;
+  // box-shadow: inset 0 0 2000px #dbdbdb80;
+  backdrop-filter: blur(0.25rem);
+  // box-shadow: 0.5rem 0.5rem 1.3rem rgba($color: #000, $alpha: 0.5) !important;
   border-color: unset;
   border-top-color: rgba(var(--card-bg-color), var(--diwa-border-top-alpha));
   border-left-color: rgba(var(--card-bg-color), var(--diwa-border-left-alpha));
@@ -66,43 +66,63 @@ $box-shadow: 0.5rem .5rem 1rem rgba(#000, .45);
 
 .card.bg-danger {
   background-color: unset !important;
-  background: linear-gradient(to right bottom, rgba(var(--bs-danger-rgb), var(--background-alpha-start)), rgba(var(--bs-danger-rgb), var(--background-alpha-end)));
-  border-top-color: rgba(var(--card-bg-danger-color), var(--diwa-border-top-alpha)) !important;
-  border-left-color: rgba(var(--card-bg-danger-color), var(--diwa-border-left-alpha)) !important;
-  border-bottom-color: rgba(var(--card-bg-danger-color), var(--diwa-border-bottom-alpha)) !important;
-  border-right-color: rgba(var(--card-bg-danger-color), var(--diwa-border-right-alpha)) !important;
+  // background: linear-gradient(
+  //   to right bottom,
+  //   rgba(var(--bs-danger-rgb), var(--background-alpha-start)),
+  //   rgba(var(--bs-danger-rgb), var(--background-alpha-end))
+  // );
+  // border-top-color: rgba(var(--card-bg-danger-color), var(--diwa-border-top-alpha)) !important;
+  // border-left-color: rgba(var(--card-bg-danger-color), var(--diwa-border-left-alpha)) !important;
+  // border-bottom-color: rgba(var(--card-bg-danger-color), var(--diwa-border-bottom-alpha)) !important;
+  // border-right-color: rgba(var(--card-bg-danger-color), var(--diwa-border-right-alpha)) !important;
 }
 
 .card.bg-success {
   background-color: unset !important;
-  background: linear-gradient(to right bottom, rgba(var(--bs-success-rgb), var(--background-alpha-start)), rgba(var(--bs-success-rgb), var(--background-alpha-end)));
-  border-top-color: rgba(var(--card-bg-success-color), var(--diwa-border-top-alpha)) !important;
-  border-left-color: rgba(var(--card-bg-success-color), var(--diwa-border-left-alpha)) !important;
-  border-bottom-color: rgba(var(--card-bg-success-color), var(--diwa-border-bottom-alpha)) !important;
-  border-right-color: rgba(var(--card-bg-success-color), var(--diwa-border-right-alpha)) !important;
+  // background: linear-gradient(
+  //   to right bottom,
+  //   rgba(var(--bs-success-rgb), var(--background-alpha-start)),
+  //   rgba(var(--bs-success-rgb), var(--background-alpha-end))
+  // );
+  // border-top-color: rgba(var(--card-bg-success-color), var(--diwa-border-top-alpha)) !important;
+  // border-left-color: rgba(var(--card-bg-success-color), var(--diwa-border-left-alpha)) !important;
+  // border-bottom-color: rgba(var(--card-bg-success-color), var(--diwa-border-bottom-alpha)) !important;
+  // border-right-color: rgba(var(--card-bg-success-color), var(--diwa-border-right-alpha)) !important;
 }
 
 .card.bg-primary {
   background-color: unset !important;
-  background: linear-gradient(to right bottom, rgba(var(--bs-primary-rgb), var(--background-alpha-start)), rgba(var(--bs-primary-rgb), var(--background-alpha-end)));
-  border-top-color: rgba(var(--card-bg-primary-color), var(--diwa-border-top-alpha)) !important;
-  border-left-color: rgba(var(--card-bg-primary-color), var(--diwa-border-left-alpha)) !important;
-  border-bottom-color: rgba(var(--card-bg-primary-color), var(--diwa-border-bottom-alpha)) !important;
-  border-right-color: rgba(var(--card-bg-primary-color), var(--diwa-border-right-alpha)) !important;
+  // background: linear-gradient(
+  //   to right bottom,
+  //   rgba(var(--bs-primary-rgb), var(--background-alpha-start)),
+  //   rgba(var(--bs-primary-rgb), var(--background-alpha-end))
+  // );
+  // border-top-color: rgba(var(--card-bg-primary-color), var(--diwa-border-top-alpha)) !important;
+  // border-left-color: rgba(var(--card-bg-primary-color), var(--diwa-border-left-alpha)) !important;
+  // border-bottom-color: rgba(var(--card-bg-primary-color), var(--diwa-border-bottom-alpha)) !important;
+  // border-right-color: rgba(var(--card-bg-primary-color), var(--diwa-border-right-alpha)) !important;
 }
 
 .card.bg-warning {
   background-color: unset !important;
-  background: linear-gradient(to right bottom, rgba(var(--bs-warning-rgb), var(--background-alpha-start)), rgba(var(--bs-warning-rgb), var(--background-alpha-end)));
-  border-top-color: rgba(var(--card-bg-warning-color), var(--diwa-border-top-alpha)) !important;
-  border-left-color: rgba(var(--card-bg-warning-color), var(--diwa-border-left-alpha)) !important;
-  border-bottom-color: rgba(var(--card-bg-warning-color), var(--diwa-border-bottom-alpha)) !important;
-  border-right-color: rgba(var(--card-bg-warning-color), var(--diwa-border-right-alpha)) !important;
+  // background: linear-gradient(
+  //   to right bottom,
+  //   rgba(var(--bs-warning-rgb), var(--background-alpha-start)),
+  //   rgba(var(--bs-warning-rgb), var(--background-alpha-end))
+  // );
+  // border-top-color: rgba(var(--card-bg-warning-color), var(--diwa-border-top-alpha)) !important;
+  // border-left-color: rgba(var(--card-bg-warning-color), var(--diwa-border-left-alpha)) !important;
+  // border-bottom-color: rgba(var(--card-bg-warning-color), var(--diwa-border-bottom-alpha)) !important;
+  // border-right-color: rgba(var(--card-bg-warning-color), var(--diwa-border-right-alpha)) !important;
 }
 
 .card.bg-dark {
   background-color: unset !important;
-  background: linear-gradient(to right bottom, rgba(var(--bs-dark-rgb), var(--background-alpha-start)), rgba(var(--bs-dark-rgb), var(--background-alpha-end)));
+  background: linear-gradient(
+    to right bottom,
+    rgba(var(--bs-dark-rgb), var(--background-alpha-start)),
+    rgba(var(--bs-dark-rgb), var(--background-alpha-end))
+  );
   border-top-color: rgba(var(--card-bg-dark-color), var(--diwa-border-top-alpha)) !important;
   border-left-color: rgba(var(--card-bg-dark-color), var(--diwa-border-left-alpha)) !important;
   border-bottom-color: rgba(var(--card-bg-dark-color), var(--diwa-border-bottom-alpha)) !important;
@@ -111,7 +131,11 @@ $box-shadow: 0.5rem .5rem 1rem rgba(#000, .45);
 
 .card.bg-indigo {
   background-color: unset !important;
-  background: linear-gradient(to right bottom, rgba(var(--bs-primary-rgb), var(--background-alpha-start)), rgba(var(--bs-primary-rgb), var(--background-alpha-end)));
+  background: linear-gradient(
+    to right bottom,
+    rgba(var(--bs-primary-rgb), var(--background-alpha-start)),
+    rgba(var(--bs-primary-rgb), var(--background-alpha-end))
+  );
   border-top-color: rgba(var(--card-bg-indigo-color), var(--diwa-border-top-alpha)) !important;
   border-left-color: rgba(var(--card-bg-indigo-color), var(--diwa-border-left-alpha)) !important;
   border-bottom-color: rgba(var(--card-bg-indigo-color), var(--diwa-border-bottom-alpha)) !important;
@@ -120,7 +144,11 @@ $box-shadow: 0.5rem .5rem 1rem rgba(#000, .45);
 
 .card.bg-purple {
   background-color: unset !important;
-  background: linear-gradient(to right bottom, rgba(#6610f2, var(--background-alpha-start)), rgba(#6610f2, var(--background-alpha-end)));
+  background: linear-gradient(
+    to right bottom,
+    rgba(#6610f2, var(--background-alpha-start)),
+    rgba(#6610f2, var(--background-alpha-end))
+  );
   border-top-color: rgba(var(--card-bg-purple-color), var(--diwa-border-top-alpha)) !important;
   border-left-color: rgba(var(--card-bg-purple-color), var(--diwa-border-left-alpha)) !important;
   border-bottom-color: rgba(var(--card-bg-purple-color), var(--diwa-border-bottom-alpha)) !important;
@@ -129,7 +157,11 @@ $box-shadow: 0.5rem .5rem 1rem rgba(#000, .45);
 
 .card.bg-pink {
   background-color: unset !important;
-  background: linear-gradient(to right bottom, rgba(219, 120, 121, var(--background-alpha-start)), rgba(219, 120, 121, var(--background-alpha-end)));
+  background: linear-gradient(
+    to right bottom,
+    rgba(219, 120, 121, var(--background-alpha-start)),
+    rgba(219, 120, 121, var(--background-alpha-end))
+  );
   border-top-color: rgba(var(--card-bg-diwa-color), var(--diwa-border-top-alpha)) !important;
   border-left-color: rgba(var(--card-bg-diwa-color), var(--diwa-border-left-alpha)) !important;
   border-bottom-color: rgba(var(--card-bg-diwa-color), var(--diwa-border-bottom-alpha)) !important;

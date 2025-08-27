@@ -1,9 +1,11 @@
 import { Col, Row } from "react-bootstrap";
-import BookingsV2 from "./tile/BookingsV2";
-import Sale2 from "./tile/Sale2";
+// import BookingsV2 from "./tile/BookingsV2";
+// import Sale2 from "./tile/Sale2";
+import SaleModern from "./tile/SaleModern";
+import ModernBooking from "./tile/ModernBooking";
 
 export default function Tiles() {
-  const tileList = [Sale2];
+  const tileList = [SaleModern];
   return (
     <div>
       <Row>
@@ -13,8 +15,8 @@ export default function Tiles() {
           </Col>
         ))}
 
-        <Col xs={12} md={7} className="gy-4 gx-4">
-          <BookingsV2 key={"tile999"} />
+        <Col xs={12} md={7} className="gy-2 gx-4">
+          <ModernBooking key={"tile999"} />
         </Col>
       </Row>
       <Row>

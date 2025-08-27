@@ -112,23 +112,19 @@ function HeadingWithRefresh({
   );
 
   return (
-    <Row>
+    <Row className="customer-card-container">
       <Col lg="12" xs="12">
-        <div className="position-relative today rounded">
-          <h5 className="text-light ">Customers {displayDate}</h5>
-          <div
-            className="position-absolute top-0 end-0"
-            style={{ marginTop: -12, marginRight: 30 }}
-            data-testid="calendar-button-div"
-          >
+        <div className="heading-bar-customers">
+          <h5 className="heading-title">Customers {displayDate}</h5>
+          <div className="customers-actions">
             <Button
               variant="indigo"
-              className={`text-color`}
+              className="calendar-btn"
               size="lg"
               onClick={() => setShowDatePicker(true)}
               data-testid="date-selector-button"
             >
-              <Icon.Calendar2Date data-testid="calendar-icon" className="text-light" />
+              <Icon.Calendar2Date data-testid="calendar-icon" className="icon" />
             </Button>
             <DatePicker
               value={date}
@@ -150,9 +146,8 @@ function HeadingWithRefresh({
               dateConfig={dateConfig}
               headerFormat="DD-MM-YYYY"
             />
+            <DiwaRefreshButton refresh={onRefresh} className="refresh-btn" />
           </div>
-
-          <DiwaRefreshButton refresh={onRefresh} className="text-light" />
         </div>
       </Col>
     </Row>

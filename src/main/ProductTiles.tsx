@@ -1,9 +1,11 @@
 import { Col, Row } from "react-bootstrap";
-import Consumption from "./tile/Consumption";
-import Stock from "./tile/Stock";
+// import Consumption from "./tile/Consumption";
+// import Stock from "./tile/Stock";
+import ModernStock from "./tile/ModernStock";
+import ModernConsumption from "./tile/ModernConsumption";
 
 export default function ProductTiles() {
-  const tileList = [Stock, Consumption];
+  const tileList = [ModernStock, ModernConsumption];
 
   return (
     <div>
