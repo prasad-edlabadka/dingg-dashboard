@@ -5,6 +5,7 @@ import * as Icon from "react-bootstrap-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpa, faTicket, faMoneyBill1, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import { TokenContext, API_BASE_URL } from "../../App";
+import "../../utils";
 import DiwaCard from "../../components/card/DiwaCard";
 import BillItem from "./booking/BillItem";
 import HeadingWithRefresh from "./booking/HeadingWithRefresh";

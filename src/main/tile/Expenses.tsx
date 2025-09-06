@@ -3,7 +3,8 @@ import { Accordion, Button, ButtonGroup, Col, Form, Offcanvas, Row } from "react
 import { currencyFormatter, formatDate, formatDisplayDate, getFirstDayOfWeek } from "./Utility";
 import { addDays, addMonths, endOfWeek, startOfMonth, endOfMonth, format } from "date-fns";
 import * as Icon from "react-bootstrap-icons";
-import { TokenContext } from "../../App";
+import { TokenContext, API_BASE_URL } from "../../App";
+import "../../utils";
 import DiwaButtonGroup from "../../components/button/DiwaButtonGroup";
 import DiwaCard from "../../components/card/DiwaCard";
 import DiwaPaginationButton from "../../components/button/DiwaPaginationButton";
@@ -52,7 +53,6 @@ export default function Expenses() {
   const [refreshMe, setRefreshMe] = useState(false);
 
   const expensesToIgnore = useMemo(() => ["Cash transfer to hub"], []);
-  const API_BASE_URL = "https://api.dingg.app/api/v1";
 
   const createExpense = (e: any) => {
     e.preventDefault();

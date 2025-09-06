@@ -241,14 +241,23 @@ export default function ModernBalance() {
         <div className="d-flex align-items-top pb-2 mb-2 mt-3 text-color" style={{ gap: "12px" }}>
           <h2 className="panel-title text-color mb-0" style={{ flex: 1 }}>
             Account Balance
-            <p className="panel-sub small text-color-danger-50 mb-1">
-              Total money available: {currencyFormatter.format(totalBalance)}
-            </p>
           </h2>
-          <button type="button" className="icon-btn refresh me-2" aria-label="Add Expense" onClick={() => handleShow()}>
+          <button
+            type="button"
+            className="icon-btn refresh me-2"
+            style={{ marginTop: -8 }}
+            aria-label="Add Expense"
+            onClick={() => handleShow()}
+          >
             <Icon.PlusLg />
           </button>
-          <button type="button" className="icon-btn refresh" aria-label="Refresh" onClick={() => setReload(!reload)}>
+          <button
+            type="button"
+            className="icon-btn refresh"
+            style={{ marginTop: -8 }}
+            aria-label="Refresh"
+            onClick={() => setReload(!reload)}
+          >
             <Icon.ArrowClockwise />
           </button>
           <Offcanvas
@@ -346,6 +355,11 @@ export default function ModernBalance() {
               </Form>
             </Offcanvas.Body>
           </Offcanvas>
+        </div>
+
+        <div className={`kpi ${totalBalance > 0 ? "positive" : "negative"} mb-3`} key={"kpi-total"}>
+          <div className="kpi-title">Total Money Available</div>
+          <div className={`kpi-value big-value`}>{currencyFormatter.format(totalBalance)}</div>
         </div>
 
         <div className="kpi-grid mb-2">
