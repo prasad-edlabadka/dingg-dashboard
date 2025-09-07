@@ -14,7 +14,7 @@ export default function ModernPaymentMethods() {
   const { callAPI, callAPIPromise } = useContext(TokenContext);
   const [reportData, setReportData] = useState([{ total: 0, "payment mode": "" }]);
   const [total, setTotal] = useState(-1);
-  const [dayReportData, setDayReportData] = useState([{ total: 0, "payment mode": "", count: 0, tip: "0.00" }]);
+  const [dayReportData, setDayReportData] = useState([{ total: "0.00", "payment mode": "", count: 0, tip: "0.00" }]);
   const [dayTotal, setDayTotal] = useState(-1);
   const buttonState = useState(0);
   const todayButtonState = useState(0);
@@ -244,6 +244,7 @@ export default function ModernPaymentMethods() {
         <div className="d-flex align-items-top pb-2 mb-2 mt-3 text-color" style={{ gap: "12px" }}>
           <h2 className="panel-title text-color mb-0" style={{ flex: 1 }}>
             Payments for {startDate.toLocaleDateString("en-GB", { month: "long" })}
+            <p className="panel-sub small mb-0 text-color-50">Total: {currencyFormatter.format(total)}</p>
           </h2>
           <DiwaRefreshButton refresh={() => refresh()} containerStyle={{ marginTop: 24, marginRight: 12 }} />
         </div>
@@ -369,11 +370,21 @@ export default function ModernPaymentMethods() {
             );
           })
         )}
+
         <div className="mt-2">&nbsp;</div>
         <DiwaButtonGroup buttons={todayButtons} state={todayButtonState} />
         <div className="d-flex align-items-top pb-2 mb-2 mt-3 text-color" style={{ gap: "12px" }}>
           <h2 className="panel-title text-color mb-0" style={{ flex: 1 }}>
             Payments for {todayButtons[todayButtonState[0]].title}
+            <p className="panel-sub small mb-0 text-color-50">
+              Total:{" "}
+              {currencyFormatter.format(
+                dayReportData.reduce(
+                  (a: number, b: any) => a + (Number.parseFloat(b.total || 0) + Number.parseFloat(b.tip || "0")),
+                  0
+                )
+              )}
+            </p>
           </h2>
         </div>
 
@@ -387,8 +398,15 @@ export default function ModernPaymentMethods() {
           </div>
         ) : (
           dayReportData.map((val, index) => {
-            const targetPercentage = Math.round((val.total * 100) / dayTotal);
-            console.log("tip", val.tip);
+            const targetPercentage = Math.round((Number.parseFloat(val.total) * 100) / dayTotal);
+            console.log(
+              "tip",
+              val.tip,
+              "total",
+              val.total,
+              "final",
+              currencyFormatter.format(Number.parseFloat(val.total) + Number.parseFloat(val.tip || "0"))
+            );
             return (
               <Row
                 className="text-color mx-0"
@@ -399,7 +417,7 @@ export default function ModernPaymentMethods() {
                   {getPaymentMethodName(val["payment mode"])}
                 </Col>
                 <Col xs={7} className="d-lg-none text-end align-bottom">
-                  {currencyFormatter.format(val.total)}{" "}
+                  {currencyFormatter.format(Number.parseFloat(val.total) + Number.parseFloat(val.tip || "0"))}{" "}
                   <span className="small text-color-50">({val.count} payments)</span>
                 </Col>
                 <Col lg={4} className="mt-2">
@@ -408,7 +426,7 @@ export default function ModernPaymentMethods() {
                   </OverlayTrigger>
                 </Col>
                 <Col lg={4} className="d-none d-lg-block">
-                  {currencyFormatter.format(val.total + Number.parseFloat(val.tip || "0"))}
+                  {currencyFormatter.format(Number.parseFloat(val.total) + Number.parseFloat(val.tip || "0"))}
                 </Col>
               </Row>
             );
