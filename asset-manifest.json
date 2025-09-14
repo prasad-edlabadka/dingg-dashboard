@@ -1,22 +1,22 @@
 {
   "files": {
-    "main.css": "/dingg-dashboard/static/css/main.4899f8b7.css",
-    "main.js": "/dingg-dashboard/static/js/main.de06affa.js",
-    "static/media/light-bg.png": "/dingg-dashboard/static/media/light-bg.e77c7d3d5d1037a374de.png",
-    "static/media/dark-bg.png": "/dingg-dashboard/static/media/dark-bg.c2655436f96f8557d466.png",
-    "static/media/Evergreen.otf": "/dingg-dashboard/static/media/Evergreen.9ef5bb67aa47b6292aee.otf",
-    "static/media/Flama-Medium.woff": "/dingg-dashboard/static/media/Flama-Medium.452b931a2479a1236c3a.woff",
-    "static/media/Flama-Bold.woff": "/dingg-dashboard/static/media/Flama-Bold.c1768bf65f5676e2fb66.woff",
-    "static/media/logo.png": "/dingg-dashboard/static/media/logo.f0172d226fd10b40492a.png",
-    "static/media/Flama Bold Italic.woff": "/dingg-dashboard/static/media/Flama Bold Italic.e36ed2a2896fa8c57799.woff",
-    "static/media/Flama Italic.woff": "/dingg-dashboard/static/media/Flama Italic.4aadab2cb9af0d4ffd54.woff",
-    "static/media/Flama Regular.woff": "/dingg-dashboard/static/media/Flama Regular.3a52dfa689fd2e0559f4.woff",
-    "index.html": "/dingg-dashboard/index.html",
-    "main.4899f8b7.css.map": "/dingg-dashboard/static/css/main.4899f8b7.css.map",
-    "main.de06affa.js.map": "/dingg-dashboard/static/js/main.de06affa.js.map"
+    "main.css": "/static/css/main.bfbd6d22.css",
+    "main.js": "/static/js/main.b006175d.js",
+    "static/media/light-bg.png": "/static/media/light-bg.e77c7d3d5d1037a374de.png",
+    "static/media/dark-bg.png": "/static/media/dark-bg.c2655436f96f8557d466.png",
+    "static/media/Evergreen.otf": "/static/media/Evergreen.9ef5bb67aa47b6292aee.otf",
+    "static/media/Flama-Medium.woff": "/static/media/Flama-Medium.452b931a2479a1236c3a.woff",
+    "static/media/Flama-Bold.woff": "/static/media/Flama-Bold.c1768bf65f5676e2fb66.woff",
+    "static/media/logo.png": "/static/media/logo.f0172d226fd10b40492a.png",
+    "static/media/Flama Bold Italic.woff": "/static/media/Flama Bold Italic.e36ed2a2896fa8c57799.woff",
+    "static/media/Flama Italic.woff": "/static/media/Flama Italic.4aadab2cb9af0d4ffd54.woff",
+    "static/media/Flama Regular.woff": "/static/media/Flama Regular.3a52dfa689fd2e0559f4.woff",
+    "index.html": "/index.html",
+    "main.bfbd6d22.css.map": "/static/css/main.bfbd6d22.css.map",
+    "main.b006175d.js.map": "/static/js/main.b006175d.js.map"
   },
   "entrypoints": [
-    "static/css/main.4899f8b7.css",
-    "static/js/main.de06affa.js"
+    "static/css/main.bfbd6d22.css",
+    "static/js/main.b006175d.js"
   ]
 }
