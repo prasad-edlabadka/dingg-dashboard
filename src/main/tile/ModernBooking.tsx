@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { Accordion, Button, Col, Form, Offcanvas, Row } from "react-bootstrap";
+import { Button, Col, Form, Offcanvas, Row } from "react-bootstrap";
 import { currencyFormatter, formatDate, formatDisplayDate, formatMobileNumber, formatTime } from "./Utility";
 import * as Icon from "react-bootstrap-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -9,10 +9,10 @@ import "../../utils";
 import DiwaCard from "../../components/card/DiwaCard";
 import BillItem from "./booking/BillItem";
 import HeadingWithRefresh from "./booking/HeadingWithRefresh";
-import { compareAsc, compareDesc, differenceInMonths, formatDistanceToNow, parse } from "date-fns";
-import JustHeading from "./booking/JustHeading";
+import { compareAsc, compareDesc } from "date-fns";
+// import JustHeading from "./booking/JustHeading";
 
-export default function BookingsV2() {
+export default function ModernBooking() {
   const [loading, setLoading] = useState(true);
   const [reload, setReload] = useState(false);
   const [appointmentDate, setAppointmentDate] = useState(new Date());
@@ -36,7 +36,7 @@ export default function BookingsV2() {
 
   const [bookingData, setBookingData] = useState<BookingData[]>([]);
   const [billingData, setBillingData] = useState<BillingData[]>([]);
-  const [groupedMembers, setGroupedMembers] = useState<Partial<Record<string, Customer[]>>>({});
+  // const [groupedMembers, setGroupedMembers] = useState<Partial<Record<string, Customer[]>>>({});
 
   const statusColor = ["dark", "primary", "danger", "success", "dark", "primary", "dark", "warning", "warning"];
   const statusDesc = [
@@ -50,21 +50,21 @@ export default function BookingsV2() {
     "Tentative",
     "Customer Arrived",
   ];
-  const inactiveDurationInMonths = 2;
+  // const inactiveDurationInMonths = 2;
 
   const loadMembers = useCallback(async () => {
     const memberURL = `${API_BASE_URL}/vendor/customer_list?page=1&limit=500&amount_start=0&membership_type=0&amount_start=0&is_multi_location=false`;
     const members = await callAPIPromise(memberURL);
-    const inactiveMembers: Customer[] = members.data.filter(
-      (v: Customer) =>
-        differenceInMonths(new Date(), parse(v.last_visit || "", "yyyy-MM-dd", new Date())) > inactiveDurationInMonths
-    );
-    setGroupedMembers(
-      Object.groupBy(
-        inactiveMembers,
-        (v) => `${formatDistanceToNow(parse(v.last_visit || "", "yyyy-MM-dd", new Date()), { addSuffix: true })}`
-      )
-    );
+    // const inactiveMembers: Customer[] = members.data.filter(
+    //   (v: Customer) =>
+    //     differenceInMonths(new Date(), parse(v.last_visit || "", "yyyy-MM-dd", new Date())) > inactiveDurationInMonths
+    // );
+    // setGroupedMembers(
+    //   Object.groupBy(
+    //     inactiveMembers,
+    //     (v) => `${formatDistanceToNow(parse(v.last_visit || "", "yyyy-MM-dd", new Date()), { addSuffix: true })}`
+    //   )
+    // );
     return members;
   }, [callAPIPromise]);
 
@@ -87,6 +87,7 @@ export default function BookingsV2() {
               billmitem,
               billpkitem,
               billvitems,
+              billppitems,
               bill_tips,
               price,
               discount,
@@ -100,6 +101,7 @@ export default function BookingsV2() {
             bill.vouchers = billvitems;
             bill.tips = bill_tips || [];
             bill.payments = { price, discount, tax, total };
+            bill.prepaid = billppitems || [];
             //Check if user is a member
             bill.user.is_member = members.data.some((m: { user_id: any }) => m.user_id === bill.user.id);
             return bill;
@@ -112,10 +114,14 @@ export default function BookingsV2() {
   );
 
   const loadAppointments = useCallback(async () => {
-    // const bookingDate = appointmentDate;
-    const apiURL = `${API_BASE_URL}/calender/booking?date=${formatDate(appointmentDate)}`;
-    const appointments = await callAPIPromise(apiURL);
-    return appointments.data;
+    try {
+      const apiURL = `${API_BASE_URL}/calender/booking?date=${formatDate(appointmentDate)}`;
+      const appointments = await callAPIPromise(apiURL);
+      return appointments?.data || [];
+    } catch (error) {
+      console.error("Error loading appointments:", error);
+      return [];
+    }
   }, [appointmentDate, callAPIPromise]);
 
   useEffect(() => {
@@ -170,6 +176,7 @@ export default function BookingsV2() {
           });
           return {
             customerName: v,
+
             start: startDate,
             end: endDate,
             desc: data[0].desc && " Because " + data[0].desc.split("reason : ")[1],
@@ -179,6 +186,9 @@ export default function BookingsV2() {
             customer: {
               id: data[0].extendedProps.user.id,
               totalBusiness: 0,
+              fname: data[0].extendedProps.user.fname,
+              lname: data[0].extendedProps.user.lname,
+              mobile: data[0].extendedProps.user.mobile,
             },
           };
         });
@@ -249,7 +259,7 @@ export default function BookingsV2() {
   type Varient = "danger" | "success" | "primary" | "warning" | "dark" | "indigo" | "purple";
 
   return (
-    <div>
+    <div className="customer-wrap">
       <HeadingWithRefresh
         date={appointmentDate}
         onRefresh={() => refresh()}
@@ -259,147 +269,202 @@ export default function BookingsV2() {
       <Row>
         {billingData.length === 0 ? (
           <Col md={12} xs={12} className="gy-2">
-            <DiwaCard varient="primary" loadingTracker={loading}>
-              <h2 className="text-color">No customers yet</h2>
-            </DiwaCard>
+            <div className="customer-card-container positive">
+              <DiwaCard
+                varient="primary"
+                loadingTracker={loading}
+                className="glass-panel customer-card green-card mt-0"
+              >
+                <div className="noise" aria-hidden />
+                <div className="d-flex flex-column align-items-center justify-content-center py-1 empty-state">
+                  <Icon.CalendarX size={40} className="mb-2 text-color-50" />
+                  <div className="h5 text-color mb-1">No customers yet</div>
+                  <div className="small text-color-50">No bookings found for this date.</div>
+                  <div className="mt-3">
+                    <Button variant="outline-color" size="sm" onClick={refresh}>
+                      Refresh
+                    </Button>
+                  </div>
+                </div>
+              </DiwaCard>
+            </div>
           </Col>
         ) : (
           billingData.map((booking, index) => {
             const cust = customerDetails.find((v) => v.id === booking.user.id)?.user_histories[0];
             return (
-              <Col md={12} xs={12} className="gy-2" key={"booking" + index}>
-                <DiwaCard varient={booking.status ? "success" : "danger"} loadingTracker={loading}>
-                  <div>
-                    <h3 className="text-color">
-                      {booking.user.is_member ? (
-                        <Icon.StarFill style={{ marginTop: -4, paddingRight: 4 }} color="gold" />
-                      ) : (
-                        ""
-                      )}
-                      <span
-                        onClick={() => {
-                          setCustomerId(booking.user.id);
-                          setSummaryShow(true);
-                        }}
-                      >
-                        {`${booking.user.fname || ""} ${booking.user.lname || ""}`.trim()} (
-                        {currencyFormatter.format(booking.payments.total)})
-                      </span>
-                      <p className="d-inline float-end small">
-                        <FontAwesomeIcon
-                          icon={faPenToSquare}
+              <Col md={12} xs={12} key={"booking" + index}>
+                <div className="customer-card-container positive">
+                  <DiwaCard varient="primary" loadingTracker={loading} className="glass-panel customer-card green-card">
+                    <div className="noise" aria-hidden />
+                    <div className="cust-card-body">
+                      {/* HEADER */}
+                      <header className="cust-head">
+                        <div className="cust-name">
+                          {booking.user.is_member ? (
+                            <Icon.StarFill style={{ marginTop: -4, paddingRight: 4 }} color="gold" />
+                          ) : null}
+                          <button
+                            type="button"
+                            className="link-reset"
+                            onClick={() => {
+                              setCustomerId(booking.user.id);
+                              setSummaryShow(true);
+                            }}
+                          >
+                            {`${booking.user.fname || ""} ${booking.user.lname || ""}`.trim()}
+                          </button>
+                        </div>
+
+                        <div className="cust-amount">{currencyFormatter.format(booking.payments.total)}</div>
+
+                        <button
+                          type="button"
+                          className="icon-btn ghost"
+                          aria-label="Edit name"
                           onClick={() => editName(booking.user.id, `${booking.user.fname}`, `${booking.user.lname}`)}
-                        />
-                      </p>
-                      <p className="d-block small mb-0 text-color-50">
-                        Spent {currencyFormatter.format(cust?.amount_spend)} in {cust?.total_visit} visits with average
-                        of {currencyFormatter.format(cust?.amount_spend / cust?.total_visit)} per visit
-                      </p>
-                      <p className="d-block small mb-0 text-color-50">
-                        Mobile:{" "}
-                        <a href={`tel:${formatMobileNumber(booking.user.mobile)}`} className="text-color-50">
-                          {formatMobileNumber(booking.user.mobile)}
+                        >
+                          <FontAwesomeIcon icon={faPenToSquare} />
+                        </button>
+                      </header>
+
+                      {/* META */}
+                      <div className="cust-meta">
+                        <div className={`${!cust?.total_visit ? "w-100" : ""}`}>
+                          {cust?.total_visit ? (
+                            `Spent ${currencyFormatter.format(cust?.amount_spend)} in ${
+                              cust?.total_visit
+                            } visits • average
+                          of ${currencyFormatter.format(
+                            (cust?.amount_spend || 0) / (cust?.total_visit || 1)
+                          )} per visit`
+                          ) : (
+                            <>
+                              No visits so far
+                              <br />
+                            </>
+                          )}
+                        </div>
+                        <a href={`tel:${formatMobileNumber(booking.user.mobile)}`} className="chip phone">
+                          <span aria-hidden>📞</span>
+                          <span>{formatMobileNumber(booking.user.mobile)}</span>
                         </a>
-                      </p>
-                    </h3>
+                      </div>
 
-                    <div className="small"></div>
-                    <ul className="list-group list-group-flush">
-                      {booking.services.map((service, index) => (
-                        <BillItem
-                          key={booking.id + "s" + index}
-                          uniqueKey={booking.id + "s" + index}
-                          name={service.vendor_service.service}
-                          employee={service.employee.name}
-                          amount={service.price * service.qty}
-                          discount={service.discount}
-                          Icon={FontAwesomeIcon}
-                          iconProps={{ icon: faSpa, className: "bill-item-icon" }}
-                        />
-                      ))}
-                      {booking.products.map((prod, index) => (
-                        <BillItem
-                          key={booking.id + "p" + index}
-                          uniqueKey={booking.id + "p" + index}
-                          name={prod.product.name}
-                          employee={prod.employee.name}
-                          amount={prod.price}
-                          discount={prod.discount}
-                          Icon={Icon.BoxSeam}
-                          iconProps={{ className: "bill-item-icon", style: { marginTop: -4 } }}
-                        />
-                      ))}
+                      {/* SERVICES */}
+                      <ul className="cust-services list-group list-group-flush">
+                        {booking.services.map((service, index) => (
+                          <BillItem
+                            key={booking.id + "s" + index}
+                            uniqueKey={booking.id + "s" + index}
+                            name={service.vendor_service.service}
+                            employee={service.employee.name}
+                            amount={service.price * service.qty}
+                            discount={service.discount}
+                            Icon={FontAwesomeIcon}
+                            iconProps={{ icon: faSpa, className: "bill-item-icon" }}
+                          />
+                        ))}
+                        {booking.products.map((prod, index) => (
+                          <BillItem
+                            key={booking.id + "p" + index}
+                            uniqueKey={booking.id + "p" + index}
+                            name={prod.product.name}
+                            employee={prod.employee.name}
+                            amount={prod.price}
+                            discount={prod.discount}
+                            Icon={Icon.BoxSeam}
+                            iconProps={{ className: "bill-item-icon", style: { marginTop: -4 } }}
+                          />
+                        ))}
 
-                      {booking.packages && (
-                        <BillItem
-                          key={booking.id + "pk" + index}
-                          uniqueKey={booking.id + "pk" + index}
-                          name={booking.packages.package.package_type.package_name}
-                          employee={booking.packages.employee.name}
-                          amount={booking.packages.price}
-                          discount={booking.packages.discount}
-                          Icon={Icon.UiChecksGrid}
-                          iconProps={{ className: "bill-item-icon", style: { marginTop: -4 } }}
-                        />
-                      )}
+                        {booking.packages && (
+                          <BillItem
+                            key={booking.id + "pk" + index}
+                            uniqueKey={booking.id + "pk" + index}
+                            name={booking.packages.package.package_type.package_name}
+                            employee={booking.packages.employee.name}
+                            amount={booking.packages.price}
+                            discount={booking.packages.discount}
+                            Icon={Icon.UiChecksGrid}
+                            iconProps={{ className: "bill-item-icon", style: { marginTop: -4 } }}
+                          />
+                        )}
 
-                      {booking.memberships && (
-                        <BillItem
-                          key={booking.id + "m" + index}
-                          uniqueKey={booking.id + "m" + index}
-                          name={booking.memberships.membership.membership_type.type}
-                          employee={booking.memberships.employee.name}
-                          amount={booking.memberships.price}
-                          discount={booking.memberships.discount}
-                          Icon={Icon.StarFill}
-                          iconProps={{ className: "bill-item-icon", style: { marginTop: -4 } }}
-                        />
-                      )}
+                        {booking.memberships && (
+                          <BillItem
+                            key={booking.id + "m" + index}
+                            uniqueKey={booking.id + "m" + index}
+                            name={booking.memberships.membership.membership_type.type}
+                            employee={booking.memberships.employee.name}
+                            amount={booking.memberships.price}
+                            discount={booking.memberships.discount}
+                            Icon={Icon.StarFill}
+                            iconProps={{ className: "bill-item-icon", style: { marginTop: -4 } }}
+                          />
+                        )}
 
-                      {booking.vouchers.map((voucher, index) => (
-                        <BillItem
-                          key={booking.id + "v" + index}
-                          uniqueKey={booking.id + "v" + index}
-                          name={voucher.voucher.voucher_type.name}
-                          employee={voucher.employee.name}
-                          amount={voucher.price}
-                          discount={voucher.discount}
-                          Icon={FontAwesomeIcon}
-                          iconProps={{ icon: faTicket, className: "bill-item-icon" }}
-                        />
-                      ))}
+                        {booking.vouchers.map((voucher, index) => (
+                          <BillItem
+                            key={booking.id + "v" + index}
+                            uniqueKey={booking.id + "v" + index}
+                            name={voucher.voucher.voucher_type.name}
+                            employee={voucher.employee.name}
+                            amount={voucher.price}
+                            discount={voucher.discount}
+                            Icon={FontAwesomeIcon}
+                            iconProps={{ icon: faTicket, className: "bill-item-icon" }}
+                          />
+                        ))}
 
-                      {booking.tips.map((tip, index) => (
-                        <BillItem
-                          key={booking.id + "tip" + index}
-                          uniqueKey={booking.id + "tip" + index}
-                          name={`Tip for ${tip.employee.name}`}
-                          employee={""}
-                          amount={tip.suggested_amount}
-                          discount={0}
-                          Icon={FontAwesomeIcon}
-                          iconProps={{ icon: faMoneyBill1, className: "bill-item-icon" }}
-                        />
-                      ))}
-                    </ul>
-                    <hr className="mt-1 mb-1 border-color" />
-                    <div className="w-100 text-color-50">
-                      {booking.status ? (
-                        <>
-                          <div className="text-start d-inline small align-top">
-                            Without discount: {currencyFormatter.format(booking.payments.price)}
-                          </div>
-                          <div className="text-end d-inline small float-end align-top">
-                            Discount: {currencyFormatter.format(booking.payments.discount)} (
-                            {Math.round((booking.payments.discount * 100) / booking.payments.price)}%)
-                          </div>
-                        </>
-                      ) : (
-                        <div className="text-start d-inline small">Cancellation Reason: {booking.cancel_reason}</div>
-                      )}
+                        {booking.tips.map((tip, index) => (
+                          <BillItem
+                            key={booking.id + "tip" + index}
+                            uniqueKey={booking.id + "tip" + index}
+                            name={`Tip for ${tip.employee.name}`}
+                            employee={""}
+                            amount={tip.suggested_amount}
+                            discount={0}
+                            Icon={FontAwesomeIcon}
+                            iconProps={{ icon: faMoneyBill1, className: "bill-item-icon" }}
+                          />
+                        ))}
+                        {booking.prepaid.map((prepaid, index) => (
+                          <BillItem
+                            key={booking.id + "pk" + index}
+                            uniqueKey={booking.id + "pk" + index}
+                            name={prepaid.voucher.voucher_type.name}
+                            employee={prepaid.employee.name}
+                            amount={prepaid.price}
+                            discount={prepaid.discount}
+                            Icon={Icon.CreditCard2FrontFill}
+                            iconProps={{ className: "bill-item-icon", style: { marginTop: -4 } }}
+                          />
+                        ))}
+                      </ul>
+
+                      {/* TOTALS */}
+                      <hr className="section-divider mt-2 mb-2" />
+                      <footer className="cust-totals">
+                        {booking.status ? (
+                          <>
+                            <div className="muted">
+                              <span className="muted">Without discount:</span>{" "}
+                              {currencyFormatter.format(booking.payments.price)}
+                            </div>
+                            <div className="right muted">
+                              <span className="muted">Discount:</span>{" "}
+                              {currencyFormatter.format(booking.payments.discount)} (
+                              {Math.round((booking.payments.discount * 100) / booking.payments.price)}%)
+                            </div>
+                          </>
+                        ) : (
+                          <div className="text-start small">Cancellation Reason: {booking.cancel_reason}</div>
+                        )}
+                      </footer>
                     </div>
-                  </div>
-                </DiwaCard>
+                  </DiwaCard>
+                </div>
               </Col>
             );
           })
@@ -410,52 +475,85 @@ export default function BookingsV2() {
           const varient = (statusColor[booking.status] || "dark") as Varient;
           return (
             <Col md={12} xs={12} className="gy-2" key={booking.customerName}>
-              <DiwaCard varient={varient} loadingTracker={loading}>
-                <div className="text-color">
-                  <h3
-                    onClick={() => {
-                      setCustomerId(booking.customer.id);
-                      setSummaryShow(true);
-                    }}
-                  >
-                    {booking.customerName} ({currencyFormatter.format(booking.billAmount)})
-                  </h3>
-                  <ul className="list-group list-group-flush">
-                    {booking.services.map((service) => {
-                      return (
-                        <li
-                          className="list-group-item bg-transparent text-color border-color ps-0"
-                          key={booking.customerName + service.name}
+              <div className="customer-card-container positive">
+                <DiwaCard varient={varient} loadingTracker={loading} className="glass-panel customer-card">
+                  <div className="noise" aria-hidden />
+                  <div className="cust-card-body">
+                    {/* HEADER */}
+                    <header className="cust-head">
+                      <div className="cust-name">
+                        <button
+                          type="button"
+                          className="link-reset"
+                          onClick={() => {
+                            setCustomerId(booking.customer.id);
+                            setSummaryShow(true);
+                          }}
                         >
-                          {service.name}
-                          <p className="small text-color-50 mb-0" style={{ marginTop: -4 }}>
-                            {service.employee}
-                          </p>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-                <hr className="mt-1 mb-1 border-color" />
-                <div className="w-100 text-color">
-                  <div className="text-start d-inline small align-top">
-                    {statusDesc[booking.status] || "Unknown"}
-                    {booking.desc}
+                          {booking.customerName}
+                        </button>
+                      </div>
+
+                      <div className="cust-amount">{currencyFormatter.format(booking.billAmount)}</div>
+
+                      <button
+                        type="button"
+                        className="icon-btn ghost"
+                        aria-label="Edit name"
+                        onClick={() =>
+                          editName(booking.customer.id, `${booking.customer.fname}`, `${booking.customer.lname}`)
+                        }
+                      >
+                        <FontAwesomeIcon icon={faPenToSquare} />
+                      </button>
+                    </header>
                   </div>
-                  <div className="text-end d-inline small float-end align-top">
-                    {formatTime(new Date(booking.start))} - {formatTime(new Date(booking.end))}
+                  {/* META */}
+                  <div className="cust-meta">
+                    <a href={`tel:${formatMobileNumber(booking.customer.mobile || "")}`} className="chip phone">
+                      <span aria-hidden>📞</span>
+                      <span>{formatMobileNumber(booking.customer.mobile || "")}</span>
+                    </a>
                   </div>
-                </div>
-              </DiwaCard>
+
+                  <div className="text-color">
+                    <ul className="cust-services list-group list-group-flush">
+                      {booking.services.map((service) => {
+                        return (
+                          <li
+                            className="list-group-item bg-transparent text-color border-color-25 ps-0"
+                            key={booking.customerName + service.name}
+                          >
+                            {service.name}
+                            <p className="small text-color-50 mb-0" style={{ marginTop: -4 }}>
+                              {service.employee}
+                            </p>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                  <hr className="mt-1 mb-1 border-color" />
+                  <div className="w-100 text-color">
+                    <div className="text-start d-inline small align-top">
+                      {statusDesc[booking.status] || "Unknown"}
+                      {booking.desc}
+                    </div>
+                    <div className="text-end d-inline small float-end align-top">
+                      {formatTime(new Date(booking.start))} - {formatTime(new Date(booking.end))}
+                    </div>
+                  </div>
+                </DiwaCard>
+              </div>
             </Col>
           );
         })}
       </Row>
-      <Row>
+      {/* <Row>
         <Col>&nbsp;</Col>
       </Row>
       <JustHeading title1="Inactive Members" />
-      <DiwaCard varient="primary" loadingTracker={loading}>
+      <DiwaCard varient="primary" loadingTracker={loading} className="glass-panel">
         {Object.keys(groupedMembers).map((keyName, index) => {
           const val = groupedMembers[keyName];
           return (
@@ -500,10 +598,10 @@ export default function BookingsV2() {
             </Accordion>
           );
         })}
-      </DiwaCard>
+      </DiwaCard> */}
       <Offcanvas
         show={show}
-        className="h-auto bg-dark text-white"
+        className="offcanvas-glass text-color"
         placement="bottom"
         backdrop={true}
         scroll={false}
@@ -511,10 +609,10 @@ export default function BookingsV2() {
         id="offcanvasBottom"
         onHide={handleClose}
       >
-        <Offcanvas.Header closeButton closeVariant="color">
+        <Offcanvas.Header closeButton closeVariant="white" className="offcanvas-head">
           <h5 className="text-color">Edit Name</h5>
         </Offcanvas.Header>
-        <Offcanvas.Body className="pt-0">
+        <Offcanvas.Body className="offcanvas-body pt-0">
           <Form className="mt-0 text-color" onSubmit={submitUpdatedName}>
             <Row className="align-items-center mb-1">
               <Col xs={6}>
@@ -544,7 +642,7 @@ export default function BookingsV2() {
             </Row>
             <Row className="align-items-center pt-3">
               <Col xs={12}>
-                <Button variant="success" className="text-light" type="submit" disabled={clicked}>
+                <Button variant="outline-color" className="offcanvas-cta" type="submit" disabled={clicked}>
                   {clicked ? "Wait..." : "Save"}
                 </Button>
               </Col>
@@ -570,7 +668,7 @@ export default function BookingsV2() {
       {/* Customer Summary */}
       <Offcanvas
         show={summaryShow}
-        className="h-auto text-color"
+        className="offcanvas-glass text-color customer-summary"
         placement="bottom"
         backdrop={true}
         scroll={false}
@@ -579,14 +677,17 @@ export default function BookingsV2() {
         onHide={handleSummaryClose}
         onShow={() => loadSummary()}
       >
-        <Offcanvas.Header closeButton closeVariant="white">
+        <Offcanvas.Header closeButton closeVariant="white" className="offcanvas-head">
           <h5>Customer Summary</h5>
         </Offcanvas.Header>
-        <Offcanvas.Body className="pt-0">
+        <Offcanvas.Body className="offcanvas-body pt-0">
           <ul className="list-group list-group-flush">
             {customerSummary.map((val, index) => {
               return (
-                <li className="list-group-item bg-transparent text-color border-color ps-0" key={val + "item" + index}>
+                <li
+                  className="list-group-item bg-transparent text-color border-color-25 ps-0"
+                  key={val + "item" + index}
+                >
                   <div className="w-100 pe-2 pb-2">
                     {val.services.split(",").map((service: string, index2: number) => {
                       return <div className="text-start d-block">{service}</div>;

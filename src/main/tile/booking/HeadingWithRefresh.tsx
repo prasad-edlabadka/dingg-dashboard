@@ -1,10 +1,11 @@
-import { Button, Col, Row } from "react-bootstrap";
+import { Button, Col, Row, Offcanvas } from "react-bootstrap";
 import DiwaRefreshButton from "../../../components/button/DiwaRefreshButton";
 import * as Icon from "react-bootstrap-icons";
-import DatePicker, { DateConfig } from "react-mobile-datepicker-ts";
-import "../../../custom-datepicker.css";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { formatDate } from "date-fns";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import "../../../custom-datepicker.css";
 
 function HeadingWithRefresh({
   date,
@@ -30,129 +31,109 @@ function HeadingWithRefresh({
       setDisplayDate("on " + formatDate(date, "dd MMM yyyy"));
     }
   };
-  const monthMap = {
-    "1": "Jan",
-    "2": "Feb",
-    "3": "Mar",
-    "4": "Apr",
-    "5": "May",
-    "6": "Jun",
-    "7": "Jul",
-    "8": "Aug",
-    "9": "Sep",
-    "10": "Oct",
-    "11": "Nov",
-    "12": "Dec",
-  };
+  // const monthMap = {
+  //   "1": "Jan",
+  //   "2": "Feb",
+  //   "3": "Mar",
+  //   "4": "Apr",
+  //   "5": "May",
+  //   "6": "Jun",
+  //   "7": "Jul",
+  //   "8": "Aug",
+  //   "9": "Sep",
+  //   "10": "Oct",
+  //   "11": "Nov",
+  //   "12": "Dec",
+  // };
 
-  const dateConfig: DateConfig[] = [
-    {
-      type: "year",
-      format: "YYYY",
-      caption: "Year",
-      step: 1,
-    },
-    {
-      type: "month",
-      format: (value: Date) => monthMap[(value.getMonth() + 1 + "") as keyof typeof monthMap],
-      caption: "Month",
-      step: 1,
-    },
-    {
-      type: "date",
-      format: "DD",
-      caption: "Day",
-      step: 1,
-    },
-  ];
+  // Month map is no longer needed with react-datepicker
 
-  function detectMobileAndOS() {
-    const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+  // function detectMobileAndOS() {
+  //   const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
 
-    // Detect Mobile
-    const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+  //   // Detect Mobile
+  //   const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
 
-    // Detect OS
-    let os: string | null = null;
+  //   // Detect OS
+  //   let os: string | null = null;
 
-    if (/windows phone/i.test(userAgent)) {
-      os = "Windows Phone";
-    } else if (/android/i.test(userAgent)) {
-      os = "Android";
-    } else if (/ipad|iphone|ipod/i.test(userAgent)) {
-      os = "iOS";
-    } else if (/macintosh/i.test(userAgent) && "ontouchend" in document) {
-      os = "iPadOS"; // iPadOS detection
-    } else if (/mac/i.test(userAgent)) {
-      os = "MacOS";
-    } else if (/win/i.test(userAgent)) {
-      os = "Windows";
-    } else if (/linux/i.test(userAgent)) {
-      os = "Linux";
-    } else {
-      os = "Unknown";
-    }
+  //   if (/windows phone/i.test(userAgent)) {
+  //     os = "Windows Phone";
+  //   } else if (/android/i.test(userAgent)) {
+  //     os = "Android";
+  //   } else if (/ipad|iphone|ipod/i.test(userAgent)) {
+  //     os = "iOS";
+  //   } else if (/macintosh/i.test(userAgent) && "ontouchend" in document) {
+  //     os = "iPadOS"; // iPadOS detection
+  //   } else if (/mac/i.test(userAgent)) {
+  //     os = "MacOS";
+  //   } else if (/win/i.test(userAgent)) {
+  //     os = "Windows";
+  //   } else if (/linux/i.test(userAgent)) {
+  //     os = "Linux";
+  //   } else {
+  //     os = "Unknown";
+  //   }
 
-    return { isMobile, os };
-  }
+  //   return { isMobile, os };
+  // }
 
-  useEffect(() => {
-    const body = document.getElementsByTagName("body")[0];
-    if (showDatePicker) {
-      body.classList.add("modal-open");
-      body.style.overflow = "hidden";
-    } else {
-      body.classList.remove("modal-open");
-      body.style.overflow = "auto";
-    }
-  }, [showDatePicker]);
+  // Body overflow is handled automatically by React Bootstrap's Offcanvas
 
-  const [isIos] = useState(
-    detectMobileAndOS().os === "iOS" || detectMobileAndOS().os === "iPadOS" || detectMobileAndOS().os === "MacOS"
-  );
+  // const [isIos] = useState(
+  //   detectMobileAndOS().os === "iOS" || detectMobileAndOS().os === "iPadOS" || detectMobileAndOS().os === "MacOS"
+  // );
 
   return (
-    <Row>
+    <Row className="customer-card-container">
       <Col lg="12" xs="12">
-        <div className="position-relative today rounded">
-          <h5 className="text-light ">Customers {displayDate}</h5>
-          <div
-            className="position-absolute top-0 end-0"
-            style={{ marginTop: -12, marginRight: 30 }}
-            data-testid="calendar-button-div"
-          >
+        <div className="heading-bar-customers">
+          <h5 className="heading-title">Customers {displayDate}</h5>
+          <div className="customers-actions">
             <Button
               variant="indigo"
-              className={`text-color`}
+              className="calendar-btn"
               size="lg"
               onClick={() => setShowDatePicker(true)}
               data-testid="date-selector-button"
             >
-              <Icon.Calendar2Date data-testid="calendar-icon" className="text-light" />
+              <Icon.Calendar2Date data-testid="calendar-icon" className="icon" />
             </Button>
-            <DatePicker
-              value={date}
-              isOpen={showDatePicker}
-              onSelect={(date: any) => {
-                calculateDisplayDate(date || new Date());
-                if (onDateChange) onDateChange(date || new Date());
-                setShowDatePicker(false);
-              }}
-              onCancel={() => {
-                setShowDatePicker(false);
-              }}
-              theme={isIos ? "ios" : "android"}
-              isPopup={true}
-              max={new Date()}
-              showHeader={true}
-              showFooter={true}
-              showCaption={true}
-              dateConfig={dateConfig}
-              headerFormat="DD-MM-YYYY"
-            />
+            <Offcanvas
+              show={showDatePicker}
+              onHide={() => setShowDatePicker(false)}
+              placement="bottom"
+              className="offcanvas-glass text-color"
+              backdrop={true}
+              scroll={false}
+              keyboard={false}
+            >
+              <Offcanvas.Header closeButton closeVariant="color" className="offcanvas-head">
+                <h5 className="text-color">Select Date</h5>
+              </Offcanvas.Header>
+              <Offcanvas.Body className="offcanvas-body pt-0">
+                <DatePicker
+                  selected={date}
+                  onChange={(newDate: Date | null) => {
+                    if (newDate) {
+                      calculateDisplayDate(newDate);
+                      if (onDateChange) onDateChange(newDate);
+                      setShowDatePicker(false);
+                    }
+                  }}
+                  inline
+                  maxDate={new Date()}
+                  showMonthDropdown
+                  showYearDropdown
+                  dropdownMode="select"
+                  dateFormat="dd MMM yyyy"
+                  monthsShown={1}
+                  calendarClassName="mobile-friendly-calendar text-color"
+                />
+              </Offcanvas.Body>
+            </Offcanvas>
+            <DiwaRefreshButton refresh={onRefresh} className="refresh-btn" />
           </div>
-
-          <DiwaRefreshButton refresh={onRefresh} className="text-light" />
         </div>
       </Col>
     </Row>

@@ -5,7 +5,7 @@ import Main from "./main/Main";
 import React, { useEffect, useState } from "react";
 import { useSwipeable } from "react-swipeable";
 import callAPI, { callAPIWithPromise, callDELETEAPI, callPOSTAPI, callPUTAPI } from "./main/tile/Utility";
-import PatternLock from "react-pattern-lock/lib/components/PatternLock";
+// import PatternLock from "react-pattern-lock/lib/components/PatternLock";
 
 interface ITokenContext {
   token: string | null;
@@ -48,10 +48,10 @@ function App() {
   const [navOption, setNavOption] = useState("home");
   const [employeeName, setEmployeeName] = useState(localStorage.getItem("employeeName"));
   const [locationName, setLocationName] = useState(localStorage.getItem("locationName"));
-  const [locked, setLocked] = useState(true);
-  const [path, setPath] = useState<number[]>([]);
-  const [patternError, setPatternError] = useState<string | null>(null);
-  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
+  // const [locked, setLocked] = useState(true);
+  // const [path, setPath] = useState<number[]>([]);
+  // const [patternError, setPatternError] = useState<string | null>(null);
+  // const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
   const [alwaysTrue] = useState(true);
   const handlers = useSwipeable({
     onSwipedLeft: () => {
@@ -122,42 +122,42 @@ function App() {
     dm ? document.body.classList.add("dark") : document.body.classList.remove("dark");
   }, []);
 
-  const approvedPattern = [0, 5, 10, 15, 20, 16, 22, 17, 12, 7, 2, 3, 8, 13, 18, 23, 24, 19, 14, 9, 4];
-  const unlock = () => {
-    console.log(path.join(","));
-    if (path.length < approvedPattern.length) {
-      setPatternError("Incorrect pattern");
-      setPath([]);
-      return;
-    }
-    console.log(path.filter((item, index) => approvedPattern.indexOf(item) === index).join(","));
-    console.log(path.filter((item, index) => approvedPattern.indexOf(item) === index).length, approvedPattern.length);
-    if (path.filter((item, index) => approvedPattern.indexOf(item) === index).length < approvedPattern.length) {
-      setPatternError("Incorrect pattern");
-      setPath([]);
-      return;
-    }
-    setLocked(false);
-    setPath([]);
-    setPatternError(null);
-  };
+  // const approvedPattern = [0, 5, 10, 15, 20, 16, 22, 17, 12, 7, 2, 3, 8, 13, 18, 23, 24, 19, 14, 9, 4];
+  // const unlock = () => {
+  //   console.log(path.join(","));
+  //   if (path.length < approvedPattern.length) {
+  //     setPatternError("Incorrect pattern");
+  //     setPath([]);
+  //     return;
+  //   }
+  //   console.log(path.filter((item, index) => approvedPattern.indexOf(item) === index).join(","));
+  //   console.log(path.filter((item, index) => approvedPattern.indexOf(item) === index).length, approvedPattern.length);
+  //   if (path.filter((item, index) => approvedPattern.indexOf(item) === index).length < approvedPattern.length) {
+  //     setPatternError("Incorrect pattern");
+  //     setPath([]);
+  //     return;
+  //   }
+  //   // setLocked(false);
+  //   setPath([]);
+  //   setPatternError(null);
+  // };
 
   // Function to handle page visibility changes
-  const handleVisibilityChange = () => {
-    if (document.hidden) {
-      // Page is in the background, start a timer
-      const id = setTimeout(() => {
-        setLocked(true); // Lock the app after 2 minutes
-      }, 2 * 60 * 1000); // 2 minutes in milliseconds
-      setTimeoutId(id);
-    } else {
-      // Page is visible, clear the timer
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-        setTimeoutId(null);
-      }
-    }
-  };
+  // const handleVisibilityChange = () => {
+  //   if (document.hidden) {
+  //     // Page is in the background, start a timer
+  //     const id = setTimeout(() => {
+  //       setLocked(true); // Lock the app after 2 minutes
+  //     }, 2 * 60 * 1000); // 2 minutes in milliseconds
+  //     setTimeoutId(id);
+  //   } else {
+  //     // Page is visible, clear the timer
+  //     if (timeoutId) {
+  //       clearTimeout(timeoutId);
+  //       setTimeoutId(null);
+  //     }
+  //   }
+  // };
 
   // useEffect(() => {
   //   // Add event listener for visibility change
@@ -202,8 +202,8 @@ function App() {
         <>
           <div className="h1 text-center mt-5 text-color">Unlock</div>
           <div className="h3 text-center text-color">draw the pattern to unlock</div>
-          {patternError && <div className="text-center bg-danger py-2 mt-3 text-white">{patternError}</div>}
-          <PatternLock
+          {/* {patternError && <div className="text-center bg-danger py-2 mt-3 text-white">{patternError}</div>} */}
+          {/* <PatternLock
             width={300}
             pointSize={15}
             size={5}
@@ -213,7 +213,7 @@ function App() {
               setPath(pattern);
             }}
             onFinish={unlock}
-          />
+          /> */}
         </>
       ) : (
         <div {...handlers}>

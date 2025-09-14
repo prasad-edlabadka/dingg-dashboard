@@ -8,12 +8,13 @@ import DiwaCard from "../../components/card/DiwaCard";
 import DiwaRefreshButton from "../../components/button/DiwaRefreshButton";
 import _ from "lodash";
 import moment from "moment";
+import * as Icon from "react-bootstrap-icons";
 
-export default function PaymentMethods() {
+export default function ModernPaymentMethods() {
   const { callAPI, callAPIPromise } = useContext(TokenContext);
   const [reportData, setReportData] = useState([{ total: 0, "payment mode": "" }]);
   const [total, setTotal] = useState(-1);
-  const [dayReportData, setDayReportData] = useState([{ total: 0, "payment mode": "", count: 0, tip: "0.00" }]);
+  const [dayReportData, setDayReportData] = useState([{ total: "0.00", "payment mode": "", count: 0, tip: "0.00" }]);
   const [dayTotal, setDayTotal] = useState(-1);
   const buttonState = useState(0);
   const todayButtonState = useState(0);
@@ -237,161 +238,201 @@ export default function PaymentMethods() {
   };
 
   return (
-    <DiwaCard varient="purple" loadingTracker={loading}>
-      <DiwaButtonGroup buttons={buttons} state={buttonState} />
-      <div className="position-relative text-color">
-        <h2>Payments for {startDate.toLocaleDateString("en-GB", { month: "long" })}</h2>
-        <DiwaRefreshButton refresh={() => refresh()} />
-      </div>
-      <Offcanvas
-        show={show}
-        className="h-auto text-color"
-        placement="bottom"
-        backdrop={true}
-        scroll={false}
-        keyboard={false}
-        id="offcanvasBottom"
-        onHide={handleClose}
-      >
-        <Offcanvas.Header closeButton closeVariant="close">
-          <h5>{getPaymentMethodName(selectedPaymentMode)} transactions</h5>
-        </Offcanvas.Header>
-        <Offcanvas.Body className="pt-0">
-          <ul className="list-group list-group-flush">
-            {bills.map((val, index) => {
-              return (
-                <li className="list-group-item bg-transparent text-color border-color ps-0" key={val + "item" + index}>
-                  <div className="w-100 pe-2 pb-2">
-                    <div className="text-start d-inline">{val.name}</div>
-                    <div className="text-end d-inline float-end">{currencyFormatter.format(val.amount)}</div>
-                  </div>
-                </li>
-              );
-            })}
-            <li className="list-group-item bg-transparent text-color border-color ps-0" key="total">
-              <div className="w-100 pe-2 pb-2 fw-bold">
-                <div className="text-start d-inline">Total</div>
-                <div className="text-end d-inline float-end">
-                  {currencyFormatter.format(bills.reduce((a: number, b: { amount: number }) => a + b.amount, 0))}
-                </div>
-              </div>
-            </li>
-          </ul>
-        </Offcanvas.Body>
-      </Offcanvas>
-      <Offcanvas
-        show={showMonth}
-        className="h-auto text-color"
-        placement="bottom"
-        backdrop={true}
-        scroll={false}
-        keyboard={false}
-        id="offcanvasBottom2"
-        onHide={handleMonthClose}
-      >
-        <Offcanvas.Header closeButton closeVariant="close">
-          <h5>{getPaymentMethodName(selectedPaymentMode)} Totals</h5>
-        </Offcanvas.Header>
-        <Offcanvas.Body className="pt-0">
-          <ul className="list-group list-group-flush">
-            {monthDetails
-              .filter((v) => v.key.toLowerCase() === selectedPaymentMode.toLowerCase())
-              .map((val, index) => {
+    <div className="kpi-card-container">
+      <DiwaCard varient="primary" loadingTracker={loading} className="glass-panel customer-card">
+        <DiwaButtonGroup buttons={buttons} state={buttonState} />
+        <div className="d-flex align-items-top pb-2 mb-2 mt-3 text-color" style={{ gap: "12px" }}>
+          <h2 className="panel-title text-color mb-0" style={{ flex: 1 }}>
+            Payments for {startDate.toLocaleDateString("en-GB", { month: "long" })}
+            <p className="panel-sub small mb-0 text-color-50">Total: {currencyFormatter.format(total)}</p>
+          </h2>
+          <DiwaRefreshButton refresh={() => refresh()} containerStyle={{ marginTop: 24, marginRight: 12 }} />
+        </div>
+        <Offcanvas
+          show={show}
+          className="offcanvas-glass text-color"
+          placement="bottom"
+          backdrop={true}
+          scroll={false}
+          keyboard={false}
+          id="offcanvasBottom"
+          onHide={handleClose}
+        >
+          <Offcanvas.Header closeButton closeVariant="white" className="offcanvas-head">
+            <h5>{getPaymentMethodName(selectedPaymentMode)} transactions</h5>
+          </Offcanvas.Header>
+          <Offcanvas.Body className="offcanvas-body pt-0">
+            <ul className="list-group list-group-flush">
+              {bills.map((val, index) => {
                 return (
                   <li
-                    className="list-group-item bg-transparent text-color border-color ps-0"
-                    key={val + "item2" + index}
+                    className="list-group-item bg-transparent text-color border-color-25 ps-0"
+                    key={val + "item" + index}
                   >
                     <div className="w-100 pe-2 pb-2">
-                      <div className="text-start d-inline">
-                        {format(val.rangeStart || new Date(), "dd-MMM")} to{" "}
-                        {format(val.rangeEnd || new Date(), "dd-MMM")}
-                      </div>
-                      <div className="text-end d-inline float-end">{currencyFormatter.format(val.sum)}</div>
+                      <div className="text-start d-inline">{val.name}</div>
+                      <div className="text-end d-inline float-end">{currencyFormatter.format(val.amount)}</div>
                     </div>
                   </li>
                 );
               })}
-            <li className="list-group-item bg-transparent text-color border-color ps-0" key="total">
-              <div className="w-100 pe-2 pb-2">
-                <div className="text-start d-inline fw-bold">Total</div>
-                <div className="text-end d-inline float-end fw-bold">
-                  {currencyFormatter.format(
-                    monthDetails
-                      ?.filter((v) => v.key.toLowerCase() === selectedPaymentMode.toLowerCase())
-                      ?.reduce((a, b) => a + b.sum, 0) || 0
-                  )}
+              <li className="list-group-item bg-transparent text-color border-color ps-0" key="total">
+                <div className="w-100 pe-2 pb-2 fw-bold">
+                  <div className="text-start d-inline">Total</div>
+                  <div className="text-end d-inline float-end">
+                    {currencyFormatter.format(bills.reduce((a: number, b: { amount: number }) => a + b.amount, 0))}
+                  </div>
                 </div>
-              </div>
-            </li>
-          </ul>
-        </Offcanvas.Body>
-      </Offcanvas>
-      {reportData.length === 0 ? (
-        <div className="text-color rounded translucent-bg px-2 py-1">
-          <span>No payments this month</span>
+              </li>
+            </ul>
+          </Offcanvas.Body>
+        </Offcanvas>
+        <Offcanvas
+          show={showMonth}
+          className="offcanvas-glass text-color"
+          placement="bottom"
+          backdrop={true}
+          scroll={false}
+          keyboard={false}
+          id="offcanvasBottom2"
+          onHide={handleMonthClose}
+        >
+          <Offcanvas.Header closeButton closeVariant="white" className="offcanvas-head">
+            <h5>{getPaymentMethodName(selectedPaymentMode)} Totals</h5>
+          </Offcanvas.Header>
+          <Offcanvas.Body className="offcanvas-body pt-0">
+            <ul className="list-group list-group-flush">
+              {monthDetails
+                .filter((v) => v.key.toLowerCase() === selectedPaymentMode.toLowerCase())
+                .map((val, index) => {
+                  return (
+                    <li
+                      className="list-group-item bg-transparent text-color border-color-25 ps-0"
+                      key={val + "item2" + index}
+                    >
+                      <div className="w-100 pe-2 pb-2">
+                        <div className="text-start d-inline">
+                          {format(val.rangeStart || new Date(), "dd-MMM")} to{" "}
+                          {format(val.rangeEnd || new Date(), "dd-MMM")}
+                        </div>
+                        <div className="text-end d-inline float-end">{currencyFormatter.format(val.sum)}</div>
+                      </div>
+                    </li>
+                  );
+                })}
+              <li className="list-group-item bg-transparent text-color border-color ps-0" key="total">
+                <div className="w-100 pe-2 pb-2">
+                  <div className="text-start d-inline fw-bold">Total</div>
+                  <div className="text-end d-inline float-end fw-bold">
+                    {currencyFormatter.format(
+                      monthDetails
+                        ?.filter((v) => v.key.toLowerCase() === selectedPaymentMode.toLowerCase())
+                        ?.reduce((a, b) => a + b.sum, 0) || 0
+                    )}
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </Offcanvas.Body>
+        </Offcanvas>
+        {reportData.length === 0 ? (
+          <div className="empty-state d-flex flex-column align-items-center justify-content-center py-3">
+            <span className="text-color-50" style={{ fontSize: 32, marginBottom: 8 }}>
+              <Icon.CurrencyExchange />
+            </span>
+            <div className="fw-bold text-color mb-1">No payments</div>
+            <div className="small text-color-50">There are no payments for the selected month.</div>
+          </div>
+        ) : (
+          reportData.map((val, index) => {
+            const targetPercentage = Math.round((val.total * 100) / total);
+            return (
+              <Row
+                className="text-color mx-0"
+                key={"paymentmethod" + index}
+                onClick={() => openMonth(val["payment mode"])}
+              >
+                <Col lg={4} xs={5} className="panel-normal">
+                  {getPaymentMethodName(val["payment mode"])}
+                </Col>
+                <Col xs={7} className="panel-normal d-lg-none text-end align-bottom text-color">
+                  {currencyFormatter.format(val.total)} ({targetPercentage}%)
+                </Col>
+                <Col lg={4} className="mt-2">
+                  <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">{targetPercentage}% Achieved</Tooltip>}>
+                    <ProgressBar now={targetPercentage} style={{ height: 6, marginBottom: 12 }} variant="danger" />
+                  </OverlayTrigger>
+                </Col>
+                <Col lg={4} className="panel-normal d-none d-lg-block">
+                  {currencyFormatter.format(val.total)}
+                </Col>
+              </Row>
+            );
+          })
+        )}
+
+        <div className="mt-2">&nbsp;</div>
+        <DiwaButtonGroup buttons={todayButtons} state={todayButtonState} />
+        <div className="d-flex align-items-top pb-2 mb-2 mt-3 text-color" style={{ gap: "12px" }}>
+          <h2 className="panel-title text-color mb-0" style={{ flex: 1 }}>
+            Payments for {todayButtons[todayButtonState[0]].title}
+            <p className="panel-sub small mb-0 text-color-50">
+              Total:{" "}
+              {currencyFormatter.format(
+                dayReportData.reduce(
+                  (a: number, b: any) => a + (Number.parseFloat(b.total || 0) + Number.parseFloat(b.tip || "0")),
+                  0
+                )
+              )}
+            </p>
+          </h2>
         </div>
-      ) : (
-        reportData.map((val, index) => {
-          const targetPercentage = Math.round((val.total * 100) / total);
-          return (
-            <Row className="text-color" key={"paymentmethod" + index} onClick={() => openMonth(val["payment mode"])}>
-              <Col lg={4} xs={5}>
-                {getPaymentMethodName(val["payment mode"])}
-              </Col>
-              <Col xs={7} className="d-lg-none text-end align-bottom text-color">
-                {currencyFormatter.format(val.total)} ({targetPercentage}%)
-              </Col>
-              <Col lg={4} className="mt-2">
-                <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">{targetPercentage}% Achieved</Tooltip>}>
-                  <ProgressBar now={targetPercentage} style={{ height: 6, marginBottom: 12 }} variant="danger" />
-                </OverlayTrigger>
-              </Col>
-              <Col lg={4} className="d-none d-lg-block">
-                {currencyFormatter.format(val.total)}
-              </Col>
-            </Row>
-          );
-        })
-      )}
-      <div className="mt-2">&nbsp;</div>
-      <DiwaButtonGroup buttons={todayButtons} state={todayButtonState} />
-      <div className="position-relative mt-4 text-color">
-        <h2>Payments for Today</h2>
-      </div>
-      {dayReportData.length === 0 ? (
-        <div className="text-color rounded translucent-bg px-2 py-1">
-          <span>No payments today</span>
-        </div>
-      ) : (
-        dayReportData.map((val, index) => {
-          const targetPercentage = Math.round((val.total * 100) / dayTotal);
-          console.log("tip", val.tip);
-          return (
-            <Row
-              className="text-color"
-              key={"paymentmethodtoday" + index}
-              onClick={() => openDetails(val["payment mode"])}
-            >
-              <Col lg={4} xs={5}>
-                {getPaymentMethodName(val["payment mode"])}
-              </Col>
-              <Col xs={7} className="d-lg-none text-end align-bottom">
-                {currencyFormatter.format(val.total)}{" "}
-                <span className="small text-color-50">({val.count} payments)</span>
-              </Col>
-              <Col lg={4} className="mt-2">
-                <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">{targetPercentage}% Achieved</Tooltip>}>
-                  <ProgressBar now={targetPercentage} style={{ height: 6, marginBottom: 12 }} variant="danger" />
-                </OverlayTrigger>
-              </Col>
-              <Col lg={4} className="d-none d-lg-block">
-                {currencyFormatter.format(val.total + Number.parseFloat(val.tip || "0"))}
-              </Col>
-            </Row>
-          );
-        })
-      )}
-    </DiwaCard>
+
+        {dayReportData.length === 0 ? (
+          <div className="empty-state d-flex flex-column align-items-center justify-content-center py-3">
+            <span className="text-color-50" style={{ fontSize: 32, marginBottom: 8 }}>
+              <Icon.CurrencyExchange />
+            </span>
+            <div className="fw-bold text-color mb-1">No payments</div>
+            <div className="small text-color-50">There are no payments for the selected date.</div>
+          </div>
+        ) : (
+          dayReportData.map((val, index) => {
+            const targetPercentage = Math.round((Number.parseFloat(val.total) * 100) / dayTotal);
+            console.log(
+              "tip",
+              val.tip,
+              "total",
+              val.total,
+              "final",
+              currencyFormatter.format(Number.parseFloat(val.total) + Number.parseFloat(val.tip || "0"))
+            );
+            return (
+              <Row
+                className="text-color mx-0"
+                key={"paymentmethodtoday" + index}
+                onClick={() => openDetails(val["payment mode"])}
+              >
+                <Col lg={4} xs={5} className="panel-normal">
+                  {getPaymentMethodName(val["payment mode"])}
+                </Col>
+                <Col xs={7} className="d-lg-none text-end align-bottom">
+                  {currencyFormatter.format(Number.parseFloat(val.total) + Number.parseFloat(val.tip || "0"))}{" "}
+                  <span className="small text-color-50">({val.count} payments)</span>
+                </Col>
+                <Col lg={4} className="mt-2">
+                  <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">{targetPercentage}% Achieved</Tooltip>}>
+                    <ProgressBar now={targetPercentage} style={{ height: 6, marginBottom: 12 }} />
+                  </OverlayTrigger>
+                </Col>
+                <Col lg={4} className="d-none d-lg-block">
+                  {currencyFormatter.format(Number.parseFloat(val.total) + Number.parseFloat(val.tip || "0"))}
+                </Col>
+              </Row>
+            );
+          })
+        )}
+      </DiwaCard>
+    </div>
   );
 }

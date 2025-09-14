@@ -8,8 +8,10 @@ import "../../utils";
 import DiwaButtonGroup from "../../components/button/DiwaButtonGroup";
 import DiwaCard from "../../components/card/DiwaCard";
 import DiwaPaginationButton from "../../components/button/DiwaPaginationButton";
+// import { set } from "lodash";
+// import DiwaRefreshButton from "../../components/button/DiwaRefreshButton";
 
-interface Expense {
+interface ModernExpense {
   date: string;
   "expense type": string;
   Net: number;
@@ -23,9 +25,9 @@ interface Expense {
   id?: number;
 }
 
-export default function Expenses() {
+export default function ModernExpenses() {
   const { callAPI, callPOSTAPI, employeeName, callAPIPromise, callDELETEAPI } = useContext(TokenContext);
-  const [expenseData, setExpenseData] = useState<Partial<Record<string, Expense[]>>>({});
+  const [expenseData, setExpenseData] = useState<Partial<Record<string, ModernExpense[]>>>({});
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(-1);
   const [show, setShow] = useState(false);
@@ -139,7 +141,7 @@ export default function Expenses() {
         mappedExpenseData = expenseData.data;
       }
 
-      setExpenseData(Object.groupBy(mappedExpenseData, (v: Expense) => v["expense type"]));
+      setExpenseData(Object.groupBy(mappedExpenseData, (v: ModernExpense) => v["expense type"]));
       let total = 0;
       for (let i in mappedExpenseData) {
         if (expensesToIgnore.indexOf(mappedExpenseData[i]["expense type"]) === -1) {
@@ -291,7 +293,7 @@ export default function Expenses() {
     return account ? account.name : "";
   };
 
-  const handleDeleteExpense = (expense: Expense) => {
+  const handleDeleteExpense = (expense: ModernExpense) => {
     if (!window.confirm(`Are you sure you want to delete this expense?`)) return;
 
     const apiURL = `${API_BASE_URL}/vendor/expense?id=${expense.id}&date=${expense.date}`;
@@ -305,198 +307,201 @@ export default function Expenses() {
   };
 
   return (
-    <DiwaCard varient="danger" loadingTracker={loading}>
-      <DiwaButtonGroup buttons={buttons} state={buttonState} />
-      <div className="position-relative">
-        <h2 className="text-color">
-          {buttons[buttonIndex].title} Expenses{" "}
-          <p className="small text-color-danger-50 mb-1">
-            {formatDisplayDate(startDate)} to {formatDisplayDate(endDate)}
-          </p>
-          <p className="small mb-0 text-color-50">Total: {currencyFormatter.format(total)}</p>
-        </h2>
-        <div className="position-absolute top-0 end-0" style={{ marginTop: -6 }}>
-          <Button variant="indigo" className="text-color" size="lg" onClick={() => handleShow()}>
+    <div className="kpi-card-container">
+      <DiwaCard varient="primary" loadingTracker={loading} className="glass-panel customer-card">
+        <DiwaButtonGroup buttons={buttons} state={buttonState} />
+        <div className="d-flex align-items-top pb-2 mb-2 mt-3 text-color border-bottom" style={{ gap: "12px" }}>
+          <h2 className="panel-title text-color mb-0" style={{ flex: 1 }}>
+            {buttons[buttonIndex].title} Expenses
+            <p className="panel-sub small text-color-danger-50 mb-1">
+              {formatDisplayDate(startDate)} to {formatDisplayDate(endDate)}
+            </p>
+            <p className="panel-sub small mb-0 text-color-50">Total: {currencyFormatter.format(total)}</p>
+          </h2>
+          <button type="button" className="icon-btn refresh me-2" aria-label="Add Expense" onClick={() => handleShow()}>
             <Icon.PlusLg />
-          </Button>
-          <Button variant="indigo" className="text-color" size="lg" onClick={() => refresh()}>
+          </button>
+          <button type="button" className="icon-btn refresh" aria-label="Refresh" onClick={() => refresh()}>
             <Icon.ArrowClockwise />
-          </Button>
+          </button>
         </div>
-        <Offcanvas
-          show={show}
-          className="h-auto bg-dark text-color"
-          placement="bottom"
-          backdrop={true}
-          scroll={false}
-          keyboard={false}
-          id="offcanvasBottom"
-          onHide={handleClose}
-        >
-          <Offcanvas.Header closeButton closeVariant="white">
-            <h5>Add New Expense</h5>
-          </Offcanvas.Header>
-          <Offcanvas.Body className="pt-0">
-            <Form className="mt-0 text-color" onSubmit={createExpense}>
-              <Row className="align-items-center mb-2">
-                <Col xs={6}>
-                  <Form.Group>
-                    <Form.Label className="mb-1">Expense Type</Form.Label>
-                    <Form.Select ref={expenseType}>
-                      {expenseTypes.map((v: { id: string; name: string }) => (
-                        <option value={v.id} key={v.id}>
-                          {v.name}
-                        </option>
-                      ))}
-                    </Form.Select>
-                  </Form.Group>
-                </Col>
-                <Col xs={6}>
-                  <Form.Group>
-                    <Form.Label className="mb-1">From Account</Form.Label>
-                    <Form.Select ref={expenseAccount}>
-                      {accounts.map((v: { id: string; name: string }) => (
-                        <option value={v.id} key={v.id}>
-                          {v.name}
-                        </option>
-                      ))}
-                    </Form.Select>
-                  </Form.Group>
-                </Col>
-              </Row>
-              <Row className="align-items-center mb-1">
-                <Col xs={6}>
-                  <Form.Group>
-                    <Form.Label className="mb-1">Expense Date</Form.Label>
-                    <Form.Control size="sm" type="date" placeholder="Date" ref={expenseDate} />
-                  </Form.Group>
-                </Col>
-                <Col xs={6}>
-                  <Form.Group>
-                    <Form.Label className="mb-1">Given To</Form.Label>
-                    <Form.Control size="sm" type="text" placeholder="Name" ref={givenTo} />
-                  </Form.Group>
-                </Col>
-              </Row>
-              <Row className="align-items-end mb-1">
-                <Col xs={6}>
-                  <Form.Group>
-                    <Form.Label className="mb-1">Amount</Form.Label>
-                    <Form.Control size="sm" type="number" step={0.01} placeholder="Amount" ref={amount} />
-                  </Form.Group>
-                </Col>
-                <Col xs={6}>
-                  <Form.Group>
-                    <ButtonGroup size="sm">
-                      {paymentModes.map((v, i) => {
-                        return (
-                          <Button
-                            variant={activeButtonIndex === i ? "primary" : "light"}
-                            onClick={() => setActiveButtonIndex(i)}
-                          >
-                            {v.name}
-                          </Button>
-                        );
-                      })}
-                    </ButtonGroup>
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              <Row className="align-items-center mb-2">
-                <Col xs={12}>
-                  <Form.Group>
-                    <Form.Label className="mb-1">Given For</Form.Label>
-                    <Form.Control as="textarea" rows={2} size="sm" ref={description} />
-                  </Form.Group>
-                </Col>
-              </Row>
-              <Row className="align-items-center">
-                <Col xs={12}>
-                  <Button variant="success" className="text-light" type="submit" disabled={clicked}>
-                    {clicked ? "Wait..." : "Save"}
-                  </Button>
-                </Col>
-              </Row>
-              {errorMessage !== "" && (
+        <div className="position-relative">
+          <Offcanvas
+            show={show}
+            className="offcanvas-glass text-color"
+            placement="bottom"
+            backdrop={true}
+            scroll={false}
+            keyboard={false}
+            id="offcanvasBottom"
+            onHide={handleClose}
+          >
+            <Offcanvas.Header closeButton closeVariant="white" className="offcanvas-head">
+              <h5>Add New Expense</h5>
+            </Offcanvas.Header>
+            <Offcanvas.Body className="offcanvas-body pt-0">
+              <Form className="mt-0 text-color" onSubmit={createExpense}>
                 <Row className="align-items-center mb-2">
-                  <Col xs={12}>
+                  <Col xs={6}>
                     <Form.Group>
-                      <Form.Label className="mb-1 text-danger">{errorMessage}</Form.Label>
+                      <Form.Label className="mb-1">Expense Type</Form.Label>
+                      <Form.Select ref={expenseType}>
+                        {expenseTypes.map((v: { id: string; name: string }) => (
+                          <option value={v.id} key={v.id}>
+                            {v.name}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+                  <Col xs={6}>
+                    <Form.Group>
+                      <Form.Label className="mb-1">From Account</Form.Label>
+                      <Form.Select ref={expenseAccount}>
+                        {accounts.map((v: { id: string; name: string }) => (
+                          <option value={v.id} key={v.id}>
+                            {v.name}
+                          </option>
+                        ))}
+                      </Form.Select>
                     </Form.Group>
                   </Col>
                 </Row>
-              )}
-            </Form>
-          </Offcanvas.Body>
-        </Offcanvas>
-      </div>
+                <Row className="align-items-center mb-1">
+                  <Col xs={6}>
+                    <Form.Group>
+                      <Form.Label className="mb-1">Expense Date</Form.Label>
+                      <Form.Control size="sm" type="date" placeholder="Date" ref={expenseDate} />
+                    </Form.Group>
+                  </Col>
+                  <Col xs={6}>
+                    <Form.Group>
+                      <Form.Label className="mb-1">Given To</Form.Label>
+                      <Form.Control size="sm" type="text" placeholder="Name" ref={givenTo} />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row className="align-items-end mb-1">
+                  <Col xs={6}>
+                    <Form.Group>
+                      <Form.Label className="mb-1">Amount</Form.Label>
+                      <Form.Control size="sm" type="number" step={0.01} placeholder="Amount" ref={amount} />
+                    </Form.Group>
+                  </Col>
+                  <Col xs={6}>
+                    <Form.Group>
+                      <ButtonGroup size="sm">
+                        {paymentModes.map((v, i) => {
+                          return (
+                            <Button
+                              variant={activeButtonIndex === i ? "primary" : "light"}
+                              onClick={() => setActiveButtonIndex(i)}
+                            >
+                              {v.name}
+                            </Button>
+                          );
+                        })}
+                      </ButtonGroup>
+                    </Form.Group>
+                  </Col>
+                </Row>
 
-      {Object.keys(expenseData).length === 0 ? (
-        <div className="text-color rounded translucent-bg px-2 py-1">
-          <span>No {buttons[buttonIndex].title.toLowerCase()} expenses</span>
+                <Row className="align-items-center mb-2">
+                  <Col xs={12}>
+                    <Form.Group>
+                      <Form.Label className="mb-1">Given For</Form.Label>
+                      <Form.Control as="textarea" rows={2} size="sm" ref={description} />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row className="align-items-center">
+                  <Col xs={12}>
+                    <Button variant="success" className="text-light" type="submit" disabled={clicked}>
+                      {clicked ? "Wait..." : "Save"}
+                    </Button>
+                  </Col>
+                </Row>
+                {errorMessage !== "" && (
+                  <Row className="align-items-center mb-2">
+                    <Col xs={12}>
+                      <Form.Group>
+                        <Form.Label className="mb-1 text-danger">{errorMessage}</Form.Label>
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                )}
+              </Form>
+            </Offcanvas.Body>
+          </Offcanvas>
         </div>
-      ) : (
-        Object.keys(expenseData).map((keyName, index) => {
-          const val = expenseData[keyName as keyof typeof expenseData];
-          return expensesToIgnore.indexOf(keyName) !== -1 ? null : (
-            <Accordion flush key={"expense" + index}>
-              <Accordion.Header className="w-100">
-                <div className="w-100 pe-2 pb-1">
-                  <div className="text-start d-inline h5 text-color">{keyName}</div>
-                  <div className="text-end d-inline float-end text-color">
-                    <p className="d-inline mb-0">{currencyFormatter.format(getTotal(val))}</p>
+
+        {Object.keys(expenseData).length === 0 ? (
+          <div className="empty-state glass-panel text-center py-3 px-3 my-4 rounded-3 border-color">
+            <div className="d-flex align-items-center justify-content-center gap-2">
+              <span className="panel-sub small text-color-50">No expenses yet</span>
+            </div>
+          </div>
+        ) : (
+          Object.keys(expenseData).map((keyName, index) => {
+            const val = expenseData[keyName as keyof typeof expenseData];
+            return expensesToIgnore.indexOf(keyName) !== -1 ? null : (
+              <Accordion flush key={"expense" + index}>
+                <Accordion.Header className="w-100">
+                  <div className="w-100 pe-2 pb-1 panel-normal">
+                    <div className="panel-normal text-start d-inline h5 text-color">{keyName}</div>
+                    <div className="panel-normal text-end d-inline float-end text-color">
+                      <p className="d-inline mb-0">{currencyFormatter.format(getTotal(val))}</p>
+                    </div>
                   </div>
-                </div>
-              </Accordion.Header>
-              <Accordion.Body>
-                <ul className="list-group list-group-flush">
-                  {val?.map((item, index2) => {
-                    return (
-                      <li
-                        className="list-group-item bg-transparent text-color border-color ps-0 pe-0"
-                        key={keyName + "item" + index2}
-                      >
-                        <div className="w-100 pe-0 pb-2">
-                          <div className="text-start d-inline h5">
-                            {currencyFormatter.format(Number(item["amount"]))}
+                </Accordion.Header>
+                <Accordion.Body>
+                  <ul className="list-group list-group-flush">
+                    {val?.map((item, index2) => {
+                      return (
+                        <li
+                          className="panel-normal list-group-item bg-transparent text-color border-color-25 ps-0 pe-0"
+                          key={keyName + "item" + index2}
+                        >
+                          <div className="w-100 pe-0 pb-2">
+                            <div className="panel-normal text-start d-inline h5 fw-bold">
+                              {currencyFormatter.format(Number(item["amount"]))}
+                            </div>
+                            <div className="panel-sub text-end d-inline float-end">
+                              <span>{item["date"]}</span>
+                              {isDayExpense && (
+                                <Button
+                                  variant="outline-danger"
+                                  size="sm"
+                                  className="ms-2 delete-button"
+                                  onClick={() => handleDeleteExpense(item)}
+                                >
+                                  <Icon.Trash />
+                                </Button>
+                              )}
+                            </div>
                           </div>
-                          <div className="text-end d-inline float-end">
-                            <span>{item["date"]}</span>
-                            {isDayExpense && (
-                              <Button
-                                variant="outline-danger"
-                                size="sm"
-                                className="ms-2 delete-button"
-                                onClick={() => handleDeleteExpense(item)}
-                              >
-                                <Icon.Trash />
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                        <p className="small text-color-50 mb-0" style={{ marginTop: -4 }}>
-                          {item["description"]}
-                        </p>
-                        <p className="small text-color-50 mb-0" style={{ marginTop: -4 }}>
-                          Given to {item["given to"]} by {item["Payment mode"]}
-                          {/* {findAccountName(item["vendor_account_id"])} */}
-                        </p>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </Accordion.Body>
-            </Accordion>
-          );
-        })
-      )}
-      <p></p>
-      <DiwaPaginationButton previous={previous} current={current} next={next} />
-    </DiwaCard>
+                          <p className="panel-sub small text-color-50 mb-0" style={{ marginTop: -4 }}>
+                            {item["description"]}
+                          </p>
+                          <p className="panel-sub small text-color-50 mb-0" style={{ marginTop: -4 }}>
+                            Given to {item["given to"]} by {item["Payment mode"]}
+                            {/* {findAccountName(item["vendor_account_id"])} */}
+                          </p>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </Accordion.Body>
+              </Accordion>
+            );
+          })
+        )}
+        <DiwaPaginationButton previous={previous} current={current} next={next} />
+      </DiwaCard>
+    </div>
   );
 
-  function getTotal(arr: Expense[] | undefined) {
+  function getTotal(arr: ModernExpense[] | undefined) {
     if (!arr) return 0;
     return arr.reduce((v, current) => v + Number.parseFloat(current.amount || "0"), 0);
   }
