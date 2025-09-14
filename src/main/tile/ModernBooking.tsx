@@ -87,6 +87,7 @@ export default function ModernBooking() {
               billmitem,
               billpkitem,
               billvitems,
+              billppitems,
               bill_tips,
               price,
               discount,
@@ -100,6 +101,7 @@ export default function ModernBooking() {
             bill.vouchers = billvitems;
             bill.tips = bill_tips || [];
             bill.payments = { price, discount, tax, total };
+            bill.prepaid = billppitems || [];
             //Check if user is a member
             bill.user.is_member = members.data.some((m: { user_id: any }) => m.user_id === bill.user.id);
             return bill;
@@ -328,10 +330,21 @@ export default function ModernBooking() {
 
                       {/* META */}
                       <div className="cust-meta">
-                        <span>
-                          Spent {currencyFormatter.format(cust?.amount_spend)} in {cust?.total_visit} visits • average
-                          of {currencyFormatter.format((cust?.amount_spend || 0) / (cust?.total_visit || 1))} per visit
-                        </span>
+                        <div className={`${!cust?.total_visit ? "w-100" : ""}`}>
+                          {cust?.total_visit ? (
+                            `Spent ${currencyFormatter.format(cust?.amount_spend)} in ${
+                              cust?.total_visit
+                            } visits • average
+                          of ${currencyFormatter.format(
+                            (cust?.amount_spend || 0) / (cust?.total_visit || 1)
+                          )} per visit`
+                          ) : (
+                            <>
+                              No visits so far
+                              <br />
+                            </>
+                          )}
+                        </div>
                         <a href={`tel:${formatMobileNumber(booking.user.mobile)}`} className="chip phone">
                           <span aria-hidden>📞</span>
                           <span>{formatMobileNumber(booking.user.mobile)}</span>
@@ -414,6 +427,18 @@ export default function ModernBooking() {
                             discount={0}
                             Icon={FontAwesomeIcon}
                             iconProps={{ icon: faMoneyBill1, className: "bill-item-icon" }}
+                          />
+                        ))}
+                        {booking.prepaid.map((prepaid, index) => (
+                          <BillItem
+                            key={booking.id + "pk" + index}
+                            uniqueKey={booking.id + "pk" + index}
+                            name={prepaid.voucher.voucher_type.name}
+                            employee={prepaid.employee.name}
+                            amount={prepaid.price}
+                            discount={prepaid.discount}
+                            Icon={Icon.CreditCard2FrontFill}
+                            iconProps={{ className: "bill-item-icon", style: { marginTop: -4 } }}
                           />
                         ))}
                       </ul>

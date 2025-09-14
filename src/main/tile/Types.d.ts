@@ -216,6 +216,34 @@ interface Tip {
   employee: Employee;
 }
 
+interface Prepaid {
+  id: number;
+  employee_id: number;
+  price: number;
+  qty: number;
+  discount: number;
+  tax: number;
+  total: number;
+  net: number;
+  paid: number;
+  redeem: number;
+  discount_id: string | null;
+  discount_type: string | null;
+  emp_share_on_redeem: number;
+  p_modes: PaymentMode[];
+  tax_percent: number;
+  tax_1_percent: number;
+  tax_2_percent: number;
+  voucher: {
+    id: number;
+    voucher_type: {
+      id: number;
+      name: string;
+    };
+  };
+  employee: Employee;
+}
+
 interface BillPayment {
   id: number;
   bill_id: number;
@@ -262,6 +290,7 @@ interface BillingData {
     total: number;
   };
   bill_payments: BillPayment[];
+  prepaid: Prepaid[];
 }
 
 interface Appointment {
