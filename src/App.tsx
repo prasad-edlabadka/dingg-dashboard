@@ -5,7 +5,6 @@ import Main from "./main/Main";
 import React, { useEffect, useState } from "react";
 import { useSwipeable } from "react-swipeable";
 import callAPI, { callAPIWithPromise, callDELETEAPI, callPOSTAPI, callPUTAPI } from "./main/tile/Utility";
-// import PatternLock from "react-pattern-lock/lib/components/PatternLock";
 
 interface ITokenContext {
   token: string | null;
@@ -43,6 +42,7 @@ const TokenContext = React.createContext<ITokenContext>({
   callDELETEAPI: () => {},
 });
 const API_BASE_URL = "https://api.dingg.app/api/v1";
+
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [navOption, setNavOption] = useState("home");
@@ -56,13 +56,15 @@ function App() {
   const handlers = useSwipeable({
     onSwipedLeft: () => {
       const i = index === navs.length - 1 ? 0 : index + 1;
-      //console.log('Swipe left', i)
+
+      // console.log('Swipe left', i)
       setIndex(i);
       setNavOption(navs[i]);
     },
     onSwipedRight: () => {
       const i = index === 0 ? navs.length - 1 : index - 1;
-      //console.log('Swipe right', i)
+
+      // console.log('Swipe right', i)
       setIndex(i);
       setNavOption(navs[i]);
     },
@@ -119,6 +121,7 @@ function App() {
   useEffect(() => {
     console.log("Setting color mode in App.tsx...");
     const dm = localStorage.getItem("darkMode") === "true";
+
     dm ? document.body.classList.add("dark") : document.body.classList.remove("dark");
   }, []);
 

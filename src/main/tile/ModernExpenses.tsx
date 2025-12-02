@@ -25,6 +25,12 @@ interface ModernExpense {
   id?: number;
 }
 
+interface PaymentMode {
+  id: number;
+  payment_mode: number;
+  pay_modes: { name: string };
+}
+
 export default function ModernExpenses() {
   const { callAPI, callPOSTAPI, employeeName, callAPIPromise, callDELETEAPI } = useContext(TokenContext);
   const [expenseData, setExpenseData] = useState<Partial<Record<string, ModernExpense[]>>>({});
@@ -70,6 +76,7 @@ export default function ModernExpenses() {
     ) {
       setErrorMessage("Please fill all the fields");
       setClicked(false);
+
       return;
     }
     const data = {
@@ -106,6 +113,7 @@ export default function ModernExpenses() {
       const mappedExpenseTypes = expenseTypesData.data.map((v: { id: string; name: string }) => {
         return { id: v.id, name: v.name };
       });
+
       setExpenseTypes(mappedExpenseTypes);
       // callAPI(expenseTypesURL, (data: any) => {
       //   setExpenseTypes(
@@ -115,9 +123,11 @@ export default function ModernExpenses() {
       //   );
       // });
       let mappedExpenseData: any[] = [];
+
       if (isDayExpense) {
         const apiURL = `${API_BASE_URL}/vendor/expenses?date==${formatDate(startDate)}`;
         const expenseData = await callAPIPromise(apiURL);
+
         mappedExpenseData = expenseData.data.map((v: any) => {
           return {
             date: v.date,
@@ -138,12 +148,14 @@ export default function ModernExpenses() {
           startDate
         )}&report_type=by_expense&end_date=${formatDate(endDate)}&locations=null&app_type=web`;
         const expenseData = await callAPIPromise(apiURL);
+
         mappedExpenseData = expenseData.data;
       }
 
       setExpenseData(Object.groupBy(mappedExpenseData, (v: ModernExpense) => v["expense type"]));
       let total = 0;
-      for (let i in mappedExpenseData) {
+
+      for (const i in mappedExpenseData) {
         if (expensesToIgnore.indexOf(mappedExpenseData[i]["expense type"]) === -1) {
           total += Number.parseFloat(mappedExpenseData[i].amount || "0");
         }
@@ -151,54 +163,34 @@ export default function ModernExpenses() {
       setTotal(total);
       setLoading(false);
 
-      // setExpenseData(Object.groupBy(mappedExpenseData, (v: Expense) => v["expense type"]));
-      // callAPI(apiURL, (data: any) => {
-      //   setExpenseData(Object.groupBy(data.data, (v: Expense) => v["expense type"]));
-      //   let total = 0;
-      //   for (let i in data.data) {
-      //     if (expensesToIgnore.indexOf(data.data[i]["expense type"]) === -1) {
-      //       total += Number.parseFloat(data.data[i].amount || "0");
-      //     }
-      //   }
-      //   setTotal(total);
-
-      //   setLoading(false);
-      // });
-      // } else {
-      //   const apiURL = `${API_BASE_URL}/vendor/report/sales?start_date=${formatDate(
-      //     startDate
-      //   )}&report_type=by_expense&end_date=${formatDate(endDate)}&locations=null&app_type=web`;
-      //   callAPI(apiURL, (data: any) => {
-      //     setExpenseData(Object.groupBy(data.data, (v: Expense) => v["expense type"]));
-      //     let total = 0;
-      //     for (let i in data.data) {
-      //       if (expensesToIgnore.indexOf(data.data[i]["expense type"]) === -1) {
-      //         total += Number.parseFloat(data.data[i].amount || "0");
-      //       }
-      //     }
-      //     setTotal(total);
-
-      //     setLoading(false);
-      //   });
-      // }
-
       callAPI(`${API_BASE_URL}/payment_mode`, (data: any) => {
         const pm = [];
+
         pm.push({ name: "Bank Transfer", value: data.data.find((v: any) => v.name === "ONLINE").value });
         pm.push({ name: "Cash", value: data.data.find((v: any) => v.name === "CASH").value });
         pm.push({ name: "UPI", value: data.data.find((v: any) => v.name === "UPI").value });
         setPaymentModes(pm);
+        setActiveButtonIndex(0);
       });
 
       callAPI(`${API_BASE_URL}/vendor/account/list`, (data: any) => {
-        const acc = data.data.map((v: { id: string; name: string }) => {
-          return { id: v.id, name: v.name };
+        const acc = data.data.map((v: { id: string; name: string; vendor_account_payment_modes: PaymentMode[] }) => {
+          return {
+            id: v.id,
+            name: v.name,
+            paymentMode: v.vendor_account_payment_modes.map((pm: PaymentMode) => {
+              return {
+                name: pm.pay_modes.name,
+                value: pm.payment_mode,
+              };
+            }),
+          };
         });
-        // acc.push(data.data.find((v: any) => v.name === "ICICI").id);
-        // acc.push(data.data.find((v: any) => v.name === "Petty cash").id);
+
         setAccounts(acc);
       });
     };
+
     doIt();
   }, [startDate, endDate, expensesToIgnore, callAPI, refreshMe, callAPIPromise, isDayExpense]);
 
@@ -290,6 +282,7 @@ export default function ModernExpenses() {
   const findAccountName = (id: number) => {
     console.log(id, accounts);
     const account = accounts.find((v) => v.id === id);
+
     return account ? account.name : "";
   };
 
@@ -297,6 +290,7 @@ export default function ModernExpenses() {
     if (!window.confirm(`Are you sure you want to delete this expense?`)) return;
 
     const apiURL = `${API_BASE_URL}/vendor/expense?id=${expense.id}&date=${expense.date}`;
+
     callDELETEAPI(apiURL, {}, (response: any) => {
       if (response.success) {
         setRefreshMe(!refreshMe);
@@ -357,7 +351,21 @@ export default function ModernExpenses() {
                   <Col xs={6}>
                     <Form.Group>
                       <Form.Label className="mb-1">From Account</Form.Label>
-                      <Form.Select ref={expenseAccount}>
+                      <Form.Select
+                        ref={expenseAccount}
+                        onChange={(event) => {
+                          const selectedAccount = accounts.find(
+                            (acc) => acc.id === Number.parseInt(event.target.value)
+                          );
+
+                          console.log(selectedAccount, event.target.value);
+
+                          if (selectedAccount) {
+                            setPaymentModes(selectedAccount.paymentMode);
+                            setActiveButtonIndex(0);
+                          }
+                        }}
+                      >
                         {accounts.map((v: { id: string; name: string }) => (
                           <option value={v.id} key={v.id}>
                             {v.name}
@@ -396,6 +404,7 @@ export default function ModernExpenses() {
                             <Button
                               variant={activeButtonIndex === i ? "primary" : "light"}
                               onClick={() => setActiveButtonIndex(i)}
+                              key={i}
                             >
                               {v.name}
                             </Button>
@@ -444,6 +453,7 @@ export default function ModernExpenses() {
         ) : (
           Object.keys(expenseData).map((keyName, index) => {
             const val = expenseData[keyName as keyof typeof expenseData];
+
             return expensesToIgnore.indexOf(keyName) !== -1 ? null : (
               <Accordion flush key={"expense" + index}>
                 <Accordion.Header className="w-100">
@@ -503,6 +513,7 @@ export default function ModernExpenses() {
 
   function getTotal(arr: ModernExpense[] | undefined) {
     if (!arr) return 0;
+
     return arr.reduce((v, current) => v + Number.parseFloat(current.amount || "0"), 0);
   }
 }
