@@ -12,6 +12,7 @@ import posthog from 'posthog-js';
 posthog.init(process.env.REACT_APP_POSTHOG_KEY || '', {
     api_host: process.env.REACT_APP_POSTHOG_HOST || 'https://app.posthog.com',
     autocapture: true,
+    disable_session_recording: true, // Disables session replay which causes the cross-origin iframe errors
 });
 
 // import reportWebVitals from './reportWebVitals';
