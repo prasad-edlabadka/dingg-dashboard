@@ -5,6 +5,7 @@ import './index.scss';
 import App from './App';
 import { Provider } from 'react-redux';
 import store from './reducers/store';
+import { Analytics } from '@vercel/analytics/react';
 // import reportWebVitals from './reportWebVitals';
 
 
@@ -15,6 +16,7 @@ root.render(
   // <React.StrictMode>
   <Provider store={store}>
     <App />
+    <Analytics />
   </Provider>
   //  
 );
