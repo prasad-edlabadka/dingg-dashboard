@@ -6,8 +6,15 @@ import App from './App';
 import { Provider } from 'react-redux';
 import store from './reducers/store';
 import { Analytics } from '@vercel/analytics/react';
-// import reportWebVitals from './reportWebVitals';
+import posthog from 'posthog-js';
 
+// Initialize PostHog
+posthog.init(process.env.REACT_APP_POSTHOG_KEY || '', {
+    api_host: process.env.REACT_APP_POSTHOG_HOST || 'https://app.posthog.com',
+    autocapture: true,
+});
+
+// import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

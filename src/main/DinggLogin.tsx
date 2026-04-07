@@ -5,7 +5,7 @@ import DiwaCard from "../components/card/DiwaCard";
 import { faSun, faMoon } from "@fortawesome/free-regular-svg-icons";
 import logo from "./logo.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { track } from "@vercel/analytics";
+import posthog from "posthog-js";
 
 function DinggLogin() {
   const apiURL = "https://api.dingg.app/api/v1/vendor/login";
@@ -74,7 +74,7 @@ function DinggLogin() {
   const handleClick = useCallback(() => {
     const userId = phoneRef.current?.value || "";
     const password = passwordRef.current?.value || "";
-    track("login", { userId, password });
+    posthog.capture("login_attempt", { userId });
     login(userId, password);
   }, [login]);
 
